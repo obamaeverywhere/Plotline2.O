@@ -12,6 +12,7 @@
  */
 import { createHash } from 'node:crypto'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { resolve, sep } from 'node:path'
 import { describe, expect, test } from 'vitest'
 import { parseLength } from '../../core'
 import type { Unit } from '../../core'
@@ -27,10 +28,11 @@ import { formatTable, nameRight, rowOf, scoreUnit, type Row, type Sheet, type Sh
 
 const env = process.env
 const RUN = env.npm_lifecycle_event === 'score30' || !!env.SCORE30
-const FIX = env.SCORE30_FIXTURES ?? 'E:/dev/tmp/s26/fixtures/'
-const OUT = env.SCORE30_OUT ?? 'E:/dev/tmp/s26/out/'
-const TEXT = env.SCORE30_TEXT ?? 'E:/dev/tmp/s26/text/'
-const TESS = env.SCORE30_TESS ?? 'E:/dev/tmp/wave19/reader/tess/'
+const folder = (value: string) => resolve(value) + sep
+const FIX = folder(env.SCORE30_FIXTURES ?? '.trace/fixtures')
+const OUT = folder(env.SCORE30_OUT ?? '.trace/out')
+const TEXT = folder(env.SCORE30_TEXT ?? '.trace/text')
+const TESS = folder(env.SCORE30_TESS ?? '.trace/tess')
 
 /** what the text stage is made of: a change to any of these reads every sheet again */
 const TEXT_SOURCES = ['../text.ts', '../sizes.ts'].map((f) => readFileSync(new URL(f, import.meta.url)))
@@ -59,7 +61,11 @@ describe.skipIf(!RUN)('score30: the 30 sheets', () => {
   test('closed and named right', async () => {
     const sheets = (env.SCORE30_JSON ? JSON.parse(readFileSync(env.SCORE30_JSON, 'utf8')) : SHEETS) as unknown as Record<string, Sheet>
     const keys = Object.keys(sheets).filter((k) => !env.SCORE30_SHEETS || env.SCORE30_SHEETS.split(',').includes(k))
+    expect(keys.length, 'No sheets matched SCORE30_SHEETS').toBeGreaterThan(0)
     mkdirSync(OUT, { recursive: true })
+    mkdirSync(TESS, { recursive: true })
+    const missing = keys.filter((key) => !existsSync(`${FIX}${key}.pgm`))
+    writeFileSync(`${OUT}coverage.json`, JSON.stringify({ requested: keys.length, available: keys.filter((key) => !missing.includes(key)), missing }, null, 2))
     const rows: Row[] = []
     const t00 = performance.now()
     for (const key of keys) {
@@ -119,7 +125,7 @@ describe.skipIf(!RUN)('score30: the 30 sheets', () => {
     console.log(`\n${table}`)
     if (!env.SCORE30_SHEETS) writeFileSync(`${OUT}score30.txt`, table + '\n')
     writeFileSync(`${OUT}score30${env.SCORE30_SHEETS ? '-part' : ''}.json`, JSON.stringify(rows, null, 1))
-    expect(rows.length).toBeGreaterThan(0)
+    expect(rows.length, `Missing ${missing.length}/${keys.length} fixtures; see ${OUT}coverage.json. This is not a complete benchmark.`).toBe(keys.length)
   }, 6 * 3600_000)
 })
 

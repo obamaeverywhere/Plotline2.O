@@ -6,7 +6,6 @@
  * `/s/<token>` ← Supabase (a link the Studio's Share published).
  */
 import { useEffect, useMemo, useReducer, useRef, useState } from 'react'
-import * as THREE from 'three'
 import * as core from '../core'
 import type { Configuration, FinishSlot, FurniturePlacement, Id, Opening, OpeningKind, Pt, Room, Unit, Wall } from '../core'
 import { coverOf, levelName, projectUnit, roleIn, stemIn, topFloor, towerOf, type Tower } from '../data/building'
@@ -16,8 +15,8 @@ import { deletePiece, layoutFor, movePiece, pieceQuad, refurnish, resizeAxes, re
 import { buyer, flushOutbox, selectionPayload, sendEvent, setBuyerName } from '../lib/events'
 import { fetchSharedUnit } from '../lib/supabase'
 import { WALL_TYPES, findOpening, initialState, isUnit, normalizeUnit, reducer, wallTypeOf, type Action, type StudioState } from '../studio/model'
-import { PlotlineScene, type ArrangeEvent, type OpeningEvent, type PickHit, type SceneMode } from '../three/PlotlineScene'
-import { lightsOn, type LightsMode } from '../three/render'
+import type { PlotlineScene, ArrangeEvent, OpeningEvent, PickHit, SceneMode } from '../three/PlotlineScene'
+import { lightsOn, type LightsMode } from '../three/lightsMode'
 import { TEST_UNIT } from '../three/testUnit'
 import type { XRControls } from '../three/xr'
 import { deleteHeld, draftState, dropHeld, holdAt, isShareLink, isStaff, makeDraft, pickUp, planOf, pushStep, readLayout, saveLayout, saveOpenings, turnHeld, undoStep, wallDrag, type Held, type Steps } from './arrange'
@@ -65,6 +64,7 @@ const lightsSaved = (): LightsMode => {
 }
 const VR_FAILED = "Couldn't start VR. Is the headset connected?"
 const params = new URLSearchParams(location.search)
+const DIRECT_VIEW = params.get('view') === 'dollhouse' || params.get('view') === 'building'
 /** Arrange is staff only (arrange.ts): `?staff=1` is remembered, then dropped from the address bar so a copied URL doesn't carry it. */
 const STAFF = isStaff(location.search)
 /** a published link's token (`/s/<token>`): the unit comes from Supabase */
@@ -194,14 +194,8 @@ function resolveUnit(): Unit | null {
 
 const spawn = (scene: PlotlineScene, p: Pt, face: Pt, pitch = 0): void => scene.spawnAt(p, yawFor(face), pitch)
 /** Plan-space eye position (rig + camera): the walker in walk mode, the orbit camera in dollhouse. */
-const eyeOf = (scene: PlotlineScene): Pt => {
-  const w = scene.camera.getWorldPosition(new THREE.Vector3())
-  return { x: w.x, y: w.z }
-}
-const headingOf = (scene: PlotlineScene): Pt => {
-  const d = scene.camera.getWorldDirection(new THREE.Vector3())
-  return { x: d.x, y: d.z }
-}
+const eyeOf = (scene: PlotlineScene): Pt => scene.viewEye()
+const headingOf = (scene: PlotlineScene): Pt => scene.viewHeading()
 
 export default function ViewerApp() {
   // a published link: undefined while it loads, null when it fails (the load screen says so)
@@ -484,7 +478,8 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
   const [no3d, setNo3d] = useState(false)
   /** an automatic quality step (QualityChip): after a reload, or Lite's shadows going off */
   const [qNote, setQNote] = useState(SWITCHED)
-  const [loaded, setLoaded] = useState(0)
+  const [startRequested, setStartRequested] = useState(DIRECT_VIEW)
+  const [visualsReady, setVisualsReady] = useState(false)
   const [entered, setEntered] = useState(false)
   const [mode, setMode] = useState<SceneMode>('walk')
   const [hour, setHour] = useState(DEFAULT_HOUR)
@@ -562,80 +557,100 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
 
   // engine (made once per unit loaded; an opening edit rebuilds it in place — its rooms, so the closures below, stay the same)
   useEffect(() => {
-    let s: PlotlineScene
-    try {
-      s = new PlotlineScene(canvasRef.current!, { quality: TIER.tier })
-    } catch (e) {
-      console.warn('[plotline] the 3D could not start', e)
-      setNo3d(true)
-      return
-    }
-    // frames too slow: down one tier once — only while the device chose (a pick is never overridden); Lite: shadows off
-    s.onSlow(() => {
-      if (TIER.tier === 'lite') {
-        s.shadowsOff()
-        setQNote('Shadows off: frames were still slow on this device.')
-      } else if (TIER.by === 'device') {
-        write(local, KEYS.slow, lower(TIER.tier))
-        write(tab, KEYS.note, `Switched to ${NAME[lower(TIER.tier)]}: frames were slow on this device.`)
-        restart(cfgRef.current)
-      }
-    })
-    // the graphics failed (context lost, out of memory): Lite once, whoever chose; already Lite and not back: the message
-    s.onFail((why) => {
-      if (why === 'gone') return setNo3d(true)
-      if (TIER.tier === 'lite') return
-      write(tab, KEYS.fallback, 'lite')
-      write(tab, KEYS.note, `Switched to Lite: ${why === 'memory' ? 'the graphics ran out of memory' : 'the 3D stopped'} on this device.`)
-      restart(cfgRef.current)
-    })
-    s.cover = tower && stem ? coverOf(tower, stem) : [] // a level: the slab of the floors above it
-    s.setUnit(given)
-    s.setLightsMode(lightsSaved())
-    s.setTimeOfDay(DEFAULT_HOUR)
-    s.onPick((hit) => {
-      if (!hit) return
-      // the Finishes panel open: a floor / wall / ceiling picks that room's (that wall's) finish — in the dollhouse instead of dropping in
-      const r = finishesRef.current && hit.kind !== 'opening' && hit.kind !== 'furniture' ? rooms.find((x) => x.id === hit.roomId) : undefined
-      const room = r && roomKey(r.id, hit.kind as FinishSlot['target'])
-      const face = r && hit.kind === 'wall' ? wallKey(faceWallId(unit, r, hit.id), r.id) : undefined // a column: none, its room's walls
-      if (commentingRef.current) {
-        const roomId = hit.roomId ?? core.roomAt({ x: hit.point.x, y: hit.point.z }, rooms, unit)?.id
-        setDraft({ hit: { ...hit, roomId }, point: hit.point, label: tagOf(hit.label, rooms.find((r) => r.id === roomId)?.name) })
-      } else if (room && keys.has(room)) {
-        setSurface({ roomKey: room, wallKey: face && keys.has(face) ? face : undefined })
-      } else if (modeRef.current === 'orbit' && hit.kind === 'floor') {
-        // dollhouse → click a room floor drops back into walk mode there, keeping the orbit heading (§3.2)
-        s.spawnAt({ x: hit.point.x, y: hit.point.z }, yawFor(headingOf(s)))
-        setMode('walk')
-      }
-    })
-    // Building view: a click on this flat opens its dollhouse, on another flat loads that one on its floor
-    s.onFlat((f) => {
-      if (!f) return
-      if (f.stem !== stem || f.floor !== unit.floor) return location.assign(`/u/${f.stem}?floor=${f.floor}&view=dollhouse`)
-      setMode('orbit')
-      s.setMode('orbit')
-    })
-    let alive = true // StrictMode/HMR dispose this scene before the promise settles
-    void Promise.resolve(xrEmulation)
-      .then(() => navigator.xr?.isSessionSupported('immersive-vr'))
-      .then((ok) => {
-        if (!ok || !alive) return
-        setXr(s.enableXR())
-        s.renderer.xr.addEventListener('sessionstart', () => {
-          setMode('walk') // engine forces walk in VR; keep the button label honest
-          setInVR(true)
-        })
-        s.renderer.xr.addEventListener('sessionend', () => setInVR(false))
+    if (!startRequested) return
+    let alive = true
+    let engine: PlotlineScene | undefined
+    let loadTimeout: ReturnType<typeof setTimeout> | undefined
+    const start = async () => {
+      const { PlotlineScene } = await import('../three/PlotlineScene')
+      const canvas = canvasRef.current
+      if (!alive || !canvas) return
+      const s = engine = new PlotlineScene(canvas, { quality: TIER.tier })
+      // frames too slow: down one tier once — only while the device chose (a pick is never overridden); Lite: shadows off
+      s.onSlow(() => {
+        if (TIER.tier === 'lite') {
+          s.shadowsOff()
+          setQNote('Shadows off: frames were still slow on this device.')
+        } else if (TIER.by === 'device') {
+          write(local, KEYS.slow, lower(TIER.tier))
+          write(tab, KEYS.note, `Switched to ${NAME[lower(TIER.tier)]}: frames were slow on this device.`)
+          restart(cfgRef.current)
+        }
       })
-    if (import.meta.env.DEV) Object.assign(window, { __plotline: s })
-    setScene(s)
+      // the graphics failed (context lost, out of memory): Lite once, whoever chose; already Lite and not back: the message
+      s.onFail((why) => {
+        if (why === 'gone') {
+          if (document.pointerLockElement === canvas) document.exitPointerLock?.()
+          return setNo3d(true)
+        }
+        if (TIER.tier === 'lite') return
+        write(tab, KEYS.fallback, 'lite')
+        write(tab, KEYS.note, `Switched to Lite: ${why === 'memory' ? 'the graphics ran out of memory' : 'the 3D stopped'} on this device.`)
+        restart(cfgRef.current)
+      })
+      s.cover = tower && stem ? coverOf(tower, stem) : [] // a level: the slab of the floors above it
+      // Use the chosen finishes from the first frame and request only their maps.
+      s.setConfiguration(fullCfg)
+      s.setUnit(given)
+      s.setLightsMode(lightsSaved())
+      s.setTimeOfDay(DEFAULT_HOUR)
+      s.onPick((hit) => {
+        if (!hit) return
+        // the Finishes panel open: a floor / wall / ceiling picks that room's (that wall's) finish — in the dollhouse instead of dropping in
+        const r = finishesRef.current && hit.kind !== 'opening' && hit.kind !== 'furniture' ? rooms.find((x) => x.id === hit.roomId) : undefined
+        const room = r && roomKey(r.id, hit.kind as FinishSlot['target'])
+        const face = r && hit.kind === 'wall' ? wallKey(faceWallId(unit, r, hit.id), r.id) : undefined // a column: none, its room's walls
+        if (commentingRef.current) {
+          const roomId = hit.roomId ?? core.roomAt({ x: hit.point.x, y: hit.point.z }, rooms, unit)?.id
+          setDraft({ hit: { ...hit, roomId }, point: hit.point, label: tagOf(hit.label, rooms.find((r) => r.id === roomId)?.name) })
+        } else if (room && keys.has(room)) {
+          setSurface({ roomKey: room, wallKey: face && keys.has(face) ? face : undefined })
+        } else if (modeRef.current === 'orbit' && hit.kind === 'floor') {
+          // dollhouse → click a room floor drops back into walk mode there, keeping the orbit heading (§3.2)
+          s.spawnAt({ x: hit.point.x, y: hit.point.z }, yawFor(headingOf(s)))
+          setMode('walk')
+        }
+      })
+      // Building view: a click on this flat opens its dollhouse, on another flat loads that one on its floor
+      s.onFlat((f) => {
+        if (!f) return
+        if (f.stem !== stem || f.floor !== unit.floor) return location.assign(`/u/${f.stem}?floor=${f.floor}&view=dollhouse`)
+        setMode('orbit')
+        s.setMode('orbit')
+      })
+      void Promise.resolve(xrEmulation)
+        .then(() => navigator.xr?.isSessionSupported('immersive-vr'))
+        .then((ok) => {
+          if (!ok || !alive) return
+          setXr(s.enableXR())
+          s.renderer.xr.addEventListener('sessionstart', () => {
+            setMode('walk') // engine forces walk in VR; keep the button label honest
+            setInVR(true)
+          })
+          s.renderer.xr.addEventListener('sessionend', () => setInVR(false))
+        })
+        .catch(() => {})
+      if (import.meta.env.DEV) Object.assign(window, { __plotline: s })
+      setScene(s)
+      if (params.get('view') === 'building' && stem) s.setMode('building')
+      const reveal = () => { if (alive) setVisualsReady(true) }
+      loadTimeout = setTimeout(reveal, 20_000) // a stalled asset must not keep the viewer closed
+      void s.whenVisualsReady().then(reveal, reveal).finally(() => clearTimeout(loadTimeout))
+    }
+    void start().catch((e) => {
+      if (!alive) return
+      console.warn('[plotline] the 3D could not start', e)
+      if (document.pointerLockElement === canvasRef.current) document.exitPointerLock?.()
+      engine?.dispose()
+      engine = undefined
+      setNo3d(true)
+    })
     return () => {
       alive = false
-      s.dispose()
+      clearTimeout(loadTimeout)
+      engine?.dispose()
     }
-  }, [given]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [given, startRequested]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Wind on: the month's arrows through the flat (three/wind.ts)
   useEffect(() => scene?.setWind(windOn ? months[month] : null, core.seasonOf(month, unit.site)), [scene, windOn, months, month, unit.site])
@@ -653,43 +668,35 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
     return () => removeEventListener('online', send)
   }, [])
 
-  // load progress: a room counts once every placement it owns is in the scene graph
-  useEffect(() => {
-    if (!scene) return
-    const need = new Map<Id, Id[]>()
-    for (const p of unit.furniture) need.set(p.roomId, [...(need.get(p.roomId) ?? []), p.id])
-    const poll = setInterval(() => {
-      const seen = new Set<string>()
-      scene.scene.traverse((o) => {
-        if (o.userData.kind === 'furniture') seen.add(o.userData.id as string)
-      })
-      const k = rooms.filter((r) => (need.get(r.id) ?? []).every((id) => seen.has(id))).length
-      setLoaded(k)
-      if (k === rooms.length) clearInterval(poll)
-    }, 150)
-    const cap = setTimeout(() => setLoaded(rooms.length), 20000) // a stuck download must not block Enter
-    return () => {
-      clearInterval(poll)
-      clearTimeout(cap)
-    }
-  }, [scene, unit, rooms])
-
   // room chip + pointer lock state
   useEffect(() => {
-    if (!scene) return
+    if (!scene || !entered) return
     const t = setInterval(() => {
       const id = scene.currentRoomId()
       if (id) setRoom((prev) => (prev?.id === id ? prev : (rooms.find((r) => r.id === id) ?? prev)))
     }, 100)
-    const onLock = () => setLocked(!!document.pointerLockElement)
+    const onLock = () => setLocked(document.pointerLockElement === canvasRef.current)
+    onLock()
     document.addEventListener('pointerlockchange', onLock)
     return () => {
       clearInterval(t)
       document.removeEventListener('pointerlockchange', onLock)
     }
-  }, [scene, rooms])
+  }, [scene, entered, rooms])
 
-  const ready = loaded >= rooms.length
+  const ready = scene !== null && visualsReady
+  const requestEnter = () => {
+    if (startRequested || no3d) return
+    setStartRequested(true)
+    // Pointer lock requires the Enter click or key press. The engine will attach to this canvas after loading.
+    const canvas = canvasRef.current
+    if (!canvas?.requestPointerLock || DEVICE.phone || (STAFF && params.get('edit') === 'openings')) return
+    try {
+      void Promise.resolve(canvas.requestPointerLock()).catch(() => {})
+    } catch {
+      // Touch, sandboxed embeds, and keyboard-only walking can proceed without a locked pointer.
+    }
+  }
 
   const enter = () => {
     if (!scene || !ready) return
@@ -702,7 +709,6 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
       const k = Number(params.get('pick')) // a level shown from the Studio: its floor picked (a basement: what is above it hidden)
       if (stem && params.has('pick') && Number.isFinite(k)) (setPicked(k), scene.showFloor(k))
     } else if (STAFF && params.get('edit') === 'openings') toggleOpenings() // a built-in unit just made the Studio draft
-    else scene.lockPointer()
   }
 
   const go = (m: SceneMode) => {
@@ -712,9 +718,9 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
     setPicked(unit.floor ?? 0)
   }
   const toggleMode = () => go(mode === 'walk' ? 'orbit' : 'walk')
-  // a flat picked in the Building view opens straight into its dollhouse once loaded; the Studio's building into the tower
+  // Both a customer's Enter and links to a specific view open as soon as the scene is ready.
   useEffect(() => {
-    if (ready && !entered && (params.get('view') === 'dollhouse' || params.get('view') === 'building')) enter()
+    if (startRequested && ready && !entered && !no3d) enter()
   })
 
   const showToast = (msg: string, ms = 2500) => {
@@ -971,7 +977,7 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
       const tag = (e.target as HTMLElement)?.tagName
       if (tag === 'INPUT' || tag === 'TEXTAREA') return
       if (!entered) {
-        if (e.key === 'Enter') enter()
+        if (e.key === 'Enter' && tag !== 'BUTTON' && tag !== 'A') requestEnter()
         return
       }
       if (inVR) return // a desk keyboard next to a tethered headset must not flip the scene to dollhouse
@@ -1073,7 +1079,7 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
     <div className={`viewer${commenting ? ' commenting' : ''}`}>
       <canvas ref={canvasRef} className={`scene${entered ? '' : ' blurred'}`} />
 
-      {!entered && (
+      {!entered && !no3d && (
         <div className="load">
           <div className="project">{unit.projectName}</div>
           <div className="unit-name">{unit.name}</div>
@@ -1087,14 +1093,8 @@ function Viewer({ unit: given, base }: { unit: Unit; base: FurniturePlacement[] 
               </>
             )}
           </div>
-          <div className="progress">
-            <div className="bar" style={{ width: `${rooms.length ? (loaded / rooms.length) * 100 : 100}%` }} />
-          </div>
-          <div className="muted small">
-            {ready ? 'Ready' : `Loading… ${loaded} of ${rooms.length} rooms`}
-          </div>
-          <button className="btn primary enter" disabled={!ready} onClick={enter}>
-            {ready ? 'Enter' : 'Loading…'}
+          <button className="btn primary enter" disabled={startRequested} onClick={requestEnter}>
+            {startRequested ? (scene ? 'Loading furniture and finishes…' : 'Loading 3D…') : 'Enter'}
           </button>
           {/* ponytail: plain links until Phase A gives each developer a project list */}
           <nav className="load-nav muted small">

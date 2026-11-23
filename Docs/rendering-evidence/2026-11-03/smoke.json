@@ -1,0 +1,14 @@
+[
+  {
+    "key": "sheltech-b1",
+    "errors": [],
+    "canvases": 1,
+    "fallback": false
+  },
+  {
+    "key": "type-a",
+    "errors": [],
+    "canvases": 1,
+    "fallback": false
+  }
+]

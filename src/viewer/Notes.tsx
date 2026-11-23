@@ -1,6 +1,5 @@
 /** Comment pins: numbered HTML markers projected from their world point each frame, the draft popover, and the Notes list. */
 import { useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
 import type { Room } from '../core'
 import type { PlotlineScene } from '../three/PlotlineScene'
 import type { Pin } from './storage'
@@ -31,7 +30,7 @@ export function PinLayer({ scene, pins, draft, onSave, onCancel }: LayerProps) {
   useEffect(() => setText(''), [draft])
 
   useEffect(() => {
-    const v = new THREE.Vector3()
+    if (!pins.length && !draft) return
     let raf = 0
     const tick = () => {
       const w = innerWidth
@@ -39,7 +38,7 @@ export function PinLayer({ scene, pins, draft, onSave, onCancel }: LayerProps) {
       const place = (id: string, p: { x: number; y: number; z: number }) => {
         const el = els.current.get(id)
         if (!el) return
-        v.set(p.x, p.y, p.z).project(scene.camera)
+        const v = scene.projectPoint(p)
         const visible = v.z < 1 && Math.abs(v.x) < 1.2 && Math.abs(v.y) < 1.2
         el.style.display = visible ? '' : 'none'
         if (visible) el.style.transform = `translate(${((v.x + 1) / 2) * w}px, ${((1 - v.y) / 2) * h}px)`

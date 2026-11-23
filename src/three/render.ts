@@ -23,9 +23,10 @@ import { isCeilingLight, placementSize } from '../furnish/kit'
 import { setLeafGlow } from '../furnish/procedural'
 import { buildContactShadows, buildStreet, haze, hazed, outdoorFill, setHaze } from './context'
 import { dayMix, isCovered, openToSky } from './daylight'
-import { carriesRoof, roomCeiling, storeyTop, wallLift } from './details'
+import { carriesRoof, coverSlabGeometry, roomCeiling, storeyTop, wallLift } from './details'
 import { EXTERIOR_PLASTER, materialFor } from './materials'
 import { meterUVs, PANES, setGlassSky } from './openings'
+export { lightsOn, type LightsMode } from './lightsMode'
 
 /**
  * high: GTAO + 4× MSAA buffer, up to 2× pixels, 2048 shadow map. low: no AO, 1024 shadow. lite (weak machines,
@@ -139,10 +140,6 @@ export function twilight(altDeg: number): { zenith: THREE.Color; horizon: THREE.
   })
 }
 
-/** Lights: 'auto' = on once the sun is under 5° (dusk inside a flat), off by day; or the person's pick. */
-export type LightsMode = 'auto' | 'on' | 'off'
-export const lightsOn = (mode: LightsMode, altDeg: number): boolean => (mode === 'auto' ? altDeg < 5 : mode === 'on')
-
 /**
  * The lamps that cast shadows: those in the camera's room first, then the nearest to the camera; `k` of them (fewer only
  * if there are fewer lamps). Indices into `lamps`.
@@ -156,6 +153,25 @@ export function pickCasters(lamps: { x: number; z: number; here: boolean }[], ca
 }
 /** Covered zones (coverLights): a batten every GRID m, the real downlights among them, their candela. */
 const GRID = 3.6
+
+/** Covered-zone fixtures fit under the slab along their whole 1.2 m body, with clearance at its edges. */
+export function coverLightSpots(unit: Unit, rooms: Room[], cover: Pt[][]): { x: number; y: number; floor: number }[] {
+  const spots: { x: number; y: number; floor: number }[] = []
+  const under = (p: Pt) => cover.some((c) => core.pointInPolygon(p, c))
+  for (const r of rooms.filter((x) => core.isOutdoor(x.kind))) {
+    const poly = core.roomInnerPolygon(r, unit)
+    const xs = poly.map((p) => p.x), ys = poly.map((p) => p.y)
+    for (let i = Math.floor(Math.min(...xs) / GRID); i * GRID <= Math.max(...xs); i++)
+      for (let j = Math.floor(Math.min(...ys) / GRID); j * GRID <= Math.max(...ys); j++) {
+        const p = { x: (i + .5) * GRID, y: (j + .5) * GRID }
+        if (!core.pointInPolygon(p, poly)) continue
+        // Corners plus intermediate samples reject narrow voids as well as ends hanging over a slab edge.
+        const fits = [-.09, 0, .09].every((dy) => Array.from({ length: 15 }, (_, n) => -.65 + n * 1.3 / 14).every((dx) => under({ x: p.x + dx, y: p.y + dy })))
+        if (fits) spots.push({ ...p, floor: core.roomLevelAt(r, unit, p.x, p.y) })
+      }
+  }
+  return spots
+}
 const COVER_LIGHTS = 4
 const COVER_CD = 18
 /** a 4000 K LED batten's diffuser */
@@ -188,7 +204,7 @@ export class Look {
     hazed(new THREE.MeshStandardMaterial({ color: '#86817a', roughness: 0.95 })), // paving; a tiled texture reads as carpet from 20 m up
   )
   /** per unit (context.ts): contact shadows under the furniture; the street (in `indoor`: none around the dollhouse) */
-  private contact: THREE.Mesh | null = null
+  private contact: THREE.Group | null = null
   private street: THREE.Group | null = null
   /** `id`: the fixture placement it hangs at; `room`: its room's polygon (pickCasters: the camera's room first) */
   private lights: { light: THREE.SpotLight; base: number; id: string; room: Pt[] }[] = []
@@ -377,7 +393,7 @@ export class Look {
     // streak at the ceiling (founder, 2026-10-04). The boxes still close the wall tops, so no low sun gets in between.
     // an outdoor zone is open to the sky unless the slab above (`cover`, the floor above's footprint) hangs over it: that
     // slab is in the roof too, and from below it is the zone's soffit
-    const over = cover.map((poly) => new THREE.ShapeGeometry(new THREE.Shape(poly.map((p) => new THREE.Vector2(p.x, p.y)))).rotateX(Math.PI / 2).translate(0, -SLAB_M, 0))
+    const over = cover.map((poly) => coverSlabGeometry(poly, SLAB_M))
     // (a room under the cover: the cover's own plane is its roof — two coplanar planes fought in stripes)
     const lifted = [...roomParts.filter((_, i) => !openToSky(rooms[i], cover) && !cover.some((c) => core.pointInPolygon(rooms[i].centroid, c))), ...over].map((g) => g.clone().translate(0, ROOF_LIFT, 0))
     const roofGeo = mergeGeometries([...lifted, ...roofWalls])
@@ -398,7 +414,7 @@ export class Look {
     const street = -(unit.floor ?? 2) * STOREY_M - 0.2
     this.ground.position.y = this.groundY = street > 0 ? street : Math.min(street, lowest - 0.05)
     this.fitBox.set(new THREE.Vector3(b.minX - 0.5, lowest - SLAB_M - 0.05, b.minY - 0.5), new THREE.Vector3(b.maxX + 0.5, this.topY + SLAB_M + 0.05, b.maxY + 0.5))
-    this.contact = buildContactShadows(unit, b)
+    this.contact = buildContactShadows(unit)
     if (this.contact) this.unitGroup.add(this.contact)
     this.street = buildStreet(unit, b, this.ground.position.y)
     // the made-up street only from inside (none round the dollhouse); the site's real neighbours in every view, and the
@@ -447,17 +463,7 @@ export class Look {
    * COVER_LIGHTS, within the light budget beside the rooms' lamps. Always on, whatever the hour.
    */
   private coverLights(unit: Unit, rooms: Room[], cover: Pt[][]): void {
-    const spots: { x: number; y: number; floor: number }[] = []
-    for (const r of rooms.filter((x) => isCovered(x, cover))) {
-      const poly = core.roomInnerPolygon(r, unit)
-      const xs = poly.map((p) => p.x)
-      const ys = poly.map((p) => p.y)
-      for (let i = Math.floor(Math.min(...xs) / GRID); i * GRID <= Math.max(...xs); i++)
-        for (let j = Math.floor(Math.min(...ys) / GRID); j * GRID <= Math.max(...ys); j++) {
-          const p = { x: (i + 0.5) * GRID, y: (j + 0.5) * GRID }
-          if (core.pointInPolygon(p, poly) && cover.some((c) => core.pointInPolygon(p, c))) spots.push({ ...p, floor: core.roomLevelAt(r, unit, p.x, p.y) })
-        }
-    }
+    const spots = coverLightSpots(unit, rooms, cover)
     if (!spots.length) return
     const y = this.topY - 0.03
     const battens = mergeGeometries(spots.map((p) => new THREE.BoxGeometry(1.2, 0.04, 0.08).translate(p.x, y, p.y)))!
@@ -474,17 +480,10 @@ export class Look {
     }
   }
 
-  /** Arrange moved pieces: the contact shadows are redrawn (one canvas) and each room light follows its fixture. */
+  /** Arrange moved pieces: contact masks are redrawn on their rooms' floors; each room light follows its fixture. */
   setFurniture(unit: Unit): void {
-    const c = this.contact
-    if (c) {
-      c.removeFromParent()
-      c.geometry.dispose()
-      const m = c.material as THREE.MeshBasicMaterial
-      m.alphaMap?.dispose()
-      m.dispose()
-    }
-    this.contact = buildContactShadows(unit, core.unitBounds(unit))
+    this.clearContact(true)
+    this.contact = buildContactShadows(unit)
     if (this.contact) this.unitGroup.add(this.contact)
     for (const { light, id } of this.lights) {
       const p = unit.furniture.find((x) => x.id === id)
@@ -672,11 +671,21 @@ export class Look {
 
   /** The context meshes' own materials and the shadow mask (their geometry goes with unitGroup's). */
   private disposeContext(): void {
-    const c = this.contact?.material as THREE.MeshBasicMaterial | undefined
-    c?.alphaMap?.dispose()
-    c?.dispose()
+    this.clearContact()
     this.street?.traverse((o) => ((o as THREE.Mesh).material as THREE.Material | undefined)?.dispose())
     this.contact = this.street = null
+  }
+
+  private clearContact(geometry = false): void {
+    this.contact?.removeFromParent()
+    this.contact?.traverse((o) => {
+      const mesh = o as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
+      if (!mesh.isMesh) return
+      if (geometry) mesh.geometry.dispose()
+      mesh.material.alphaMap?.dispose()
+      mesh.material.dispose()
+    })
+    this.contact = null
   }
 
   dispose(): void {

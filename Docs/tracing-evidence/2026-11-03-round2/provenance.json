@@ -1,0 +1,22 @@
+{
+  "gitHead": "c76e4b74c77f3b3e78e8a02fe324d46d3394183d",
+  "sourceSha256": {
+    "src/trace/faces.ts": "432d791fd2f0e91b94921b1a11adfafd716dbf7a6f801ec965506e905a3aec1c",
+    "src/trace/solve.ts": "a13189f8c6f5d56f1c7bb6512db1d0cd310ab4db390d33245258aafb53810dba",
+    "src/trace/tracks.ts": "0d9f5f2416d71206041c6f181eed0c6e0ad4e7c97535aedf1856cb8c112c005b",
+    "scripts/trace-cases.json": "452dab392983a1bf63d66f6bc8a57ba2fb483fe128746262b969e9d81bedfc18",
+    "scripts/trace-boundaries.json": "a3ba1c1b9a1125d7764f84a8a24abba521467b7e839db7d3afad3af39550ed6e"
+  },
+  "before": ".trace/round2/before",
+  "after": ".trace/round2/after",
+  "workflowCases": 33,
+  "sourceImages": 29,
+  "runtimeInput": "actual image upload and normal Studio controls; exports used only after tracing",
+  "preview": {
+    "entered": true,
+    "walk": true,
+    "dollhouse": true,
+    "canvas": 1,
+    "fallback": false
+  }
+}

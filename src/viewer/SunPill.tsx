@@ -6,7 +6,6 @@
  * drawn where it stands at the site on that day and hour (PlotlineScene.setTimeOfDay); the wind is the date's month.
  */
 import { useEffect, useRef } from 'react'
-import * as THREE from 'three'
 import * as core from '../core'
 import type { Room, Unit, WindMonth } from '../core'
 import type { PlotlineScene } from '../three/PlotlineScene'
@@ -116,16 +115,16 @@ export function WindChips({ scene, unit, room, rw, fromDeg }: { scene: PlotlineS
   const at = chips.map(({ o }) => {
     const x = o.at.x - o.out.x * 0.3
     const z = o.at.y - o.out.y * 0.3
-    return new THREE.Vector3(x, core.roomLevelAt(room, unit, x, z) + Math.min(o.headM, 2.3) + 0.12, z)
+    return { x, y: core.roomLevelAt(room, unit, x, z) + Math.min(o.headM, 2.3) + 0.12, z }
   })
   useEffect(() => {
-    const v = new THREE.Vector3()
+    if (!at.length) return
     let raf = 0
     const tick = () => {
       at.forEach((p, i) => {
         const el = els.current[i]
         if (!el) return
-        v.copy(p).project(scene.camera)
+        const v = scene.projectPoint(p)
         const shown = v.z < 1 && Math.abs(v.x) < 1.1 && Math.abs(v.y) < 1.1
         el.style.display = shown ? '' : 'none'
         if (shown) el.style.transform = `translate(${((v.x + 1) / 2) * innerWidth}px, ${((1 - v.y) / 2) * innerHeight}px) translate(-50%, -100%)`

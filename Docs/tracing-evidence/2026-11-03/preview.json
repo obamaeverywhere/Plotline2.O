@@ -1,0 +1,20 @@
+[
+  {
+    "key": "sheltech-l2-a",
+    "mode": "flat",
+    "calibration": "known",
+    "seconds": 48.059,
+    "summary": "Traced 96 walls, 15 rooms, 15 labelled · scale from your scale · wall tracks · 9.7 s",
+    "walls": 93,
+    "openings": 30,
+    "pxPerM": 27.075658723705732,
+    "errors": [],
+    "preview": {
+      "entered": true,
+      "walk": true,
+      "dollhouse": true,
+      "canvas": 1,
+      "fallback": false
+    }
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "unitFile": ".trace/round2/after/banani-l2-calibrated.unit.json",
+  "annotationFile": "scripts/trace-boundaries.json",
+  "tolerancePx": 3,
+  "angleDeg": 5,
+  "coverage": 0.8260869565217391,
+  "precision": 1,
+  "found": 608,
+  "total": 736,
+  "predicted": 611,
+  "correct": 611,
+  "lines": [
+    {
+      "name": "north-west veranda top",
+      "samples": 66,
+      "found": 66,
+      "coverage": 1
+    },
+    {
+      "name": "north-west veranda left",
+      "samples": 39,
+      "found": 39,
+      "coverage": 1
+    },
+    {
+      "name": "north-west veranda right",
+      "samples": 39,
+      "found": 39,
+      "coverage": 1
+    },
+    {
+      "name": "bedroom 02 north window",
+      "samples": 115,
+      "found": 115,
+      "coverage": 1
+    },
+    {
+      "name": "master-bedroom and veranda north windows",
+      "samples": 191,
+      "found": 63,
+      "coverage": 0.3298429319371728
+    },
+    {
+      "name": "master-bedroom east window",
+      "samples": 135,
+      "found": 135,
+      "coverage": 1
+    },
+    {
+      "name": "north-east veranda east window",
+      "samples": 91,
+      "found": 91,
+      "coverage": 1
+    },
+    {
+      "name": "north-east veranda south window",
+      "samples": 60,
+      "found": 60,
+      "coverage": 1
+    }
+  ]
+}

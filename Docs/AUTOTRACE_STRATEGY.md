@@ -1,6 +1,31 @@
 # Auto-trace strategy v3 — rooms first, walls on tracks (2026-10-02, session 14)
 
-Status: PROPOSED — nothing in `src/` changed yet. Evidence: four agents (web research, BTI forensics,
+**Latest checkpoint, 2026-11-04:** native-scale opening recovery, off-centre glazing, face-bounded OCR and shared-core
+ownership rules address the P0 missing-room/incorrect-apartment cases. All 37 Firefox workflows use the same final
+source fingerprint; 60 apartment and 15 shared-core witness checks pass. Reference room matches are retained,
+with better BTI A wall recovery. Several other sheets still lose faces or names; broad acceptance remains unmet.
+See the [P0 report](AUTOTRACE_P0_REPORT_2026-11-04.md) for measurements and explicit regressions.
+
+
+**Implementation checkpoint, 2026-11-03:** the running product already uses tracks plus room fitting and boundary
+repair; the proposed architecture text below is historical. A local-width contrast fix now retains short stepped
+walls that were rejected when their width was absorbed into a narrower class. It has a failing-original/passing-fixed
+real-image regression and fresh Firefox evidence on the available corpus. See
+[the report](AUTOTRACE_REPORT_2026-11-03.md) for gains, regressions and missing benchmark coverage. The broad acceptance
+targets in §6 remain unmet; this is not a new architectural rewrite or completion claim.
+
+**Second checkpoint, same date:** a separate thin-colour path recovers blue glazing against dark floors; surviving
+corners/T connections are retried after dangling duplicate fragments are pruned. The no-seed selection fallback
+prefers a region with printed bedroom evidence over a larger unnamed region. See the
+[glazing report](AUTOTRACE_GLAZING_REPORT_2026-11-03.md) for source-image measurements and the new Firefox corpus run.
+
+**Third checkpoint, same date:** overlapping pane readings now share their colour-backed axis, printed apartment
+stamps no longer seed false planter barriers, and a labelled glass veranda is assigned before the next flat can
+claim it. The calibrated Banani L2–6 export separates Unit A/B consistently from two clicks per flat; the marked
+window sample reaches 100% coverage. Shared lift ownership and missing room closures remain unresolved. See the
+[window and ownership report](AUTOTRACE_OWNERSHIP_REPORT_2026-11-03.md) for 37 workflow rows and explicit limitations.
+
+Historical proposal status: PROPOSED — nothing in `src/` changed yet. Evidence: four agents (web research, BTI forensics,
 Sheltech/Banani/DMD forensics, a rooms-first experiment). Their crops and logs:
 `E:\dev\plotline-shots\wave19\{current,bti,shel,rooms}\`, `E:\dev\tmp\wave19\{bti,shel,rooms}\`.
 

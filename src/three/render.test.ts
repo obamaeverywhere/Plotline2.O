@@ -1,6 +1,21 @@
 /** The sky's light by the sun's altitude, the lamps' auto rule and the shadow-casting pick (render.ts): pure, no WebGL. */
 import { describe, expect, test } from 'vitest'
-import { lampCandela, lightsOn, NIGHT_EXPOSURE, pickCasters, skyLight, twilight } from './render'
+import { coverLightSpots, lampCandela, lightsOn, NIGHT_EXPOSURE, pickCasters, skyLight, twilight } from './render'
+import * as core from '../core'
+import { TEST_UNIT } from './testUnit'
+
+test('covered-zone lights fit their full body under the slab, including partial cover and joins between polygons', () => {
+  const unit = { ...TEST_UNIT, roomLabels: TEST_UNIT.roomLabels.map((r) => ({ ...r, kind: 'driveway' as const, levelM: .6 })) }
+  const rooms = core.deriveRooms(unit)
+  const box = (x0:number,x1:number,y0=1,y1=2.5) => [{x:x0,y:y0},{x:x1,y:y0},{x:x1,y:y1},{x:x0,y:y1}]
+  // The 1.8,1.8 grid point is covered but its fixture ends would hang in the sky.
+  expect(coverLightSpots(unit,rooms,[box(1.5,2.1)])).toEqual([])
+  // A zone's centroid is outside this strip: it still has usable ceiling at the grid point.
+  const spots = coverLightSpots(unit,rooms,[box(1,1.8),box(1.8,2.6)])
+  expect(spots).toEqual([{x:1.8,y:1.8,floor:.6}])
+  // A void beneath the centre of the batten cannot be bridged by the light.
+  expect(coverLightSpots(unit,rooms,[box(1,1.74),box(1.86,2.6)])).toEqual([])
+})
 
 describe('skyLight', () => {
   test('noon down to 10°: the day look unchanged (exposure 1, full fill, no night)', () => {

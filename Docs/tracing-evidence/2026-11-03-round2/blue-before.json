@@ -1,0 +1,62 @@
+{
+  "unitFile": ".trace/after-browser-all/sheltech-banani-level-2-6.unit.json",
+  "annotationFile": "scripts/trace-boundaries.json",
+  "tolerancePx": 3,
+  "angleDeg": 5,
+  "coverage": 0,
+  "precision": null,
+  "found": 0,
+  "total": 736,
+  "predicted": 0,
+  "correct": 0,
+  "lines": [
+    {
+      "name": "north-west veranda top",
+      "samples": 66,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "north-west veranda left",
+      "samples": 39,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "north-west veranda right",
+      "samples": 39,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "bedroom 02 north window",
+      "samples": 115,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "master-bedroom and veranda north windows",
+      "samples": 191,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "master-bedroom east window",
+      "samples": 135,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "north-east veranda east window",
+      "samples": 91,
+      "found": 0,
+      "coverage": 0
+    },
+    {
+      "name": "north-east veranda south window",
+      "samples": 60,
+      "found": 0,
+      "coverage": 0
+    }
+  ]
+}

@@ -1,23 +1,23 @@
 // Decode plan images (webp/jpg/png) to grey PGM fixtures for the src/trace eval (src/trace/walls.test.ts).
-// Uses Playwright's FIREFOX (founder 2026-10-04: never Edge / swiftshader), PLAYWRIGHT_BROWSERS_PATH default E:/dev/tools/ms-playwright.
+// Uses the local Playwright package's FIREFOX (founder 2026-10-04: never Edge / swiftshader).
 // Decoded exactly as the Studio does (StudioApp.tsx rastersOf): white under transparent pixels, luma 0.299 / 0.587 / 0.114 truncated.
 // Usage: node scripts/trace-fixtures.mjs [--rgb] [outDir] [imageDir ...]
 //        node scripts/trace-fixtures.mjs --rgb --sheets <sheets.json> [outDir]   (a { key: { file } } list → "<key>.pgm" / ".ppm")
-//   default outDir E:/dev/tmp/wave15/walls/fixtures; default inputs: public/assets/plan-* + every "Demo drawings" subfolder.
+//   default outDir .trace/fixtures; default inputs: public/assets/plan-* + every "Demo drawings" subfolder.
 //   --rgb also writes "<name>.ppm" (P6 colour) beside each PGM, for src/trace/hints (green areas, colour fills).
 // Output names: "<folder>__<file>.pgm" (spaces → _), the calibrated plans as "assets__plan-*.pgm"; with --sheets "<key>.pgm".
 import { readFileSync, readdirSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
 import { join, basename, extname } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { firefox } from 'playwright'
+import { resolvePlanFile } from './trace-paths.mjs'
 
-process.env.PLAYWRIGHT_BROWSERS_PATH ??= 'E:/dev/tools/ms-playwright'
 const root = process.cwd()
 const rgb = process.argv.includes('--rgb')
 const si = process.argv.indexOf('--sheets')
 const sheets = si > 0 ? JSON.parse(readFileSync(process.argv[si + 1], 'utf8')) : null
 const rest = process.argv.slice(2)
 const args = rest.filter((a, i) => a !== '--rgb' && a !== '--sheets' && rest[i - 1] !== '--sheets')
-const outDir = args[0] ?? (sheets ? 'E:/dev/tmp/s26/fixtures' : 'E:/dev/tmp/wave15/walls/fixtures')
+const outDir = args[0] ?? '.trace/fixtures'
 const dirs = args.length > 1 ? args.slice(1) : null
 mkdirSync(outDir, { recursive: true })
 
@@ -26,7 +26,7 @@ const add = (dir, tag) => {
   if (!existsSync(dir)) return
   for (const f of readdirSync(dir)) if (/\.(webp|jpe?g|png)$/i.test(f)) inputs.push({ path: join(dir, f), tag })
 }
-if (sheets) for (const [key, s] of Object.entries(sheets)) inputs.push({ path: s.file, name: key })
+if (sheets) for (const [key, s] of Object.entries(sheets)) inputs.push({ path: resolvePlanFile(s.file), name: key })
 else if (dirs) for (const d of dirs) add(d, basename(d))
 else {
   for (const f of readdirSync(join(root, 'public/assets'))) if (/^plan-/.test(f)) inputs.push({ path: join(root, 'public/assets', f), tag: 'assets' })
@@ -34,10 +34,13 @@ else {
   for (const d of readdirSync(demo)) add(join(demo, d), d)
 }
 
-const pw = await import(pathToFileURL('E:/dev/Plotline/node_modules/playwright/index.mjs').href)
-const browser = await pw.firefox.launch({ headless: true })
+const missing = inputs.filter((f) => !existsSync(f.path))
+writeFileSync(join(outDir, 'availability.json'), JSON.stringify({ available: inputs.filter((f) => existsSync(f.path)), missing }, null, 2))
+for (const f of missing) console.warn(`MISSING: ${f.name ?? f.path}: ${f.path}`)
+const browser = await firefox.launch({ headless: true })
 const page = await browser.newPage()
 for (const { path, tag, name: key } of inputs) {
+  if (!existsSync(path)) continue
   const ext = extname(path).slice(1).toLowerCase()
   const mime = ext === 'jpg' ? 'image/jpeg' : `image/${ext}`
   const url = `data:${mime};base64,${readFileSync(path).toString('base64')}`

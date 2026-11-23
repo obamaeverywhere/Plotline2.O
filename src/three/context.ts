@@ -7,7 +7,8 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import * as core from '../core'
-import type { Pt, Unit } from '../core'
+import type { Pt, Room, Unit } from '../core'
+import { floorGeometry } from './details'
 import { kitAsset, placementSize, type KitCategory } from '../furnish/kit'
 import { footprint } from '../furnish/presets'
 
@@ -18,6 +19,7 @@ type Bounds = { minX: number; maxX: number; minY: number; maxY: number }
 export interface ContactShadow {
   /** the placement it grounds */
   id: string
+  roomId: string
   /** plan footprint the shadow hugs */
   quad: Pt[]
   /** Gaussian falloff σ, metres */
@@ -35,6 +37,7 @@ const POTS: KitCategory[] = ['plant', 'lamp']
 export function contactShadows(unit: Unit): ContactShadow[] {
   const out: ContactShadow[] = []
   for (const p of unit.furniture) {
+    if (p.removed) continue
     const a = kitAsset(p.assetId)
     if (!a || a.category === 'rug' || (a.mount ?? 'floor') !== 'floor' || (a.mountY ?? 0) > 0.05) continue
     const s = placementSize(p)
@@ -46,7 +49,7 @@ export function contactShadows(unit: Unit): ContactShadow[] {
     const blurM = Math.min(0.25, Math.max(0.05, 0.25 * (pot || s.y)))
     const grow = legged ? 0 : blurM
     const size = pot ? { x: pot + grow, z: pot + grow } : { x: s.x + grow, z: s.z + grow }
-    out.push({ id: p.id, quad: footprint(p, p.rotationDeg, size), blurM, strength: legged ? 0.45 : 0.8 })
+    out.push({ id: p.id, roomId: p.roomId, quad: footprint(p, p.rotationDeg, size), blurM, strength: legged ? 0.45 : 0.8 })
   }
   return out
 }
@@ -55,41 +58,60 @@ export function contactShadows(unit: Unit): ContactShadow[] {
 const PX = 0.02
 
 /**
- * All of a unit's contact shadows on one floor-level plane: a canvas mask (blurred footprints, overlaps take the
- * darker one instead of doubling up, so a kitchen run stays even) as the alpha of a black, depth-test-only decal.
- * 14 mm up so it also lies on the 12 mm rugs. One draw call, not pickable (Look's group), works in XR.
+ * A room's contact-shadow surface follows its actual floor (including ramps) and stops at its boundary. A lawn's
+ * contact shadow must not float at the datum or spill onto the lower drive beside it.
  */
-export function buildContactShadows(unit: Unit, bounds: Bounds): THREE.Mesh | null {
-  const list = contactShadows(unit)
-  if (!list.length) return null
-  const x0 = bounds.minX - 0.5
-  const y0 = bounds.minY - 0.5
-  const w = Math.ceil((bounds.maxX - bounds.minX + 1) / PX)
-  const h = Math.ceil((bounds.maxY - bounds.minY + 1) / PX)
-  const canvas = document.createElement('canvas')
-  canvas.width = w
-  canvas.height = h
-  const ctx = canvas.getContext('2d')!
-  ctx.fillRect(0, 0, w, h) // black = no shadow
-  ctx.globalCompositeOperation = 'lighten'
-  // each shape is filled off-canvas and only its blurred shadow lands (canvas `filter` is not in every browser)
-  const off = w + 1000
-  ctx.shadowOffsetX = off
-  for (const s of list) {
-    const v = Math.round(255 * s.strength)
-    ctx.shadowColor = `rgb(${v},${v},${v})`
-    ctx.shadowBlur = (2 * s.blurM) / PX // shadowBlur = 2σ
-    ctx.beginPath()
-    for (const p of s.quad) ctx.lineTo((p.x - x0) / PX - off, (p.y - y0) / PX)
-    ctx.fill()
+export function contactShadowGeometry(unit: Unit, room: Room): THREE.BufferGeometry {
+  const geo = floorGeometry(room, unit)
+  const p = geo.attributes.position
+  for (let i = 0; i < p.count; i++) p.setY(i, p.getY(i) + 0.014)
+  return geo
+}
+
+/**
+ * Per-room canvas masks (blurred footprints, overlaps take the
+ * darker one instead of doubling up, so a kitchen run stays even) as the alpha of a black, depth-test-only decal.
+ * 14 mm up so it also lies on the 12 mm rugs. Only furnished rooms allocate a mask; not pickable, works in XR.
+ */
+export function buildContactShadows(unit: Unit): THREE.Group | null {
+  const shadows = contactShadows(unit)
+  const group = new THREE.Group()
+  for (const room of core.deriveRooms(unit)) {
+    const list = shadows.filter((s) => s.roomId === room.id)
+    if (!list.length) continue
+    const poly = core.roomPolygon(room, unit)
+    const x0 = Math.min(...poly.map((p) => p.x)) - 0.5
+    const y0 = Math.min(...poly.map((p) => p.y)) - 0.5
+    const w = Math.ceil((Math.max(...poly.map((p) => p.x)) - x0 + 0.5) / PX)
+    const h = Math.ceil((Math.max(...poly.map((p) => p.y)) - y0 + 0.5) / PX)
+    const canvas = document.createElement('canvas')
+    canvas.width = w
+    canvas.height = h
+    const ctx = canvas.getContext('2d')!
+    ctx.fillRect(0, 0, w, h) // black = no shadow
+    ctx.globalCompositeOperation = 'lighten'
+    // each shape is filled off-canvas and only its blurred shadow lands (canvas `filter` is not in every browser)
+    const off = w + 1000
+    ctx.shadowOffsetX = off
+    for (const s of list) {
+      const v = Math.round(255 * s.strength)
+      ctx.shadowColor = `rgb(${v},${v},${v})`
+      ctx.shadowBlur = (2 * s.blurM) / PX // shadowBlur = 2σ
+      ctx.beginPath()
+      for (const p of s.quad) ctx.lineTo((p.x - x0) / PX - off, (p.y - y0) / PX)
+      ctx.fill()
+    }
+    const tex = new THREE.CanvasTexture(canvas)
+    const geo = contactShadowGeometry(unit, room)
+    const p = geo.attributes.position, uv = geo.attributes.uv
+    for (let i = 0; i < p.count; i++) uv.setXY(i, (p.getX(i) - x0) / (w * PX), 1 - (p.getZ(i) - y0) / (h * PX))
+    const mesh = new THREE.Mesh(
+      geo,
+      new THREE.MeshBasicMaterial({ color: '#000000', alphaMap: tex, transparent: true, depthWrite: false }),
+    )
+    group.add(mesh)
   }
-  const tex = new THREE.CanvasTexture(canvas) // row 0 = plan minY = world −Z edge of the plane below
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(w * PX, h * PX).rotateX(-Math.PI / 2),
-    new THREE.MeshBasicMaterial({ color: '#000000', alphaMap: tex, transparent: true, depthWrite: false }),
-  )
-  mesh.position.set(x0 + (w * PX) / 2, 0.014, y0 + (h * PX) / 2)
-  return mesh
+  return group.children.length ? group : null
 }
 
 // ───────────────────────────── street context ─────────────────────────────

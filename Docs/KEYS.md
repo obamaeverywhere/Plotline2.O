@@ -104,7 +104,7 @@ Who: **staff** = the developer's team (a browser becomes staff the first time it
 
 | Name | What it does | Who |
 |---|---|---|
-| **Enter** | Goes in; you stand inside the front door | everyone |
+| **Enter** | Loads the furnished 3D flat and takes you inside the front door | everyone |
 | The other flats and levels (links under it) | Open another built-in flat or level | `/u/…` addresses (not on a buyer link `/s/…`) |
 | **Studio** | Opens the Studio | `/u/…` addresses |
 | **Staff mode** / **Leave staff mode** | Turns staff mode on / off in this browser | `/u/…` addresses |
@@ -187,7 +187,7 @@ Who: **staff** = the developer's team (a browser becomes staff the first time it
 | **Unit name**, **Project**, **Floor**, **Area sft** | Plain fields saved with the drawing (Floor takes numbers only) |
 | ⏱ | How long you have been tracing |
 | **Undo** / **Redo** | Ctrl+Z / Ctrl+Y |
-| **Auto-trace** | Traces the flats from the picture: point at a flat, click it — or **Whole floor** |
+| **Auto-trace** | Traces the flats from the picture: point at a flat, click it — or **Whole floor**. Short walls at width changes and pale blue window fronts are retained more reliably (2026-11-03); check the draft against the picture |
 | **Import** | Opens a drawing file (Ctrl+O) |
 | **Export** | Saves the drawing as a file (Ctrl+S) |
 | **Export answers** | Saves every Check these answer clicked in this browser (and the Local AI's) as `plotline-answers.json` |
@@ -220,6 +220,8 @@ Who: **staff** = the developer's team (a browser becomes staff the first time it
 
 | Section | Buttons and fields | What they do |
 |---|---|---|
+| **DXF input** | **Import DXF**, **Esc** | Map layers, set scale, and import a floor or one flat. Esc closes the dialog. |
+| **DXF review** | **Show on plan**, **Looks right** | Locate or dismiss a review item from a DXF import |
 | **Draw a** (W) | **Wall**, **Low wall**, **Kerb**, **Zone line**; **Low wall height** | What the next wall is (keys 1–4) |
 | **Place an opening** (O) | **Door 2'-6"**, **Door 3'-0"**, **Window 4'**, **Window 6'**, **Slider 6'**, **Slider 8'**, **Passage**, **Glass wall**; **Width** | What the next click on a wall puts in |
 | **Steps** | (none) | The checklist; ticks itself |

@@ -1,0 +1,4628 @@
+[
+  {
+    "key": "sheltech-l2",
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "calibration": "known",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-l2",
+      "mode": "floor",
+      "calibration": "known",
+      "seconds": 65.245,
+      "summary": "Traced 206 walls, 32 rooms, 32 labelled · scale from your scale · wall tracks · 19.3 s",
+      "walls": 199,
+      "openings": 64,
+      "pxPerM": 27.075658723705732,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-l2",
+      "mode": "floor",
+      "calibration": "known",
+      "seconds": 64.195,
+      "summary": "Traced 206 walls, 32 rooms, 32 labelled · scale from your scale · wall tracks · 26.2 s",
+      "walls": 199,
+      "openings": 64,
+      "pxPerM": 27.075658723705732,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-l2",
+      "walls": 199,
+      "rooms": 32,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 14
+        },
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 66,
+      "sizes": [
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-5\" × 15'-9\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-0\" × 4'-3\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Dining",
+          "off": true,
+          "message": "Dining: drawn 13'-9\" × 16'-0\", printed 13'-11\" × 17'-4\""
+        },
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 12'-11\" × 15'-1\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-11\" × 6'-8\", printed 7'-5\" × 6'-8\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 12'-11\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Living",
+          "off": true,
+          "message": "Living: drawn 13'-5\" × 15'-5\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-7\" × 13'-10\", printed 12'-0\" × 14'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 32,
+          "matched": 17,
+          "areaErr": 0.05653667028886597,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 16,
+          "coverage": 0.8711680421696838,
+          "spill": 0.4905997975642407,
+          "review": 66,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 6,
+            "other": 17
+          },
+          "ms": 19258,
+          "openingsFound": 26,
+          "truthOpenings": 34,
+          "openingKindOk": 24,
+          "openingsExtra": 38,
+          "missed": [
+            "Toilet 3: no face",
+            "Veranda 1: IoU 0.02 with a face 5.0× its size (merged)",
+            "Passage: IoU 0.15 with a face 5.7× its size (merged)",
+            "Planter (south): IoU 0.01 with a face of its size (shifted)"
+          ],
+          "missedIds": [
+            "r_toilet3",
+            "r_veranda_1",
+            "r_passage",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7235316124205013,
+          "wallPrecision": 0.6426971883553123
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 32,
+          "matched": 15,
+          "areaErr": 0.08655117321904292,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 14,
+          "coverage": 0.8877558075221239,
+          "spill": 0.49689489665980996,
+          "review": 66,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 6,
+            "other": 17
+          },
+          "ms": 19258,
+          "openingsFound": 18,
+          "truthOpenings": 32,
+          "openingKindOk": 17,
+          "openingsExtra": 46,
+          "missed": [
+            "Toilet: IoU 0.28 with a face 0.8× its size (split)",
+            "PDR: IoU 0.06 with a face 0.6× its size (split)",
+            "Veranda 4: IoU 0.03 with a face 2.3× its size (merged)",
+            "Foyer: IoU 0.19 with a face 4.6× its size (merged)",
+            "Planter (south): IoU 0.06 with a face 1.7× its size (merged)"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_4",
+            "r_foyer",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7124711316397229,
+          "wallPrecision": 0.7381776239907728
+        }
+      ]
+    },
+    "afterMetrics": {
+      "key": "sheltech-l2",
+      "walls": 199,
+      "rooms": 32,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 14
+        },
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 66,
+      "sizes": [
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 12'-11\" × 15'-1\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-5\" × 15'-9\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-7\" × 13'-10\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-0\" × 4'-3\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Dining",
+          "off": true,
+          "message": "Dining: drawn 13'-9\" × 16'-0\", printed 13'-11\" × 17'-4\""
+        },
+        {
+          "name": "Living",
+          "off": true,
+          "message": "Living: drawn 13'-5\" × 15'-5\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 12'-11\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-11\" × 6'-8\", printed 7'-5\" × 6'-8\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 32,
+          "matched": 17,
+          "areaErr": 0.05653667028886598,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 16,
+          "coverage": 0.8711680421696838,
+          "spill": 0.4905997975642407,
+          "review": 66,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 6,
+            "other": 17
+          },
+          "ms": 26219,
+          "openingsFound": 26,
+          "truthOpenings": 34,
+          "openingKindOk": 24,
+          "openingsExtra": 38,
+          "missed": [
+            "Toilet 3: no face",
+            "Veranda 1: IoU 0.02 with a face 5.0× its size (merged)",
+            "Passage: IoU 0.15 with a face 5.7× its size (merged)",
+            "Planter (south): IoU 0.01 with a face of its size (shifted)"
+          ],
+          "missedIds": [
+            "r_toilet3",
+            "r_veranda_1",
+            "r_passage",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7235316124205013,
+          "wallPrecision": 0.6426971883553123
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 32,
+          "matched": 15,
+          "areaErr": 0.08655117321904297,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 14,
+          "coverage": 0.8877558075221239,
+          "spill": 0.49689489665980996,
+          "review": 66,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 6,
+            "other": 17
+          },
+          "ms": 26219,
+          "openingsFound": 18,
+          "truthOpenings": 32,
+          "openingKindOk": 17,
+          "openingsExtra": 46,
+          "missed": [
+            "Toilet: IoU 0.28 with a face 0.8× its size (split)",
+            "PDR: IoU 0.06 with a face 0.6× its size (split)",
+            "Veranda 4: IoU 0.03 with a face 2.3× its size (merged)",
+            "Foyer: IoU 0.19 with a face 4.6× its size (merged)",
+            "Planter (south): IoU 0.06 with a face 1.7× its size (merged)"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_4",
+            "r_foyer",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7124711316397229,
+          "wallPrecision": 0.7381776239907728
+        }
+      ]
+    }
+  },
+  {
+    "key": "sheltech-l2-auto",
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-l2-auto",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 39.413,
+      "summary": "Traced 205 walls, 32 rooms, 32 labelled · scale from printed dims · wall tracks · 11.4 s",
+      "walls": 198,
+      "openings": 64,
+      "pxPerM": 26.861876640419947,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-l2-auto",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 60.327,
+      "summary": "Traced 205 walls, 32 rooms, 32 labelled · scale from printed dims · wall tracks · 22.0 s",
+      "walls": 198,
+      "openings": 64,
+      "pxPerM": 26.861876640419947,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-l2-auto",
+      "walls": 198,
+      "rooms": 32,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 14
+        },
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 65,
+      "sizes": [
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 13'-1\" × 15'-3\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-6\" × 15'-10\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Dining",
+          "off": true,
+          "message": "Dining: drawn 13'-11\" × 16'-2\", printed 13'-11\" × 17'-4\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-8\" × 14'-0\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-7\" × 13'-1\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-1\" × 4'-4\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-11\" × 6'-9\", printed 7'-5\" × 6'-8\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-7\" × 15'-6\", printed 13'-6\" × 16'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 32,
+          "matched": 17,
+          "areaErr": 0.05567530372555169,
+          "scaleErr": 0.008404408755159798,
+          "scaleFrom": "dims",
+          "kindOk": 16,
+          "coverage": 0.8711680421696838,
+          "spill": 0.49055322261479484,
+          "review": 65,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 5,
+            "other": 17
+          },
+          "ms": 11448,
+          "openingsFound": 26,
+          "truthOpenings": 34,
+          "openingKindOk": 24,
+          "openingsExtra": 38,
+          "missed": [
+            "Toilet 3: no face",
+            "Veranda 1: IoU 0.02 with a face 5.0× its size (merged)",
+            "Passage: IoU 0.15 with a face 5.7× its size (merged)",
+            "Planter (south): IoU 0.01 with a face of its size (shifted)"
+          ],
+          "missedIds": [
+            "r_toilet3",
+            "r_veranda_1",
+            "r_passage",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7235316124205013,
+          "wallPrecision": 0.6426082628173221
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 32,
+          "matched": 15,
+          "areaErr": 0.08485387748204137,
+          "scaleErr": 0.008404408755159798,
+          "scaleFrom": "dims",
+          "kindOk": 14,
+          "coverage": 0.8877558075221239,
+          "spill": 0.4968488972773166,
+          "review": 65,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 5,
+            "other": 17
+          },
+          "ms": 11448,
+          "openingsFound": 18,
+          "truthOpenings": 32,
+          "openingKindOk": 17,
+          "openingsExtra": 46,
+          "missed": [
+            "Toilet: IoU 0.28 with a face 0.8× its size (split)",
+            "PDR: IoU 0.06 with a face 0.6× its size (split)",
+            "Veranda 4: IoU 0.03 with a face 2.3× its size (merged)",
+            "Foyer: IoU 0.19 with a face 4.6× its size (merged)",
+            "Planter (south): IoU 0.06 with a face 1.7× its size (merged)"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_4",
+            "r_foyer",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7120862201693611,
+          "wallPrecision": 0.7381776239907728
+        }
+      ]
+    },
+    "afterMetrics": {
+      "key": "sheltech-l2-auto",
+      "walls": 198,
+      "rooms": 32,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 14
+        },
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 65,
+      "sizes": [
+        {
+          "name": "Dining",
+          "off": true,
+          "message": "Dining: drawn 13'-11\" × 16'-2\", printed 13'-11\" × 17'-4\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-7\" × 15'-6\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-7\" × 13'-1\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-8\" × 14'-0\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-1\" × 4'-4\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 13'-1\" × 15'-3\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-6\" × 15'-10\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-11\" × 6'-9\", printed 7'-5\" × 6'-8\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 32,
+          "matched": 17,
+          "areaErr": 0.05567530372555163,
+          "scaleErr": 0.008404408755159798,
+          "scaleFrom": "dims",
+          "kindOk": 16,
+          "coverage": 0.8711680421696838,
+          "spill": 0.49055322261479484,
+          "review": 65,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 5,
+            "other": 17
+          },
+          "ms": 22026,
+          "openingsFound": 26,
+          "truthOpenings": 34,
+          "openingKindOk": 24,
+          "openingsExtra": 38,
+          "missed": [
+            "Toilet 3: no face",
+            "Veranda 1: IoU 0.02 with a face 5.0× its size (merged)",
+            "Passage: IoU 0.15 with a face 5.7× its size (merged)",
+            "Planter (south): IoU 0.01 with a face of its size (shifted)"
+          ],
+          "missedIds": [
+            "r_toilet3",
+            "r_veranda_1",
+            "r_passage",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7235316124205013,
+          "wallPrecision": 0.6426082628173221
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 32,
+          "matched": 15,
+          "areaErr": 0.08485387748204141,
+          "scaleErr": 0.008404408755159798,
+          "scaleFrom": "dims",
+          "kindOk": 14,
+          "coverage": 0.8877558075221239,
+          "spill": 0.4968488972773166,
+          "review": 65,
+          "reviewByKind": {
+            "unclosed": 15,
+            "low-confidence": 16,
+            "opening-guess": 12,
+            "size-mismatch": 5,
+            "other": 17
+          },
+          "ms": 22026,
+          "openingsFound": 18,
+          "truthOpenings": 32,
+          "openingKindOk": 17,
+          "openingsExtra": 46,
+          "missed": [
+            "Toilet: IoU 0.28 with a face 0.8× its size (split)",
+            "PDR: IoU 0.06 with a face 0.6× its size (split)",
+            "Veranda 4: IoU 0.03 with a face 2.3× its size (merged)",
+            "Foyer: IoU 0.19 with a face 4.6× its size (merged)",
+            "Planter (south): IoU 0.06 with a face 1.7× its size (merged)"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_4",
+            "r_foyer",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.7120862201693611,
+          "wallPrecision": 0.7381776239907728
+        }
+      ]
+    }
+  },
+  {
+    "key": "sheltech-l2-a",
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "calibration": "known",
+    "mode": "flat",
+    "before": {
+      "key": "sheltech-l2-a",
+      "mode": "flat",
+      "calibration": "known",
+      "seconds": 44.447,
+      "summary": "Traced — 30 things to check on the right · Ctrl+Z undoes it",
+      "walls": 93,
+      "openings": 30,
+      "pxPerM": 27.075658723705732,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-l2-a",
+      "mode": "flat",
+      "calibration": "known",
+      "seconds": 73.711,
+      "summary": "Traced 96 walls, 15 rooms, 15 labelled · scale from your scale · wall tracks · 23.7 s",
+      "walls": 93,
+      "openings": 30,
+      "pxPerM": 27.075658723705732,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-l2-a",
+      "walls": 93,
+      "rooms": 15,
+      "labelled": 15,
+      "flats": [
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 31,
+      "sizes": [
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 12'-11\" × 15'-1\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Dining",
+          "off": true,
+          "message": "Dining: drawn 13'-9\" × 16'-0\", printed 13'-11\" × 17'-4\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-0\" × 4'-3\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Living",
+          "off": true,
+          "message": "Living: drawn 13'-5\" × 15'-5\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-7\" × 13'-10\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-11\" × 6'-8\", printed 7'-5\" × 6'-8\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 15,
+          "matched": 15,
+          "areaErr": 0.04736516701699904,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 14,
+          "coverage": 0.7547026155499821,
+          "spill": 0.01855033635225254,
+          "review": 31,
+          "reviewByKind": {
+            "unclosed": 7,
+            "low-confidence": 5,
+            "opening-guess": 7,
+            "size-mismatch": 6,
+            "other": 6
+          },
+          "ms": 16274,
+          "openingsFound": 26,
+          "truthOpenings": 33,
+          "openingKindOk": 24,
+          "openingsExtra": 4,
+          "missed": [
+            "Toilet 3: no face",
+            "Veranda 1: IoU 0.02 with a face 5.0× its size (merged)",
+            "Passage: IoU 0.15 with a face 5.8× its size (merged)",
+            "Lobby: IoU 0.01 with a face 0.7× its size (split)",
+            "Stair: IoU 0.02 with a face 0.5× its size (split)",
+            "Planter (south): IoU 0.02 with a face of its size (shifted)"
+          ],
+          "missedIds": [
+            "r_toilet3",
+            "r_veranda_1",
+            "r_passage",
+            "r_lobby",
+            "r_stair",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.6558174335952114,
+          "wallPrecision": 0.8155339805825242
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 15,
+          "matched": 0,
+          "areaErr": null,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 0,
+          "coverage": 0.0016588715065778863,
+          "spill": 0.9979023729406109,
+          "review": 31,
+          "reviewByKind": {
+            "unclosed": 7,
+            "low-confidence": 5,
+            "opening-guess": 7,
+            "size-mismatch": 6,
+            "other": 6
+          },
+          "ms": 16274,
+          "openingsFound": 0,
+          "truthOpenings": 1,
+          "openingKindOk": 0,
+          "openingsExtra": 30,
+          "missed": [
+            "Toilet: no face",
+            "PDR: no face",
+            "Veranda (kitchen): no face",
+            "Planter (west): no face",
+            "Toilet 3: no face",
+            "Veranda 1: no face",
+            "Toilet 2: no face",
+            "Veranda 4: no face",
+            "Toilet 1: no face",
+            "Foyer: no face",
+            "Kitchen: no face",
+            "Lobby: IoU 0.01 with a face 0.7× its size (split)",
+            "Bed 4: no face",
+            "Planter (south): no face",
+            "Lifts: no face",
+            "Bed 3: no face",
+            "Bed 2: no face",
+            "Living: no face",
+            "Bed 1: no face",
+            "Dining: no face"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_kitchen",
+            "r_planter_west",
+            "r_toilet3",
+            "r_veranda_1",
+            "r_toilet2",
+            "r_veranda_4",
+            "r_toilet1",
+            "r_foyer",
+            "r_kitchen",
+            "r_lobby",
+            "r_bed4",
+            "r_planter_south",
+            "r_lifts",
+            "r_bed3",
+            "r_bed2",
+            "r_living",
+            "r_bed1",
+            "r_dining"
+          ],
+          "wallRecall": 0.027328714395688992,
+          "wallPrecision": 0.20051413881748073
+        }
+      ]
+    },
+    "afterMetrics": {
+      "key": "sheltech-l2-a",
+      "walls": 93,
+      "rooms": 15,
+      "labelled": 15,
+      "flats": [
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 31,
+      "sizes": [
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-0\" × 4'-3\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-7\" × 13'-10\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Dining",
+          "off": true,
+          "message": "Dining: drawn 13'-9\" × 16'-0\", printed 13'-11\" × 17'-4\""
+        },
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 12'-11\" × 15'-1\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Living",
+          "off": true,
+          "message": "Living: drawn 13'-5\" × 15'-5\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-11\" × 6'-8\", printed 7'-5\" × 6'-8\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 15,
+          "matched": 15,
+          "areaErr": 0.04736516701699905,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 14,
+          "coverage": 0.7547026155499821,
+          "spill": 0.01855033635225254,
+          "review": 31,
+          "reviewByKind": {
+            "unclosed": 7,
+            "low-confidence": 5,
+            "opening-guess": 7,
+            "size-mismatch": 6,
+            "other": 6
+          },
+          "ms": 23744,
+          "openingsFound": 26,
+          "truthOpenings": 33,
+          "openingKindOk": 24,
+          "openingsExtra": 4,
+          "missed": [
+            "Toilet 3: no face",
+            "Veranda 1: IoU 0.02 with a face 5.0× its size (merged)",
+            "Passage: IoU 0.15 with a face 5.8× its size (merged)",
+            "Lobby: IoU 0.01 with a face 0.7× its size (split)",
+            "Stair: IoU 0.02 with a face 0.5× its size (split)",
+            "Planter (south): IoU 0.02 with a face of its size (shifted)"
+          ],
+          "missedIds": [
+            "r_toilet3",
+            "r_veranda_1",
+            "r_passage",
+            "r_lobby",
+            "r_stair",
+            "r_planter_south"
+          ],
+          "wallRecall": 0.6558174335952114,
+          "wallPrecision": 0.8155339805825242
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 15,
+          "matched": 0,
+          "areaErr": null,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 0,
+          "coverage": 0.0016588715065778863,
+          "spill": 0.9979023729406109,
+          "review": 31,
+          "reviewByKind": {
+            "unclosed": 7,
+            "low-confidence": 5,
+            "opening-guess": 7,
+            "size-mismatch": 6,
+            "other": 6
+          },
+          "ms": 23744,
+          "openingsFound": 0,
+          "truthOpenings": 1,
+          "openingKindOk": 0,
+          "openingsExtra": 30,
+          "missed": [
+            "Toilet: no face",
+            "PDR: no face",
+            "Veranda (kitchen): no face",
+            "Planter (west): no face",
+            "Toilet 3: no face",
+            "Veranda 1: no face",
+            "Toilet 2: no face",
+            "Veranda 4: no face",
+            "Toilet 1: no face",
+            "Foyer: no face",
+            "Kitchen: no face",
+            "Lobby: IoU 0.01 with a face 0.7× its size (split)",
+            "Bed 4: no face",
+            "Planter (south): no face",
+            "Lifts: no face",
+            "Bed 3: no face",
+            "Bed 2: no face",
+            "Living: no face",
+            "Bed 1: no face",
+            "Dining: no face"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_kitchen",
+            "r_planter_west",
+            "r_toilet3",
+            "r_veranda_1",
+            "r_toilet2",
+            "r_veranda_4",
+            "r_toilet1",
+            "r_foyer",
+            "r_kitchen",
+            "r_lobby",
+            "r_bed4",
+            "r_planter_south",
+            "r_lifts",
+            "r_bed3",
+            "r_bed2",
+            "r_living",
+            "r_bed1",
+            "r_dining"
+          ],
+          "wallRecall": 0.027328714395688992,
+          "wallPrecision": 0.20051413881748073
+        }
+      ]
+    }
+  },
+  {
+    "key": "sheltech-l2-b",
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "calibration": "known",
+    "mode": "flat",
+    "before": {
+      "key": "sheltech-l2-b",
+      "mode": "flat",
+      "calibration": "known",
+      "seconds": 59.564,
+      "summary": "Traced — 28 things to check on the right · Ctrl+Z undoes it",
+      "walls": 96,
+      "openings": 30,
+      "pxPerM": 27.075658723705732,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-l2-b",
+      "mode": "flat",
+      "calibration": "known",
+      "seconds": 49.191,
+      "summary": "Traced 98 walls, 14 rooms, 14 labelled · scale from your scale · wall tracks · 15.7 s",
+      "walls": 96,
+      "openings": 30,
+      "pxPerM": 27.075658723705732,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-l2-b",
+      "walls": 96,
+      "rooms": 14,
+      "labelled": 14,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 14
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 29,
+      "sizes": [
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-5\" × 15'-9\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 12'-11\", printed 11'-6\" × 13'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 14,
+          "matched": 0,
+          "areaErr": null,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 0,
+          "coverage": 0.0009380967803178361,
+          "spill": 0.9987606598011154,
+          "review": 29,
+          "reviewByKind": {
+            "unclosed": 6,
+            "low-confidence": 9,
+            "opening-guess": 4,
+            "other": 10
+          },
+          "ms": 17060,
+          "openingsFound": 0,
+          "truthOpenings": 2,
+          "openingKindOk": 0,
+          "openingsExtra": 30,
+          "missed": [
+            "Toilet: no face",
+            "PDR: no face",
+            "Veranda (kitchen): no face",
+            "Toilet 3: no face",
+            "Veranda 1: no face",
+            "Toilet 2: no face",
+            "Planter (east): no face",
+            "Passage: no face",
+            "Veranda 4: no face",
+            "Toilet 1: no face",
+            "Foyer: no face",
+            "Kitchen: no face",
+            "Bed 4: no face",
+            "Lobby: IoU 0.01 with a face 1.8× its size (merged)",
+            "Stair: no face",
+            "Bed 3: no face",
+            "Planter (south): no face",
+            "Bed 2: no face",
+            "Bed 1: no face",
+            "Living: no face",
+            "Dining: no face"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_kitchen",
+            "r_toilet3",
+            "r_veranda_1",
+            "r_toilet2",
+            "r_planter_east",
+            "r_passage",
+            "r_veranda_4",
+            "r_toilet1",
+            "r_foyer",
+            "r_kitchen",
+            "r_bed4",
+            "r_lobby",
+            "r_stair",
+            "r_bed3",
+            "r_planter_south",
+            "r_bed2",
+            "r_bed1",
+            "r_living",
+            "r_dining"
+          ],
+          "wallRecall": 0.03890759446315002,
+          "wallPrecision": 0.1276595744680851
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 14,
+          "matched": 13,
+          "areaErr": 0.08423445556730555,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 12,
+          "coverage": 0.7611962659905497,
+          "spill": 0.025509752427041222,
+          "review": 29,
+          "reviewByKind": {
+            "unclosed": 6,
+            "low-confidence": 9,
+            "opening-guess": 4,
+            "other": 10
+          },
+          "ms": 17060,
+          "openingsFound": 16,
+          "truthOpenings": 30,
+          "openingKindOk": 15,
+          "openingsExtra": 14,
+          "missed": [
+            "Toilet: IoU 0.28 with a face 0.7× its size (split)",
+            "PDR: IoU 0.05 with a face 0.6× its size (split)",
+            "Veranda 4: IoU 0.03 with a face 2.4× its size (merged)",
+            "Foyer: IoU 0.19 with a face 4.6× its size (merged)",
+            "Lobby: IoU 0.01 with a face 1.8× its size (merged)",
+            "Planter (south): IoU 0.06 with a face 1.7× its size (merged)",
+            "Lifts: no face"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_4",
+            "r_foyer",
+            "r_lobby",
+            "r_planter_south",
+            "r_lifts"
+          ],
+          "wallRecall": 0.6647421093148576,
+          "wallPrecision": 0.8417342262953824
+        }
+      ]
+    },
+    "afterMetrics": {
+      "key": "sheltech-l2-b",
+      "walls": 96,
+      "rooms": 14,
+      "labelled": 14,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 14
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 29,
+      "sizes": [
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 12'-11\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-5\" × 15'-9\", printed 13'-6\" × 16'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_sheltech_a_2736",
+          "truthRooms": 21,
+          "draftRooms": 14,
+          "matched": 0,
+          "areaErr": null,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 0,
+          "coverage": 0.0009380967803178361,
+          "spill": 0.9987606598011154,
+          "review": 29,
+          "reviewByKind": {
+            "unclosed": 6,
+            "low-confidence": 9,
+            "opening-guess": 4,
+            "other": 10
+          },
+          "ms": 15687,
+          "openingsFound": 0,
+          "truthOpenings": 2,
+          "openingKindOk": 0,
+          "openingsExtra": 30,
+          "missed": [
+            "Toilet: no face",
+            "PDR: no face",
+            "Veranda (kitchen): no face",
+            "Toilet 3: no face",
+            "Veranda 1: no face",
+            "Toilet 2: no face",
+            "Planter (east): no face",
+            "Passage: no face",
+            "Veranda 4: no face",
+            "Toilet 1: no face",
+            "Foyer: no face",
+            "Kitchen: no face",
+            "Bed 4: no face",
+            "Lobby: IoU 0.01 with a face 1.8× its size (merged)",
+            "Stair: no face",
+            "Bed 3: no face",
+            "Planter (south): no face",
+            "Bed 2: no face",
+            "Bed 1: no face",
+            "Living: no face",
+            "Dining: no face"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_kitchen",
+            "r_toilet3",
+            "r_veranda_1",
+            "r_toilet2",
+            "r_planter_east",
+            "r_passage",
+            "r_veranda_4",
+            "r_toilet1",
+            "r_foyer",
+            "r_kitchen",
+            "r_bed4",
+            "r_lobby",
+            "r_stair",
+            "r_bed3",
+            "r_planter_south",
+            "r_bed2",
+            "r_bed1",
+            "r_living",
+            "r_dining"
+          ],
+          "wallRecall": 0.03890759446315002,
+          "wallPrecision": 0.1276595744680851
+        },
+        {
+          "unitId": "unit_sheltech_b_2736",
+          "truthRooms": 20,
+          "draftRooms": 14,
+          "matched": 13,
+          "areaErr": 0.08423445556730551,
+          "scaleErr": 0.01642986424302606,
+          "scaleFrom": "given",
+          "kindOk": 12,
+          "coverage": 0.7611962659905497,
+          "spill": 0.025509752427041222,
+          "review": 29,
+          "reviewByKind": {
+            "unclosed": 6,
+            "low-confidence": 9,
+            "opening-guess": 4,
+            "other": 10
+          },
+          "ms": 15687,
+          "openingsFound": 16,
+          "truthOpenings": 30,
+          "openingKindOk": 15,
+          "openingsExtra": 14,
+          "missed": [
+            "Toilet: IoU 0.28 with a face 0.7× its size (split)",
+            "PDR: IoU 0.05 with a face 0.6× its size (split)",
+            "Veranda 4: IoU 0.03 with a face 2.4× its size (merged)",
+            "Foyer: IoU 0.19 with a face 4.6× its size (merged)",
+            "Lobby: IoU 0.01 with a face 1.8× its size (merged)",
+            "Planter (south): IoU 0.06 with a face 1.7× its size (merged)",
+            "Lifts: no face"
+          ],
+          "missedIds": [
+            "r_toilet",
+            "r_pdr",
+            "r_veranda_4",
+            "r_foyer",
+            "r_lobby",
+            "r_planter_south",
+            "r_lifts"
+          ],
+          "wallRecall": 0.6647421093148576,
+          "wallPrecision": 0.8417342262953824
+        }
+      ]
+    }
+  },
+  {
+    "key": "btibd-img-1",
+    "file": "Demo drawings/Btibd/img_1.webp",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "btibd-img-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 65.586,
+      "summary": "Traced 4 walls, 1 rooms, 1 labelled · scale from printed dims · wall tracks · 22.9 s",
+      "walls": 4,
+      "openings": 2,
+      "pxPerM": 73.53390934585615,
+      "errors": []
+    },
+    "after": {
+      "key": "btibd-img-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 86.802,
+      "summary": "Traced 8 walls, 2 rooms, 2 labelled · scale from printed dims · wall tracks · 35.3 s",
+      "walls": 8,
+      "openings": 2,
+      "pxPerM": 73.53390934585615,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "btibd-img-1",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 1,
+      "flats": [],
+      "issues": [],
+      "review": 0,
+      "sizes": [
+        {
+          "name": "Stair",
+          "off": false,
+          "message": "Stair: drawn 13'-10\" × 12'-0\", printed 13'-10\" × 12'-0\""
+        }
+      ],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "btibd-img-1",
+      "walls": 8,
+      "rooms": 2,
+      "labelled": 2,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 4,
+      "sizes": [
+        {
+          "name": "Stair",
+          "off": false,
+          "message": "Stair: drawn 13'-10\" × 12'-0\", printed 13'-10\" × 12'-0\""
+        }
+      ],
+      "truth": []
+    }
+  },
+  {
+    "key": "btibd-img-2",
+    "file": "Demo drawings/Btibd/img_2.webp",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "btibd-img-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 123.979,
+      "summary": "Traced 244 walls, 49 rooms, 44 labelled · scale from printed dims · wall tracks · 67.2 s",
+      "walls": 237,
+      "openings": 69,
+      "pxPerM": 57.66884773206166,
+      "errors": []
+    },
+    "after": {
+      "key": "btibd-img-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 139.354,
+      "summary": "Traced 244 walls, 49 rooms, 44 labelled · scale from printed dims · wall tracks · 66.9 s",
+      "walls": 237,
+      "openings": 69,
+      "pxPerM": 57.66884773206166,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "btibd-img-2",
+      "walls": 237,
+      "rooms": 49,
+      "labelled": 44,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 24
+        },
+        {
+          "name": "Flat 2",
+          "rooms": 21
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 91,
+      "sizes": [
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 8'-0\" × 10'-7\", printed 8'-0\" × 11'-0\""
+        },
+        {
+          "name": "Dining & Family Living",
+          "off": false,
+          "message": "Dining & Family Living: drawn 12'-11\" × 23'-10\", printed 12'-11\" × 23'-10\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 14'-0\" × 11'-10\", printed 14'-3\" × 11'-10\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-0\" × 10'-5\", printed 11'-0\" × 10'-6\""
+        },
+        {
+          "name": "H Toil",
+          "off": false,
+          "message": "H Toil: drawn 3'-9\" × 4'-5\", printed 3'-9\" × 4'-5\""
+        },
+        {
+          "name": "Living Dining & Family Living",
+          "off": true,
+          "message": "Living Dining & Family Living: drawn 36'-0\" × 12'-0\", printed 36'-2\" × 12'-0\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 14'-2\" × 14'-4\", printed 14'-4\" × 14'-5\""
+        },
+        {
+          "name": "Bath 2",
+          "off": false,
+          "message": "Bath 2: drawn 7'-10\" × 5'-4\", printed 7'-10\" × 5'-6\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 5'-9\" × 7'-7\", printed 6'-0\" × 8'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 4'-4\" × 8'-11\", printed 5'-0\" × 10'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": false,
+          "message": "Bed 2: drawn 14'-11\" × 9'-7\", printed 15'-2\" × 10'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 7'-11\" × 15'-11\", printed 5'-5\" × 9'-11\""
+        },
+        {
+          "name": "Kitchen",
+          "off": false,
+          "message": "Kitchen: drawn 11'-0\" × 7'-6\", printed 11'-0\" × 7'-6\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 14'-1\" × 16'-0\", printed 14'-0\" × 16'-0\""
+        },
+        {
+          "name": "Bath",
+          "off": false,
+          "message": "Bath: drawn 7'-0\" × 7'-6\", printed 7'-0\" × 8'-0\""
+        },
+        {
+          "name": "Bath 2",
+          "off": false,
+          "message": "Bath 2: drawn 9'-1\" × 5'-0\", printed 9'-0\" × 5'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 15'-6\" × 11'-10\", printed 15'-0\" × 11'-10\""
+        },
+        {
+          "name": "Lift Lobby",
+          "off": true,
+          "message": "Lift Lobby: drawn 19'-11\" × 5'-8\", printed 14'-8\" × 5'-8\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 7'-5\" × 7'-5\", printed 7'-1\" × 7'-8\""
+        },
+        {
+          "name": "Living Room",
+          "off": false,
+          "message": "Living Room: drawn 14'-7\" × 15'-5\", printed 14'-11\" × 15'-4\""
+        },
+        {
+          "name": "Help Bed",
+          "off": false,
+          "message": "Help Bed: drawn 5'-7\" × 4'-11\", printed 6'-0\" × 5'-0\""
+        },
+        {
+          "name": "Stair",
+          "off": false,
+          "message": "Stair: drawn 13'-10\" × 12'-0\", printed 13'-10\" × 12'-0\""
+        },
+        {
+          "name": "Study Room",
+          "off": false,
+          "message": "Study Room: drawn 13'-0\" × 10'-1\", printed 12'-11\" × 10'-0\""
+        },
+        {
+          "name": "Bath 2",
+          "off": true,
+          "message": "Bath 2: drawn 4'-7\" × 8'-6\", printed 5'-0\" × 8'-6\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 4'-11\" × 7'-4\", printed 5'-0\" × 7'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_type_b_1747",
+          "truthRooms": 22,
+          "draftRooms": 49,
+          "matched": 21,
+          "areaErr": 0.02071664581083759,
+          "scaleErr": -0.0022690703795560374,
+          "scaleFrom": "dims",
+          "kindOk": 19,
+          "coverage": 0.9739295603204965,
+          "spill": 0.5389379298116744,
+          "review": 91,
+          "reviewByKind": {
+            "unclosed": 22,
+            "low-confidence": 29,
+            "unlabelled": 4,
+            "opening-guess": 16,
+            "size-mismatch": 10,
+            "other": 10
+          },
+          "ms": 67246,
+          "openingsFound": 28,
+          "truthOpenings": 30,
+          "openingKindOk": 26,
+          "openingsExtra": 41,
+          "missed": [
+            "Planter (living): IoU 0.01 with a face 1.5× its size (merged)"
+          ],
+          "missedIds": [
+            "r_planter_living"
+          ],
+          "wallRecall": 0.9490012749681258,
+          "wallPrecision": 0.8424753867791842
+        },
+        {
+          "unitId": "unit_type_c_2254",
+          "truthRooms": 26,
+          "draftRooms": 49,
+          "matched": 20,
+          "areaErr": 0.055903156970729354,
+          "scaleErr": -0.0022690703795560374,
+          "scaleFrom": "dims",
+          "kindOk": 18,
+          "coverage": 0.9626292959626293,
+          "spill": 0.43366177383198873,
+          "review": 91,
+          "reviewByKind": {
+            "unclosed": 22,
+            "low-confidence": 29,
+            "unlabelled": 4,
+            "opening-guess": 16,
+            "size-mismatch": 10,
+            "other": 10
+          },
+          "ms": 67246,
+          "openingsFound": 24,
+          "truthOpenings": 31,
+          "openingKindOk": 20,
+          "openingsExtra": 45,
+          "missed": [
+            "AOD (service): IoU 0.28 with a face 3.4× its size (merged)",
+            "Bath-3: IoU 0.44 with a face 0.4× its size (split)",
+            "Veranda (bed-1): IoU 0.41 with a face 2.3× its size (merged)",
+            "Planter (living): IoU 0.03 with a face of its size (shifted)",
+            "Planter (bed-1): IoU 0.55 with a face 1.8× its size (merged)",
+            "Lift core: IoU 0.55 with a face 0.6× its size (split)"
+          ],
+          "missedIds": [
+            "r_aod_service",
+            "r_bath3",
+            "r_veranda_bed1",
+            "r_planter_living",
+            "r_planter_bed1",
+            "r_lifts"
+          ],
+          "wallRecall": 0.9190364670458347,
+          "wallPrecision": 0.814873417721519
+        }
+      ]
+    },
+    "afterMetrics": {
+      "key": "btibd-img-2",
+      "walls": 237,
+      "rooms": 49,
+      "labelled": 44,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 24
+        },
+        {
+          "name": "Flat 2",
+          "rooms": 21
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 91,
+      "sizes": [
+        {
+          "name": "Kitchen",
+          "off": false,
+          "message": "Kitchen: drawn 11'-0\" × 7'-6\", printed 11'-0\" × 7'-6\""
+        },
+        {
+          "name": "Help Bed",
+          "off": false,
+          "message": "Help Bed: drawn 5'-7\" × 4'-11\", printed 6'-0\" × 5'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 7'-11\" × 15'-11\", printed 5'-5\" × 9'-11\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 4'-4\" × 8'-11\", printed 5'-0\" × 10'-0\""
+        },
+        {
+          "name": "Living Room",
+          "off": false,
+          "message": "Living Room: drawn 14'-7\" × 15'-5\", printed 14'-11\" × 15'-4\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 7'-5\" × 7'-5\", printed 7'-1\" × 7'-8\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 15'-6\" × 11'-10\", printed 15'-0\" × 11'-10\""
+        },
+        {
+          "name": "Bath 2",
+          "off": false,
+          "message": "Bath 2: drawn 9'-1\" × 5'-0\", printed 9'-0\" × 5'-0\""
+        },
+        {
+          "name": "Bath 2",
+          "off": true,
+          "message": "Bath 2: drawn 4'-7\" × 8'-6\", printed 5'-0\" × 8'-6\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 14'-2\" × 14'-4\", printed 14'-4\" × 14'-5\""
+        },
+        {
+          "name": "Bath",
+          "off": false,
+          "message": "Bath: drawn 7'-0\" × 7'-6\", printed 7'-0\" × 8'-0\""
+        },
+        {
+          "name": "H Toil",
+          "off": false,
+          "message": "H Toil: drawn 3'-9\" × 4'-5\", printed 3'-9\" × 4'-5\""
+        },
+        {
+          "name": "Dining & Family Living",
+          "off": false,
+          "message": "Dining & Family Living: drawn 12'-11\" × 23'-10\", printed 12'-11\" × 23'-10\""
+        },
+        {
+          "name": "Study Room",
+          "off": false,
+          "message": "Study Room: drawn 13'-0\" × 10'-1\", printed 12'-11\" × 10'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 4'-11\" × 7'-4\", printed 5'-0\" × 7'-0\""
+        },
+        {
+          "name": "Bath 2",
+          "off": false,
+          "message": "Bath 2: drawn 7'-10\" × 5'-4\", printed 7'-10\" × 5'-6\""
+        },
+        {
+          "name": "Living Dining & Family Living",
+          "off": true,
+          "message": "Living Dining & Family Living: drawn 36'-0\" × 12'-0\", printed 36'-2\" × 12'-0\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 8'-0\" × 10'-7\", printed 8'-0\" × 11'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-0\" × 10'-5\", printed 11'-0\" × 10'-6\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 14'-0\" × 11'-10\", printed 14'-3\" × 11'-10\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 14'-1\" × 16'-0\", printed 14'-0\" × 16'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 5'-9\" × 7'-7\", printed 6'-0\" × 8'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": false,
+          "message": "Bed 2: drawn 14'-11\" × 9'-7\", printed 15'-2\" × 10'-0\""
+        },
+        {
+          "name": "Lift Lobby",
+          "off": true,
+          "message": "Lift Lobby: drawn 19'-11\" × 5'-8\", printed 14'-8\" × 5'-8\""
+        },
+        {
+          "name": "Stair",
+          "off": false,
+          "message": "Stair: drawn 13'-10\" × 12'-0\", printed 13'-10\" × 12'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_type_b_1747",
+          "truthRooms": 22,
+          "draftRooms": 49,
+          "matched": 21,
+          "areaErr": 0.020716645810837573,
+          "scaleErr": -0.0022690703795560374,
+          "scaleFrom": "dims",
+          "kindOk": 19,
+          "coverage": 0.9739295603204965,
+          "spill": 0.5389379298116744,
+          "review": 91,
+          "reviewByKind": {
+            "unclosed": 22,
+            "low-confidence": 29,
+            "unlabelled": 4,
+            "opening-guess": 16,
+            "size-mismatch": 10,
+            "other": 10
+          },
+          "ms": 66913,
+          "openingsFound": 28,
+          "truthOpenings": 30,
+          "openingKindOk": 26,
+          "openingsExtra": 41,
+          "missed": [
+            "Planter (living): IoU 0.01 with a face 1.5× its size (merged)"
+          ],
+          "missedIds": [
+            "r_planter_living"
+          ],
+          "wallRecall": 0.9490012749681258,
+          "wallPrecision": 0.8424753867791842
+        },
+        {
+          "unitId": "unit_type_c_2254",
+          "truthRooms": 26,
+          "draftRooms": 49,
+          "matched": 20,
+          "areaErr": 0.055903156970729354,
+          "scaleErr": -0.0022690703795560374,
+          "scaleFrom": "dims",
+          "kindOk": 18,
+          "coverage": 0.9626292959626293,
+          "spill": 0.43366177383198873,
+          "review": 91,
+          "reviewByKind": {
+            "unclosed": 22,
+            "low-confidence": 29,
+            "unlabelled": 4,
+            "opening-guess": 16,
+            "size-mismatch": 10,
+            "other": 10
+          },
+          "ms": 66913,
+          "openingsFound": 24,
+          "truthOpenings": 31,
+          "openingKindOk": 20,
+          "openingsExtra": 45,
+          "missed": [
+            "AOD (service): IoU 0.28 with a face 3.4× its size (merged)",
+            "Bath-3: IoU 0.44 with a face 0.4× its size (split)",
+            "Veranda (bed-1): IoU 0.41 with a face 2.3× its size (merged)",
+            "Planter (living): IoU 0.03 with a face of its size (shifted)",
+            "Planter (bed-1): IoU 0.55 with a face 1.8× its size (merged)",
+            "Lift core: IoU 0.55 with a face 0.6× its size (split)"
+          ],
+          "missedIds": [
+            "r_aod_service",
+            "r_bath3",
+            "r_veranda_bed1",
+            "r_planter_living",
+            "r_planter_bed1",
+            "r_lifts"
+          ],
+          "wallRecall": 0.9190364670458347,
+          "wallPrecision": 0.814873417721519
+        }
+      ]
+    }
+  },
+  {
+    "key": "btibd-img-3",
+    "file": "Demo drawings/Btibd/img_3.webp",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "btibd-img-3",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 101.434,
+      "summary": "Traced 228 walls, 38 rooms, 34 labelled · scale from printed dims · wall tracks · 55.6 s",
+      "walls": 227,
+      "openings": 67,
+      "pxPerM": 72.78886650796557,
+      "errors": []
+    },
+    "after": {
+      "key": "btibd-img-3",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 132.407,
+      "summary": "Traced 228 walls, 38 rooms, 34 labelled · scale from printed dims · wall tracks · 47.8 s",
+      "walls": 227,
+      "openings": 67,
+      "pxPerM": 72.78886650796557,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "btibd-img-3",
+      "walls": 227,
+      "rooms": 41,
+      "labelled": 34,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 36
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "unlabelled-room"
+      ],
+      "review": 86,
+      "sizes": [
+        {
+          "name": "Living Room",
+          "off": true,
+          "message": "Living Room: drawn 14'-5\" × 15'-4\", printed 14'-11\" × 15'-4\""
+        },
+        {
+          "name": "Dining & Family Living",
+          "off": true,
+          "message": "Dining & Family Living: drawn 12'-9\" × 24'-2\", printed 12'-11\" × 23'-10\""
+        },
+        {
+          "name": "Dining Cum Living",
+          "off": true,
+          "message": "Dining Cum Living: drawn 11'-10\" × 12'-0\", printed 12'-1\" × 12'-5\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 15'-6\" × 11'-10\", printed 15'-0\" × 11'-10\""
+        },
+        {
+          "name": "Bed",
+          "off": true,
+          "message": "Bed: drawn 10'-9\" × 14'-4\", printed 11'-2\" × 14'-4\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 4'-10\" × 5'-7\", printed 5'-0\" × 6'-0\""
+        },
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 14'-7\" × 15'-10\", printed 14'-0\" × 16'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": false,
+          "message": "Veranda: drawn 7'-3\" × 7'-1\", printed 7'-4\" × 7'-3\""
+        },
+        {
+          "name": "Study Room",
+          "off": false,
+          "message": "Study Room: drawn 12'-11\" × 10'-0\", printed 12'-11\" × 10'-0\""
+        },
+        {
+          "name": "Dining Cum Living",
+          "off": true,
+          "message": "Dining Cum Living: drawn 15'-4\" × 12'-0\", printed 15'-4\" × 12'-5\""
+        },
+        {
+          "name": "Stair",
+          "off": false,
+          "message": "Stair: drawn 13'-10\" × 12'-0\", printed 13'-10\" × 12'-0\""
+        },
+        {
+          "name": "Bath",
+          "off": false,
+          "message": "Bath: drawn 5'-1\" × 6'-10\", printed 5'-0\" × 6'-10\""
+        },
+        {
+          "name": "Veranda",
+          "off": false,
+          "message": "Veranda: drawn 7'-2\" × 7'-7\", printed 7'-1\" × 7'-8\""
+        },
+        {
+          "name": "Bath 2",
+          "off": false,
+          "message": "Bath 2: drawn 9'-1\" × 5'-0\", printed 9'-0\" × 5'-0\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 11'-2\" × 7'-6\", printed 11'-0\" × 7'-6\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 3'-11\" × 4'-5\", printed 3'-0\" × 5'-5\""
+        },
+        {
+          "name": "Bath 1",
+          "off": false,
+          "message": "Bath 1: drawn 7'-0\" × 7'-6\", printed 7'-0\" × 8'-0\""
+        },
+        {
+          "name": "Bath",
+          "off": true,
+          "message": "Bath: drawn 4'-4\" × 7'-0\", printed 5'-5\" × 6'-10\""
+        },
+        {
+          "name": "Verandah",
+          "off": true,
+          "message": "Verandah: drawn 7'-2\" × 2'-4\", printed 6'-11\" × 3'-4\""
+        },
+        {
+          "name": "Kitchen",
+          "off": false,
+          "message": "Kitchen: drawn 6'-8\" × 7'-7\", printed 6'-8\" × 8'-0\""
+        },
+        {
+          "name": "Kitchen",
+          "off": false,
+          "message": "Kitchen: drawn 6'-3\" × 8'-0\", printed 6'-3\" × 8'-0\""
+        },
+        {
+          "name": "Bed",
+          "off": true,
+          "message": "Bed: drawn 11'-0\" × 11'-10\", printed 11'-0\" × 11'-5\""
+        },
+        {
+          "name": "Pdr",
+          "off": false,
+          "message": "Pdr: drawn 5'-11\" × 5'-11\", printed 5'-11\" × 5'-11\""
+        },
+        {
+          "name": "Help Bed",
+          "off": false,
+          "message": "Help Bed: drawn 5'-8\" × 5'-0\", printed 6'-0\" × 5'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-0\" × 10'-6\", printed 11'-0\" × 10'-6\""
+        },
+        {
+          "name": "Toilet 5",
+          "off": false,
+          "message": "Toilet 5: drawn 3'-9\" × 4'-5\", printed 3'-9\" × 4'-5\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_type_a_2703",
+          "truthRooms": 27,
+          "draftRooms": 41,
+          "matched": 16,
+          "areaErr": 0.05335649736663591,
+          "scaleErr": -0.01636666881127613,
+          "scaleFrom": "dims",
+          "kindOk": 15,
+          "coverage": 0.7917992114230417,
+          "spill": 0.36856666694032364,
+          "review": 86,
+          "reviewByKind": {
+            "unclosed": 35,
+            "unlabelled": 4,
+            "low-confidence": 19,
+            "opening-guess": 12,
+            "size-mismatch": 13,
+            "other": 3
+          },
+          "ms": 55626,
+          "openingsFound": 21,
+          "truthOpenings": 34,
+          "openingKindOk": 17,
+          "openingsExtra": 46,
+          "missed": [
+            "AOD (service): IoU 0.18 with a face 1.4× its size (merged)",
+            "Service veranda: IoU 0.52 with a face of its size (shifted)",
+            "H. toilet: IoU 0.56 with a face of its size (shifted)",
+            "AOD (west): IoU 0.04 with a face 0.7× its size (split)",
+            "Bath-3: IoU 0.31 with a face 0.4× its size (split)",
+            "Planter: IoU 0.02 with a face of its size (shifted)",
+            "AOD (east): IoU 0.02 with a face 3.2× its size (merged)",
+            "Veranda (bed-1): IoU 0.58 with a face 0.6× its size (split)",
+            "AOD (north): no face",
+            "Lift core: IoU 0.49 with a face 0.5× its size (split)",
+            "Lift lobby: IoU 0.02 with a face 0.2× its size (split)"
+          ],
+          "missedIds": [
+            "r_aod_service",
+            "r_veranda_service",
+            "r_htoilet",
+            "r_aod_w",
+            "r_bath3",
+            "r_planter",
+            "r_aod_e",
+            "r_veranda_bed1",
+            "r_aod_n",
+            "r_lifts",
+            "r_lobby"
+          ],
+          "wallRecall": 0.6094890510948905,
+          "wallPrecision": 0.675746464117339
+        }
+      ]
+    },
+    "afterMetrics": {
+      "key": "btibd-img-3",
+      "walls": 227,
+      "rooms": 41,
+      "labelled": 34,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 36
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "unlabelled-room"
+      ],
+      "review": 86,
+      "sizes": [
+        {
+          "name": "Dining Cum Living",
+          "off": true,
+          "message": "Dining Cum Living: drawn 11'-10\" × 12'-0\", printed 12'-1\" × 12'-5\""
+        },
+        {
+          "name": "Study Room",
+          "off": false,
+          "message": "Study Room: drawn 12'-11\" × 10'-0\", printed 12'-11\" × 10'-0\""
+        },
+        {
+          "name": "Bath",
+          "off": true,
+          "message": "Bath: drawn 4'-4\" × 7'-0\", printed 5'-5\" × 6'-10\""
+        },
+        {
+          "name": "Kitchen",
+          "off": false,
+          "message": "Kitchen: drawn 6'-3\" × 8'-0\", printed 6'-3\" × 8'-0\""
+        },
+        {
+          "name": "Dining Cum Living",
+          "off": true,
+          "message": "Dining Cum Living: drawn 15'-4\" × 12'-0\", printed 15'-4\" × 12'-5\""
+        },
+        {
+          "name": "Living Room",
+          "off": true,
+          "message": "Living Room: drawn 14'-5\" × 15'-4\", printed 14'-11\" × 15'-4\""
+        },
+        {
+          "name": "Bed 1",
+          "off": true,
+          "message": "Bed 1: drawn 14'-7\" × 15'-10\", printed 14'-0\" × 16'-0\""
+        },
+        {
+          "name": "Bath 1",
+          "off": false,
+          "message": "Bath 1: drawn 7'-0\" × 7'-6\", printed 7'-0\" × 8'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": false,
+          "message": "Veranda: drawn 7'-2\" × 7'-7\", printed 7'-1\" × 7'-8\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 11'-2\" × 7'-6\", printed 11'-0\" × 7'-6\""
+        },
+        {
+          "name": "Help Bed",
+          "off": false,
+          "message": "Help Bed: drawn 5'-8\" × 5'-0\", printed 6'-0\" × 5'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": false,
+          "message": "Veranda: drawn 7'-3\" × 7'-1\", printed 7'-4\" × 7'-3\""
+        },
+        {
+          "name": "Dining & Family Living",
+          "off": true,
+          "message": "Dining & Family Living: drawn 12'-9\" × 24'-2\", printed 12'-11\" × 23'-10\""
+        },
+        {
+          "name": "Pdr",
+          "off": false,
+          "message": "Pdr: drawn 5'-11\" × 5'-11\", printed 5'-11\" × 5'-11\""
+        },
+        {
+          "name": "Kitchen",
+          "off": false,
+          "message": "Kitchen: drawn 6'-8\" × 7'-7\", printed 6'-8\" × 8'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 15'-6\" × 11'-10\", printed 15'-0\" × 11'-10\""
+        },
+        {
+          "name": "Bath 2",
+          "off": false,
+          "message": "Bath 2: drawn 9'-1\" × 5'-0\", printed 9'-0\" × 5'-0\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 4'-10\" × 5'-7\", printed 5'-0\" × 6'-0\""
+        },
+        {
+          "name": "Bed",
+          "off": true,
+          "message": "Bed: drawn 10'-9\" × 14'-4\", printed 11'-2\" × 14'-4\""
+        },
+        {
+          "name": "Veranda",
+          "off": true,
+          "message": "Veranda: drawn 3'-11\" × 4'-5\", printed 3'-0\" × 5'-5\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-0\" × 10'-6\", printed 11'-0\" × 10'-6\""
+        },
+        {
+          "name": "Verandah",
+          "off": true,
+          "message": "Verandah: drawn 7'-2\" × 2'-4\", printed 6'-11\" × 3'-4\""
+        },
+        {
+          "name": "Bath",
+          "off": false,
+          "message": "Bath: drawn 5'-1\" × 6'-10\", printed 5'-0\" × 6'-10\""
+        },
+        {
+          "name": "Bed",
+          "off": true,
+          "message": "Bed: drawn 11'-0\" × 11'-10\", printed 11'-0\" × 11'-5\""
+        },
+        {
+          "name": "Toilet 5",
+          "off": false,
+          "message": "Toilet 5: drawn 3'-9\" × 4'-5\", printed 3'-9\" × 4'-5\""
+        },
+        {
+          "name": "Stair",
+          "off": false,
+          "message": "Stair: drawn 13'-10\" × 12'-0\", printed 13'-10\" × 12'-0\""
+        }
+      ],
+      "truth": [
+        {
+          "unitId": "unit_type_a_2703",
+          "truthRooms": 27,
+          "draftRooms": 41,
+          "matched": 16,
+          "areaErr": 0.05335649736663586,
+          "scaleErr": -0.01636666881127613,
+          "scaleFrom": "dims",
+          "kindOk": 15,
+          "coverage": 0.7917992114230417,
+          "spill": 0.36856666694032364,
+          "review": 86,
+          "reviewByKind": {
+            "unclosed": 35,
+            "unlabelled": 4,
+            "low-confidence": 19,
+            "opening-guess": 12,
+            "size-mismatch": 13,
+            "other": 3
+          },
+          "ms": 47783,
+          "openingsFound": 21,
+          "truthOpenings": 34,
+          "openingKindOk": 17,
+          "openingsExtra": 46,
+          "missed": [
+            "AOD (service): IoU 0.18 with a face 1.4× its size (merged)",
+            "Service veranda: IoU 0.52 with a face of its size (shifted)",
+            "H. toilet: IoU 0.56 with a face of its size (shifted)",
+            "AOD (west): IoU 0.04 with a face 0.7× its size (split)",
+            "Bath-3: IoU 0.31 with a face 0.4× its size (split)",
+            "Planter: IoU 0.02 with a face of its size (shifted)",
+            "AOD (east): IoU 0.02 with a face 3.2× its size (merged)",
+            "Veranda (bed-1): IoU 0.58 with a face 0.6× its size (split)",
+            "AOD (north): no face",
+            "Lift core: IoU 0.49 with a face 0.5× its size (split)",
+            "Lift lobby: IoU 0.02 with a face 0.2× its size (split)"
+          ],
+          "missedIds": [
+            "r_aod_service",
+            "r_veranda_service",
+            "r_htoilet",
+            "r_aod_w",
+            "r_bath3",
+            "r_planter",
+            "r_aod_e",
+            "r_veranda_bed1",
+            "r_aod_n",
+            "r_lifts",
+            "r_lobby"
+          ],
+          "wallRecall": 0.6094890510948905,
+          "wallPrecision": 0.675746464117339
+        }
+      ]
+    }
+  },
+  {
+    "key": "btibd-img-4",
+    "file": "Demo drawings/Btibd/img_4.webp",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "btibd-img-4",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 58.722,
+      "summary": "Traced 19 walls, 4 rooms, 2 labelled · scale from wall thickness · wall tracks · 10.2 s",
+      "walls": 18,
+      "openings": 4,
+      "pxPerM": 74.80314960629921,
+      "errors": []
+    },
+    "after": {
+      "key": "btibd-img-4",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 84.241,
+      "summary": "Traced 19 walls, 4 rooms, 2 labelled · scale from wall thickness · wall tracks · 17.6 s",
+      "walls": 18,
+      "openings": 4,
+      "pxPerM": 74.80314960629921,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "btibd-img-4",
+      "walls": 18,
+      "rooms": 4,
+      "labelled": 2,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 8,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "btibd-img-4",
+      "walls": 18,
+      "rooms": 4,
+      "labelled": 2,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 8,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "btibd-img-5",
+    "file": "Demo drawings/Btibd/img_5.webp",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "btibd-img-5",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 117.269,
+      "summary": "Traced 12 walls, 2 rooms, 0 labelled · scale from printed dims · wall tracks · 19.2 s",
+      "walls": 12,
+      "openings": 2,
+      "pxPerM": 18.66885456965455,
+      "errors": []
+    },
+    "after": {
+      "key": "btibd-img-5",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 171.703,
+      "summary": "Traced 12 walls, 2 rooms, 0 labelled · scale from printed dims · wall tracks · 56.2 s",
+      "walls": 12,
+      "openings": 2,
+      "pxPerM": 18.66885456965455,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "btibd-img-5",
+      "walls": 12,
+      "rooms": 2,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "btibd-img-5",
+      "walls": 12,
+      "rooms": 2,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-basement-1",
+    "file": "Demo drawings/Sheltech/Basement 1.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-basement-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 15.176,
+      "summary": "Traced 10 walls, 0 rooms, 0 labelled · scale from wall thickness · wall tracks · 2.8 s",
+      "walls": 10,
+      "openings": 2,
+      "pxPerM": 59.05511811023622,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-basement-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 27.198,
+      "summary": "Traced 10 walls, 0 rooms, 0 labelled · scale from wall thickness · wall tracks · 6.5 s",
+      "walls": 10,
+      "openings": 2,
+      "pxPerM": 59.05511811023622,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-basement-1",
+      "walls": 10,
+      "rooms": 0,
+      "labelled": 0,
+      "flats": [],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-basement-1",
+      "walls": 10,
+      "rooms": 0,
+      "labelled": 0,
+      "flats": [],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-basement-2",
+    "file": "Demo drawings/Sheltech/Basement 2.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-basement-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 11.09,
+      "summary": "Traced 4 walls, 1 rooms, 0 labelled · scale from wall thickness · wall tracks · 2.8 s",
+      "walls": 4,
+      "openings": 0,
+      "pxPerM": 57.08661417322835,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-basement-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 20.397,
+      "summary": "Traced 4 walls, 1 rooms, 0 labelled · scale from wall thickness · wall tracks · 4.1 s",
+      "walls": 4,
+      "openings": 0,
+      "pxPerM": 57.08661417322835,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-basement-2",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-basement-2",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-ground-floor",
+    "file": "Demo drawings/Sheltech/Ground floor.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-ground-floor",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 17.303,
+      "summary": "Traced 16 walls, 3 rooms, 3 labelled · scale from wall thickness · wall tracks · 4.4 s",
+      "walls": 16,
+      "openings": 4,
+      "pxPerM": 29.52755905511811,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-ground-floor",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 37.575,
+      "summary": "Traced 16 walls, 3 rooms, 3 labelled · scale from wall thickness · wall tracks · 12.7 s",
+      "walls": 16,
+      "openings": 4,
+      "pxPerM": 29.52755905511811,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-ground-floor",
+      "walls": 16,
+      "rooms": 3,
+      "labelled": 3,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 5,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-ground-floor",
+      "walls": 16,
+      "rooms": 3,
+      "labelled": 3,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 5,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-level-1",
+    "file": "Demo drawings/Sheltech/Level 1.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-level-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 25.852,
+      "summary": "Traced 41 walls, 8 rooms, 6 labelled · scale from wall thickness · wall tracks · 8.4 s",
+      "walls": 40,
+      "openings": 13,
+      "pxPerM": 31.496062992125985,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-level-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 25.089,
+      "summary": "Traced 41 walls, 8 rooms, 6 labelled · scale from wall thickness · wall tracks · 8.8 s",
+      "walls": 40,
+      "openings": 13,
+      "pxPerM": 31.496062992125985,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-level-1",
+      "walls": 40,
+      "rooms": 8,
+      "labelled": 6,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 5
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 16,
+      "sizes": [
+        {
+          "name": "Lobby",
+          "off": true,
+          "message": "Lobby: drawn 18'-11\" × 5'-4\", printed 18'-8\" × 6'-5\""
+        },
+        {
+          "name": "Toilet",
+          "off": true,
+          "message": "Toilet: drawn 3'-10\" × 3'-9\", printed 4'-6\" × 4'-6\""
+        }
+      ],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-level-1",
+      "walls": 40,
+      "rooms": 8,
+      "labelled": 6,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 5
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 16,
+      "sizes": [
+        {
+          "name": "Lobby",
+          "off": true,
+          "message": "Lobby: drawn 18'-11\" × 5'-4\", printed 18'-8\" × 6'-5\""
+        },
+        {
+          "name": "Toilet",
+          "off": true,
+          "message": "Toilet: drawn 3'-10\" × 3'-9\", printed 4'-6\" × 4'-6\""
+        }
+      ],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-level-3",
+    "file": "Demo drawings/Sheltech/Level 3.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-level-3",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 35.477,
+      "summary": "Traced 235 walls, 37 rooms, 35 labelled · scale from printed dims · wall tracks · 7.6 s",
+      "walls": 217,
+      "openings": 63,
+      "pxPerM": 26.902887139107612,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-level-3",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 44.055,
+      "summary": "Traced 238 walls, 38 rooms, 36 labelled · scale from printed dims · wall tracks · 13.5 s",
+      "walls": 222,
+      "openings": 63,
+      "pxPerM": 26.902887139107612,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-level-3",
+      "walls": 217,
+      "rooms": 38,
+      "labelled": 35,
+      "flats": [
+        {
+          "name": "Type WO",
+          "rooms": 21
+        },
+        {
+          "name": "Type A",
+          "rooms": 14
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 95,
+      "sizes": [
+        {
+          "name": "Family Living",
+          "off": true,
+          "message": "Family Living: drawn 10'-6\" × 12'-3\", printed 10'-5\" × 11'-6\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 13'-2\" × 14'-11\", printed 13'-2\" × 15'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 5'-7\" × 4'-11\", printed 6'-0\" × 5'-3\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-7\" × 13'-11\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-5\" × 6'-7\", printed 7'-10\" × 6'-4\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-4\" × 5'-5\", printed 7'-9\" × 5'-2\""
+        }
+      ],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-level-3",
+      "walls": 222,
+      "rooms": 39,
+      "labelled": 36,
+      "flats": [
+        {
+          "name": "Type WO",
+          "rooms": 22
+        },
+        {
+          "name": "Type A",
+          "rooms": 14
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 99,
+      "sizes": [
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 13'-2\" × 14'-11\", printed 13'-2\" × 15'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 11'-7\" × 13'-11\", printed 12'-0\" × 14'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 5'-7\" × 4'-11\", printed 6'-0\" × 5'-3\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-4\" × 5'-5\", printed 7'-9\" × 5'-2\""
+        },
+        {
+          "name": "Family Living",
+          "off": true,
+          "message": "Family Living: drawn 10'-6\" × 12'-3\", printed 10'-5\" × 11'-6\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-5\" × 6'-7\", printed 7'-10\" × 6'-4\""
+        }
+      ],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-level-4",
+    "file": "Demo drawings/Sheltech/Level 4.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-level-4",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 57.033,
+      "summary": "Traced 218 walls, 33 rooms, 32 labelled · scale from printed dims · wall tracks · 21.8 s",
+      "walls": 212,
+      "openings": 63,
+      "pxPerM": 26.92668597772429,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-level-4",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 42.14,
+      "summary": "Traced 221 walls, 34 rooms, 33 labelled · scale from printed dims · wall tracks · 16.6 s",
+      "walls": 216,
+      "openings": 64,
+      "pxPerM": 26.92668597772429,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-level-4",
+      "walls": 212,
+      "rooms": 33,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 15
+        },
+        {
+          "name": "Type A",
+          "rooms": 14
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 73,
+      "sizes": [
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 12'-0\" × 18'-8\", printed 12'-0\" × 14'-2\""
+        },
+        {
+          "name": "Ver",
+          "off": false,
+          "message": "Ver: drawn 6'-7\" × 4'-5\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Lobby",
+          "off": true,
+          "message": "Lobby: drawn 18'-8\" × 6'-5\", printed 18'-8\" × 6'-0\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-6\" × 15'-11\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-5\" × 13'-0\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 9'-3\" × 6'-5\", printed 9'-3\" × 7'-1\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 13'-0\" × 15'-6\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Bed 4",
+          "off": true,
+          "message": "Bed 4: drawn 10'-5\" × 11'-3\", printed 5'-0\" × 11'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": false,
+          "message": "Ver: drawn 5'-9\" × 5'-3\", printed 6'-0\" × 5'-3\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 10'-8\" × 6'-6\", printed 11'-0\" × 7'-8\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-0\" × 6'-0\", printed 6'-9\" × 6'-3\""
+        }
+      ],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-level-4",
+      "walls": 216,
+      "rooms": 34,
+      "labelled": 33,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 15
+        },
+        {
+          "name": "Type A",
+          "rooms": 15
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 77,
+      "sizes": [
+        {
+          "name": "Bed 4",
+          "off": true,
+          "message": "Bed 4: drawn 10'-5\" × 11'-3\", printed 5'-0\" × 11'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-5\" × 13'-0\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 6'-0\" × 6'-0\", printed 6'-9\" × 6'-3\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 9'-3\" × 6'-5\", printed 9'-3\" × 7'-1\""
+        },
+        {
+          "name": "Lobby",
+          "off": true,
+          "message": "Lobby: drawn 18'-8\" × 6'-5\", printed 18'-8\" × 6'-0\""
+        },
+        {
+          "name": "Bed 2",
+          "off": true,
+          "message": "Bed 2: drawn 12'-0\" × 18'-8\", printed 12'-0\" × 14'-2\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 10'-8\" × 6'-6\", printed 11'-0\" × 7'-8\""
+        },
+        {
+          "name": "Bed 1",
+          "off": false,
+          "message": "Bed 1: drawn 13'-0\" × 15'-6\", printed 13'-0\" × 15'-6\""
+        },
+        {
+          "name": "Ver",
+          "off": false,
+          "message": "Ver: drawn 5'-9\" × 5'-3\", printed 6'-0\" × 5'-3\""
+        },
+        {
+          "name": "Ver",
+          "off": false,
+          "message": "Ver: drawn 6'-7\" × 4'-5\", printed 7'-1\" × 4'-6\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-6\" × 15'-11\", printed 13'-6\" × 16'-0\""
+        }
+      ],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-level-5",
+    "file": "Demo drawings/Sheltech/Level 5.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-level-5",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 83.419,
+      "summary": "Traced 211 walls, 34 rooms, 31 labelled · scale from printed dims · wall tracks · 27.4 s",
+      "walls": 200,
+      "openings": 65,
+      "pxPerM": 26.751463759337774,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-level-5",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 31.92,
+      "summary": "Traced 217 walls, 36 rooms, 32 labelled · scale from printed dims · wall tracks · 7.3 s",
+      "walls": 206,
+      "openings": 66,
+      "pxPerM": 26.751463759337774,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-level-5",
+      "walls": 200,
+      "rooms": 34,
+      "labelled": 31,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 13
+        },
+        {
+          "name": "Type A",
+          "rooms": 17
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 88,
+      "sizes": [
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 13'-1\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 6'-5\" × 13'-1\", printed 8'-5\" × 12'-2\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-3\" × 5'-11\", printed 7'-5\" × 6'-8\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-4\" × 16'-0\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 10'-7\" × 6'-5\", printed 11'-0\" × 7'-8\""
+        },
+        {
+          "name": "Bed 4",
+          "off": true,
+          "message": "Bed 4: drawn 4'-9\" × 9'-10\", printed 2'-0\" × 9'-8\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 9'-4\" × 6'-3\", printed 9'-3\" × 7'-1\""
+        }
+      ],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-level-5",
+      "walls": 206,
+      "rooms": 36,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 15
+        },
+        {
+          "name": "Type A",
+          "rooms": 17
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 94,
+      "sizes": [
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-4\" × 16'-0\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 13'-1\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 6'-5\" × 13'-1\", printed 8'-5\" × 12'-2\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-3\" × 5'-11\", printed 7'-5\" × 6'-8\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 9'-4\" × 6'-3\", printed 9'-3\" × 7'-1\""
+        },
+        {
+          "name": "Bed 4",
+          "off": true,
+          "message": "Bed 4: drawn 4'-9\" × 9'-10\", printed 2'-0\" × 9'-8\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 10'-7\" × 6'-5\", printed 11'-0\" × 7'-8\""
+        }
+      ],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-level-6",
+    "file": "Demo drawings/Sheltech/Level 6.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-level-6",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 59.632,
+      "summary": "Traced 211 walls, 34 rooms, 31 labelled · scale from printed dims · wall tracks · 14.6 s",
+      "walls": 200,
+      "openings": 65,
+      "pxPerM": 26.751463759337774,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-level-6",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 35.791,
+      "summary": "Traced 217 walls, 36 rooms, 32 labelled · scale from printed dims · wall tracks · 12.5 s",
+      "walls": 206,
+      "openings": 66,
+      "pxPerM": 26.751463759337774,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-level-6",
+      "walls": 200,
+      "rooms": 34,
+      "labelled": 31,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 13
+        },
+        {
+          "name": "Type A",
+          "rooms": 17
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 88,
+      "sizes": [
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-3\" × 5'-11\", printed 7'-5\" × 6'-8\""
+        },
+        {
+          "name": "Bed 4",
+          "off": true,
+          "message": "Bed 4: drawn 4'-9\" × 9'-10\", printed 2'-0\" × 9'-8\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 9'-4\" × 6'-3\", printed 9'-3\" × 7'-1\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 6'-5\" × 13'-1\", printed 8'-5\" × 12'-2\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 13'-1\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-4\" × 16'-0\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 10'-7\" × 6'-5\", printed 11'-0\" × 7'-8\""
+        }
+      ],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-level-6",
+      "walls": 206,
+      "rooms": 36,
+      "labelled": 32,
+      "flats": [
+        {
+          "name": "Type B",
+          "rooms": 15
+        },
+        {
+          "name": "Type A",
+          "rooms": 17
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 94,
+      "sizes": [
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 10'-7\" × 6'-5\", printed 11'-0\" × 7'-8\""
+        },
+        {
+          "name": "Bed 3",
+          "off": false,
+          "message": "Bed 3: drawn 11'-6\" × 13'-1\", printed 11'-6\" × 13'-0\""
+        },
+        {
+          "name": "Kitchen",
+          "off": true,
+          "message": "Kitchen: drawn 6'-5\" × 13'-1\", printed 8'-5\" × 12'-2\""
+        },
+        {
+          "name": "Bed 4",
+          "off": true,
+          "message": "Bed 4: drawn 4'-9\" × 9'-10\", printed 2'-0\" × 9'-8\""
+        },
+        {
+          "name": "Living",
+          "off": false,
+          "message": "Living: drawn 13'-4\" × 16'-0\", printed 13'-6\" × 16'-0\""
+        },
+        {
+          "name": "Foyer",
+          "off": true,
+          "message": "Foyer: drawn 9'-4\" × 6'-3\", printed 9'-3\" × 7'-1\""
+        },
+        {
+          "name": "Ver",
+          "off": true,
+          "message": "Ver: drawn 7'-3\" × 5'-11\", printed 7'-5\" × 6'-8\""
+        }
+      ],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-rooftop",
+    "file": "Demo drawings/Sheltech/Rooftop.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-rooftop",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 9.219,
+      "summary": "Traced 4 walls, 1 rooms, 1 labelled · scale from wall thickness · wall tracks · 2.6 s",
+      "walls": 4,
+      "openings": 0,
+      "pxPerM": 70.86614173228347,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-rooftop",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 12.901,
+      "summary": "Traced 8 walls, 2 rooms, 2 labelled · scale from wall thickness · wall tracks · 4.1 s",
+      "walls": 8,
+      "openings": 0,
+      "pxPerM": 70.86614173228347,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-rooftop",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-rooftop",
+      "walls": 8,
+      "rooms": 2,
+      "labelled": 2,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 11,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-basement-1",
+    "file": "Demo drawings/Sheltech Banani/Basement 1.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-basement-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 20.677,
+      "summary": "Traced 4 walls, 1 rooms, 1 labelled · scale from wall thickness · wall tracks · 4.2 s",
+      "walls": 4,
+      "openings": 2,
+      "pxPerM": 64.96062992125984,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-basement-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 15.907,
+      "summary": "Traced 4 walls, 1 rooms, 1 labelled · scale from wall thickness · wall tracks · 2.8 s",
+      "walls": 4,
+      "openings": 2,
+      "pxPerM": 64.96062992125984,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-basement-1",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-basement-1",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-basement-2",
+    "file": "Demo drawings/Sheltech Banani/Basement 2.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-basement-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 24.515,
+      "summary": "Traced 45 walls, 7 rooms, 4 labelled · scale from wall thickness · wall tracks · 3.5 s",
+      "walls": 42,
+      "openings": 5,
+      "pxPerM": 64.96062992125984,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-basement-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 17.256,
+      "summary": "Traced 45 walls, 7 rooms, 4 labelled · scale from wall thickness · wall tracks · 2.6 s",
+      "walls": 42,
+      "openings": 5,
+      "pxPerM": 64.96062992125984,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-basement-2",
+      "walls": 42,
+      "rooms": 7,
+      "labelled": 4,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 7
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 27,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-basement-2",
+      "walls": 42,
+      "rooms": 7,
+      "labelled": 4,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 7
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 27,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-ground-level",
+    "file": "Demo drawings/Sheltech Banani/Ground level.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-ground-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 20.527,
+      "summary": "Traced 7 walls, 1 rooms, 0 labelled · scale from wall thickness · wall tracks · 5.3 s",
+      "walls": 7,
+      "openings": 2,
+      "pxPerM": 15.748031496062993,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-ground-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 23.17,
+      "summary": "Traced 104 walls, 9 rooms, 4 labelled · scale from wall thickness · wall tracks · 6.7 s",
+      "walls": 103,
+      "openings": 6,
+      "pxPerM": 15.748031496062993,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-ground-level",
+      "walls": 7,
+      "rooms": 1,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 9,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-ground-level",
+      "walls": 103,
+      "rooms": 12,
+      "labelled": 4,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 9
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 61,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-level-2-6",
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-level-2-6",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 34.62,
+      "summary": "Traced 87 walls, 7 rooms, 6 labelled · scale from wall thickness · wall tracks · 12.0 s",
+      "walls": 85,
+      "openings": 13,
+      "pxPerM": 33.46456692913386,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-level-2-6",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 20.485,
+      "summary": "Traced 120 walls, 13 rooms, 10 labelled · scale from wall thickness · wall tracks · 5.7 s",
+      "walls": 117,
+      "openings": 34,
+      "pxPerM": 33.46456692913386,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-level-2-6",
+      "walls": 85,
+      "rooms": 8,
+      "labelled": 6,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 6
+        },
+        {
+          "name": "Unit B",
+          "rooms": 1
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "unlabelled-room"
+      ],
+      "review": 51,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-level-2-6",
+      "walls": 117,
+      "rooms": 14,
+      "labelled": 10,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 7
+        },
+        {
+          "name": "Unit B",
+          "rooms": 6
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "unlabelled-room"
+      ],
+      "review": 65,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-level-7",
+    "file": "Demo drawings/Sheltech Banani/Level 7.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-level-7",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 55.341,
+      "summary": "Traced 93 walls, 7 rooms, 6 labelled · scale from wall thickness · wall tracks · 10.2 s",
+      "walls": 85,
+      "openings": 23,
+      "pxPerM": 35.43307086614173,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-level-7",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 21.15,
+      "summary": "Traced 107 walls, 11 rooms, 10 labelled · scale from wall thickness · wall tracks · 4.0 s",
+      "walls": 99,
+      "openings": 30,
+      "pxPerM": 35.43307086614173,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-level-7",
+      "walls": 85,
+      "rooms": 8,
+      "labelled": 6,
+      "flats": [
+        {
+          "name": "Unit A & B",
+          "rooms": 7
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "unlabelled-room"
+      ],
+      "review": 49,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-level-7",
+      "walls": 99,
+      "rooms": 12,
+      "labelled": 10,
+      "flats": [
+        {
+          "name": "Unit A & B",
+          "rooms": 10
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 56,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-level-8",
+    "file": "Demo drawings/Sheltech Banani/Level 8.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-level-8",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 40.373,
+      "summary": "Traced 23 walls, 4 rooms, 3 labelled · scale from wall thickness · wall tracks · 7.9 s",
+      "walls": 22,
+      "openings": 8,
+      "pxPerM": 35.43307086614173,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-level-8",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 29.264,
+      "summary": "Traced 23 walls, 4 rooms, 3 labelled · scale from wall thickness · wall tracks · 5.9 s",
+      "walls": 22,
+      "openings": 8,
+      "pxPerM": 35.43307086614173,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-level-8",
+      "walls": 22,
+      "rooms": 4,
+      "labelled": 3,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 4
+        }
+      ],
+      "issues": [],
+      "review": 9,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-level-8",
+      "walls": 22,
+      "rooms": 4,
+      "labelled": 3,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 4
+        }
+      ],
+      "issues": [],
+      "review": 9,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-level-9-13",
+    "file": "Demo drawings/Sheltech Banani/Level 9-13.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-level-9-13",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 51.681,
+      "summary": "Traced 20 walls, 4 rooms, 1 labelled · scale from wall thickness · wall tracks · 8.3 s",
+      "walls": 20,
+      "openings": 7,
+      "pxPerM": 37.40157480314961,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-level-9-13",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 22.91,
+      "summary": "Traced 39 walls, 6 rooms, 2 labelled · scale from wall thickness · wall tracks · 4.5 s",
+      "walls": 36,
+      "openings": 17,
+      "pxPerM": 37.40157480314961,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-level-9-13",
+      "walls": 20,
+      "rooms": 4,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 4
+        }
+      ],
+      "issues": [],
+      "review": 7,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-level-9-13",
+      "walls": 36,
+      "rooms": 6,
+      "labelled": 2,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 6
+        }
+      ],
+      "issues": [],
+      "review": 19,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-banani-roof-level",
+    "file": "Demo drawings/Sheltech Banani/Roof level.jpg",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-banani-roof-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 13.751,
+      "summary": "Traced 13 walls, 2 rooms, 1 labelled · scale from wall thickness · wall tracks · 4.1 s",
+      "walls": 13,
+      "openings": 2,
+      "pxPerM": 37.40157480314961,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-banani-roof-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 12.29,
+      "summary": "Traced 11 walls, 2 rooms, 0 labelled · scale from wall thickness · wall tracks · 4.1 s",
+      "walls": 11,
+      "openings": 3,
+      "pxPerM": 37.40157480314961,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-banani-roof-level",
+      "walls": 13,
+      "rooms": 2,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [
+        "dangling-vertex"
+      ],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-banani-roof-level",
+      "walls": 11,
+      "rooms": 2,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-dmd-basement-1",
+    "file": "Demo drawings/Sheltech dmd/Basement 1.png",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-dmd-basement-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 17.107,
+      "summary": "Traced 10 walls, 2 rooms, 1 labelled · scale from wall thickness · wall tracks · 3.5 s",
+      "walls": 10,
+      "openings": 4,
+      "pxPerM": 39.37007874015748,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-dmd-basement-1",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 24.271,
+      "summary": "Traced 14 walls, 3 rooms, 1 labelled · scale from wall thickness · wall tracks · 4.4 s",
+      "walls": 14,
+      "openings": 6,
+      "pxPerM": 39.37007874015748,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-dmd-basement-1",
+      "walls": 10,
+      "rooms": 2,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-dmd-basement-1",
+      "walls": 14,
+      "rooms": 3,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 3
+        }
+      ],
+      "issues": [],
+      "review": 8,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-dmd-basement-2",
+    "file": "Demo drawings/Sheltech dmd/Basement 2.png",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-dmd-basement-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 22.053,
+      "summary": "Traced 3 walls, 0 rooms, 0 labelled · scale from wall thickness · wall tracks · 2.7 s",
+      "walls": 3,
+      "openings": 0,
+      "pxPerM": 57.08661417322835,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-dmd-basement-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 26.099,
+      "summary": "Traced 3 walls, 0 rooms, 0 labelled · scale from wall thickness · wall tracks · 3.9 s",
+      "walls": 3,
+      "openings": 0,
+      "pxPerM": 57.08661417322835,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-dmd-basement-2",
+      "walls": 3,
+      "rooms": 0,
+      "labelled": 0,
+      "flats": [],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-dmd-basement-2",
+      "walls": 3,
+      "rooms": 0,
+      "labelled": 0,
+      "flats": [],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 3,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-dmd-ground-level",
+    "file": "Demo drawings/Sheltech dmd/Ground level.png",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-dmd-ground-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 19.763,
+      "summary": "Traced 20 walls, 2 rooms, 0 labelled · scale from wall thickness · wall tracks · 7.1 s",
+      "walls": 20,
+      "openings": 3,
+      "pxPerM": 11.811023622047244,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-dmd-ground-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 29.897,
+      "summary": "Traced 20 walls, 2 rooms, 0 labelled · scale from wall thickness · wall tracks · 12.9 s",
+      "walls": 20,
+      "openings": 3,
+      "pxPerM": 11.811023622047244,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-dmd-ground-level",
+      "walls": 20,
+      "rooms": 2,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 18,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-dmd-ground-level",
+      "walls": 20,
+      "rooms": 2,
+      "labelled": 0,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 18,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-dmd-level-2",
+    "file": "Demo drawings/Sheltech dmd/Level 2.png",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-dmd-level-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 10.582,
+      "summary": "Traced 17 walls, 4 rooms, 1 labelled · scale from wall thickness · wall tracks · 3.8 s",
+      "walls": 16,
+      "openings": 4,
+      "pxPerM": 19.68503937007874,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-dmd-level-2",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 14.405,
+      "summary": "Traced 17 walls, 4 rooms, 1 labelled · scale from wall thickness · wall tracks · 5.3 s",
+      "walls": 16,
+      "openings": 5,
+      "pxPerM": 19.68503937007874,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-dmd-level-2",
+      "walls": 16,
+      "rooms": 4,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 4
+        }
+      ],
+      "issues": [],
+      "review": 8,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-dmd-level-2",
+      "walls": 16,
+      "rooms": 4,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 4
+        }
+      ],
+      "issues": [],
+      "review": 8,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-dmd-level-3-14",
+    "file": "Demo drawings/Sheltech dmd/Level 3-14.png",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-dmd-level-3-14",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 19.412,
+      "summary": "Traced 9 walls, 2 rooms, 1 labelled · scale from wall thickness · wall tracks · 3.6 s",
+      "walls": 9,
+      "openings": 3,
+      "pxPerM": 64.96062992125984,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-dmd-level-3-14",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 20.437,
+      "summary": "Traced 9 walls, 2 rooms, 1 labelled · scale from wall thickness · wall tracks · 4.5 s",
+      "walls": 9,
+      "openings": 3,
+      "pxPerM": 64.96062992125984,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-dmd-level-3-14",
+      "walls": 9,
+      "rooms": 2,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 10,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-dmd-level-3-14",
+      "walls": 9,
+      "rooms": 2,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 2
+        }
+      ],
+      "issues": [],
+      "review": 10,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "sheltech-dmd-roof-level",
+    "file": "Demo drawings/Sheltech dmd/Roof level.png",
+    "calibration": "automatic",
+    "mode": "floor",
+    "before": {
+      "key": "sheltech-dmd-roof-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 11.822,
+      "summary": "Traced 4 walls, 1 rooms, 1 labelled · scale from wall thickness · wall tracks · 2.3 s",
+      "walls": 4,
+      "openings": 0,
+      "pxPerM": 43.30708661417323,
+      "errors": []
+    },
+    "after": {
+      "key": "sheltech-dmd-roof-level",
+      "mode": "floor",
+      "calibration": "automatic",
+      "seconds": 14.776,
+      "summary": "Traced 4 walls, 1 rooms, 1 labelled · scale from wall thickness · wall tracks · 3.4 s",
+      "walls": 4,
+      "openings": 0,
+      "pxPerM": 43.30708661417323,
+      "errors": []
+    },
+    "beforeMetrics": {
+      "key": "sheltech-dmd-roof-level",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "sheltech-dmd-roof-level",
+      "walls": 4,
+      "rooms": 1,
+      "labelled": 1,
+      "flats": [
+        {
+          "name": "Flat 1",
+          "rooms": 1
+        }
+      ],
+      "issues": [],
+      "review": 6,
+      "sizes": [],
+      "truth": []
+    }
+  },
+  {
+    "key": "banani-l2-calibrated",
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "calibration": "known",
+    "mode": "floor",
+    "before": {
+      "key": "banani-l2-calibrated",
+      "mode": "floor",
+      "calibration": "known",
+      "seconds": 18.84,
+      "summary": "Traced 134 walls, 13 rooms, 10 labelled · scale from your scale · wall tracks · 4.9 s",
+      "walls": 136,
+      "openings": 20,
+      "pxPerM": 28.479512977544445,
+      "errors": []
+    },
+    "after": {
+      "key": "banani-l2-calibrated",
+      "mode": "floor",
+      "calibration": "known",
+      "seconds": 29.912,
+      "summary": "Traced 136 walls, 16 rooms, 12 labelled · scale from your scale · wall tracks · 8.1 s",
+      "walls": 135,
+      "openings": 37,
+      "pxPerM": 28.479512977544445,
+      "errors": [],
+      "edit": {
+        "oldInches": "6",
+        "changedWalls": 1,
+        "newInches": 8,
+        "undo": true
+      },
+      "preview": {
+        "entered": true,
+        "walk": true,
+        "dollhouse": true,
+        "canvas": 1,
+        "fallback": false
+      }
+    },
+    "beforeMetrics": {
+      "key": "banani-l2-calibrated",
+      "walls": 136,
+      "rooms": 15,
+      "labelled": 10,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 13
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 69,
+      "sizes": [],
+      "truth": []
+    },
+    "afterMetrics": {
+      "key": "banani-l2-calibrated",
+      "walls": 135,
+      "rooms": 17,
+      "labelled": 12,
+      "flats": [
+        {
+          "name": "Unit A",
+          "rooms": 16
+        }
+      ],
+      "issues": [
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex",
+        "dangling-vertex"
+      ],
+      "review": 75,
+      "sizes": [],
+      "truth": []
+    }
+  }
+]

@@ -45,7 +45,7 @@ Extras you can add to the end of a 3D address:
 
 ## 2. The 3D view — everyone
 
-**Start screen:** project, flat name, floor and size. **Enter** (button or Enter key) goes in: you stand just inside the flat's front door, looking in — a drawing with no door yet puts you in its living room (or its first room) as Rooms → that room would, never facing a bare wall (2026-10-18). Below it: links to the other flats and levels.
+**Start screen:** project, flat name, floor and size. **Enter** (button or Enter key) loads the 3D view, including furniture, finishes, and lighting, then puts you just inside the front door. If the drawing has no door, you start in the living room or first room. On a slow connection, some details may finish loading after you enter. Below the button are links to the other flats and levels.
 
 **Buttons, top right**
 
@@ -202,6 +202,24 @@ On a narrow window (under about 1 600 px wide) the top bar takes two lines, so e
 | Change list | Opens `/changes`. Needs the database. |
 
 **Loading the plan picture:** drop the picture on the Studio, or click **Choose plan image…** (PNG, JPG or WEBP, up to 10 MB).
+Auto-trace accepts up to 16 megapixels. For a larger image, export one floor or resize the picture before tracing.
+
+### DXF input
+
+Use **Import DXF** at the top of the Studio's right panel to create an editable floor plan from CAD vectors.
+
+1. Choose an ASCII `.dxf` file (maximum 15 MB). DWG and binary DXF are not supported.
+2. Choose model space, paper space, or a separated drawing if Plotline detects multiple drawings.
+3. Check the preview and assign each layer to Walls, Doors, Windows, Room text, Dimensions / notes, Furniture, or Ignore. Plotline suggests roles from layer names and contents; verify them against the preview.
+4. Confirm the metres-per-DXF-unit value. `$INSUNITS` supplies a suggestion only. If the plan contains printed room dimensions, compare those with the generated room sizes.
+5. Select **Build and review**. Plotline creates the wall graph, derives closed rooms/flats, and lists uncertainty such as unclosed rooms, guessed openings, ignored layers, unsupported entities, or scale mismatches.
+6. Import the whole floor or one inferred flat. Use **DXF review** in the right panel to locate or dismiss a review item. **Ctrl+Z** restores the previous drawing, including its plan image and review.
+
+Press **Esc** to close the DXF dialog. If a file fails to open, you can choose a corrected copy with the same filename.
+
+The importer approximates curved geometry with short straight segments. It uses mapped wall linework and common CAD conventions; inspect the generated plan and review rows before using it downstream. Layer mappings are saved in this browser by filename. Parsing/building runs in a worker, with input/entity limits for large files.
+
+One selected drawing creates one Plotline Unit (one floor plan). To make a multi-storey project, import each floor drawing into its own Unit and add those Units to a project with the existing Building controls.
 
 ### Site — where the building stands (top bar → Site)
 
@@ -292,6 +310,9 @@ Every tool except **V** and **S** stays locked until the scale is set. A drawing
 ### Flats in a whole-floor drawing
 
 **Auto-trace does it for you (2026-10-09, Level 4).** Press **Auto-trace**, wait for "Point at a flat", then:
+
+Short walls where the wall width changes, and pale blue window fronts against darker floors, are now traced more reliably (2026-11-03). Check the traced boundaries against the picture and set the scale from a printed dimension; missing rooms, verandas and thin walls can still need manual correction.
+
 - **Whole floor** (button in the box at the top of the plan): every flat on the sheet and the shared lobby, stair and lifts, in one draft. **As many flats as labels** (2026-10-16): each flat label printed on the plan is one flat, found around its label (Foysal Smart Garden: Unit A + Unit B; CPDL Charukabya: Unit A + Unit B; Finlay Chayaneer: Type A, B, C, which print no room names at all); a studio counts though it has no bedroom. A sheet whose only flat label is its title ("UNIT A: 3910 SFT") is one flat (BTI Magnifico, was 3). With no flat label, the flats are found from the living / dining / kitchen names as before. Each flat comes out tinted and named: by its printed type when the sheet has one ("TYPE-A ±2736 SFT" → **Type A**; Sheltech L2's red TYPE-B is read too; "Unit A: 1375 Sft" → **Unit A**, the sheet's own word — 2026-10-18, it came out "Flat 1" before), else **Flat 1, Flat 2, Flat 3** from west to east. The lobby, stair and lifts are in no flat. Sheltech Level 2: Type A + Type B + the core. BTI 2nd floor: three flats (the big one and the two small ones above it). A room whose name is printed but whose door Auto-trace did not find still goes into the flat it shares the most walls with — and since 2026-10-18 evening so does a veranda that touches the flat only through such a room (Jahan Lodge's Master Ver.).
 - **Before you click, the flat glows** under the pointer: everything the click would take, its closed rooms outlined and the open floor around them (rooms whose walls are not closed yet) tinted the same, as one area (since 2026-10-16; before, only closed rooms glowed, so on a sheet drawn in thin lines nothing did). If the glow runs into the flat next door, the click would take that part too.
 - **A flat holds its own label, never another flat's** (2026-10-16). The flat labels printed on the plan — an area ("Unit A: 1375 Sft", "±2736 SFT") or a flat's name standing alone ("UNIT-B", "TYPE A") — mark the flats: a click never takes the floor around another flat's label, even where a wall between the two flats was not found (the open floor between two labels is split halfway). A key plan's tiny "TYPE: A" and a title block's list do not count.

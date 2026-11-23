@@ -28,7 +28,7 @@ import { HDRI } from '../furnish/textures'
 import { GAP_PREFIX, KERB_M, bayLineGeometry, bayMarkings, buildSkirtings, closeGaps, dressOpening, floorGeometry, liftWall, liftedWall, pillarParts, poolBasin, raiseHeads, roomCeiling, stepFaces, stepGeometry, storeyTop, wallGeometry, wallLift, type WallLift } from './details'
 import { bakeDaylight, isCovered, mapDaylight, setDaylight, type Daylight } from './daylight'
 import { buildFurniture } from './furniture'
-import { CONCRETE, EDGE_PLASTER, PAINT, materialFor, resolveFinish, setMaxAnisotropy, zoneFinishRef } from './materials'
+import { CONCRETE, EDGE_PLASTER, PAINT, materialFor, resolveFinish, setMaxAnisotropy, waitForFinishMaps, zoneFinishRef } from './materials'
 import { PANES, WATER } from './openings'
 import { Look, SITE_REACH_M, lightsOn, needsFrame, skyLight, slowFrames, type LightsMode, type Quality } from './render'
 import { SEASON_TINT, WindFlow } from './wind'
@@ -260,6 +260,10 @@ export class PlotlineScene {
   private rooms: Room[] = []
   private cfg: Configuration = {}
   private ready = false
+  private initialFurniture: Promise<void> = Promise.resolve()
+  private readonly initialEnvironment: Promise<void>
+  private readonly viewVector = new THREE.Vector3()
+  private roomQuery?: { token: number; x: number; y: number; id: Id | null }
   private buildToken = 0
   private mode: SceneMode = 'walk'
   private hour = 13
@@ -348,7 +352,7 @@ export class PlotlineScene {
     // tone mapping, shadows, hemisphere, post, exterior: see render.ts
     this.look = new Look(this.renderer, this.scene, this.camera, this.sun, opts.quality ?? 'high')
     this.scene.add(this.sun, this.sun.target)
-    void this.loadEnvironment()
+    this.initialEnvironment = this.loadEnvironment().catch(e => console.warn('[plotline] environment lighting fell back', e))
     canvas.addEventListener('webglcontextrestored', this.onContextRestored)
     canvas.addEventListener('webglcontextlost', this.onContextLost)
     for (const e of WAKE) window.addEventListener(e, this.wake, { passive: true })
@@ -361,6 +365,7 @@ export class PlotlineScene {
     this.orbit.enableDamping = true
     this.orbit.maxPolarAngle = Math.PI / 2 - 0.05
     this.plc = new PointerLockControls(this.camera, canvas)
+    this.plc.isLocked = document.pointerLockElement === canvas
     this.setMode('walk')
 
     this.selFoot.geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(12), 3))
@@ -452,7 +457,12 @@ export class PlotlineScene {
     this.floorY = this.levelAt(this.walker)
     this.moveTarget = null
     this.setMode(this.mode)
-    void this.loadFurniture(unit)
+    this.initialFurniture = this.loadFurniture(unit)
+  }
+
+  async whenVisualsReady(): Promise<void> {
+    await Promise.allSettled([this.initialFurniture, this.initialEnvironment])
+    if (!this.disposed) await waitForFinishMaps(this.scene)
   }
 
   /** slotId (or a room / wall-face key, finishes.ts roomKey / wallKey) → optionId. Swaps materials only. */
@@ -623,7 +633,28 @@ export class PlotlineScene {
 
   currentRoomId(): Id | null {
     if (!this.ready || !this.unit) return null
-    return core.roomAt(this.walker, this.rooms, this.unit)?.id ?? null
+    const { x, y } = this.walker
+    const last = this.roomQuery
+    if (last?.token === this.buildToken && last.x === x && last.y === y) return last.id
+    const id = core.roomAt(this.walker, this.rooms, this.unit)?.id ?? null
+    this.roomQuery = { token: this.buildToken, x, y, id }
+    return id
+  }
+
+  /** Camera coordinates in the same metres and axes as the plan. */
+  viewEye(): Pt {
+    const p = this.camera.getWorldPosition(this.viewVector)
+    return { x: p.x, y: p.z }
+  }
+
+  viewHeading(): Pt {
+    const p = this.camera.getWorldDirection(this.viewVector)
+    return { x: p.x, y: p.z }
+  }
+
+  /** Projection for screen overlays. The result is reused by the next call. */
+  projectPoint(point: { x: number; y: number; z: number }): Readonly<{ x: number; y: number; z: number }> {
+    return this.viewVector.set(point.x, point.y, point.z).project(this.camera)
   }
 
   /** Enter pointer lock (mouse look). Must be called from a user gesture; dblclick on the canvas does this too. Never while arranging or editing openings. */
@@ -1264,15 +1295,20 @@ export class PlotlineScene {
 
   private async loadFurniture(unit: Unit): Promise<void> {
     const token = this.buildToken
-    const byDistance = [...unit.furniture].sort(
+    const byDistance = unit.furniture.filter(p => !p.removed).sort(
       (a, b) => Math.hypot(a.x - this.walker.x, a.y - this.walker.y) - Math.hypot(b.x - this.walker.x, b.y - this.walker.y),
     )
-    for (const p of byDistance) {
-      const obj = await buildFurniture(p, this.ceilingOf(p.roomId), this.floorOf(p))
-      if (token !== this.buildToken) return // unit changed mid-load
-      this.mountPiece(obj, p)
-      obj.visible = !p.removed
-    }
+    let next = 0
+    // A small pool avoids loading each model in a network waterfall.
+    await Promise.all(Array.from({ length: Math.min(3, byDistance.length) }, async () => {
+      while (token === this.buildToken && next < byDistance.length) {
+        const p = byDistance[next++]
+        if (this.pieceObject(p.id) || this.adding.has(p.id)) continue
+        const obj = await buildFurniture(p, this.ceilingOf(p.roomId), this.floorOf(p))
+        if (token !== this.buildToken) return
+        if (!this.pieceObject(p.id) && !this.adding.has(p.id)) this.mountPiece(obj, p)
+      }
+    }))
   }
 
   private mountPiece(obj: THREE.Object3D, p: FurniturePlacement): void {

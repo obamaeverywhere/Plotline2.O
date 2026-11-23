@@ -1,0 +1,37 @@
+{
+  "workflowCases": 37,
+  "finalFlatReruns": 20,
+  "before": ".trace/round3/before",
+  "after": ".trace/round3/after",
+  "sourceSha256": {
+    "src/trace/faces.ts": "32b250187ba9551a9fe294ea96fb92118c0e81f75f6f9f7c31401c7deb4ace19",
+    "src/trace/solve.ts": "f2576fc4bb56b52c52ccac26303fb52fd199a14da058636a1a28531157513aef",
+    "scripts/trace-boundaries.json": "a3ba1c1b9a1125d7764f84a8a24abba521467b7e839db7d3afad3af39550ed6e",
+    "scripts/trace-ownership.json": "42f2aeceadef9e43de1c1ee49fbe76eb40604c20e9169a2c3cd2c17d4de83527",
+    "scripts/check-trace-results.mjs": "a2a1a09773b17ab41596c1d45b670bf17246344e35de715a7c9db0ca41198e50"
+  },
+  "editingAndPreview": {
+    "key": "banani-l2-calibrated",
+    "mode": "floor",
+    "calibration": "known",
+    "seconds": 48.5,
+    "summary": "Traced 137 walls, 16 rooms, 12 labelled \u00b7 scale from your scale \u00b7 wall tracks \u00b7 12.9 s",
+    "walls": 135,
+    "openings": 38,
+    "pxPerM": 28.479512977544445,
+    "errors": [],
+    "edit": {
+      "oldInches": "6",
+      "changedWalls": 1,
+      "newInches": 8,
+      "undo": true
+    },
+    "preview": {
+      "entered": true,
+      "walk": true,
+      "dollhouse": true,
+      "canvas": 1,
+      "fallback": false
+    }
+  }
+}

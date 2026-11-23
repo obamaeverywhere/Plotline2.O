@@ -7,6 +7,49 @@ stays the proof at each checkpoint.
 
 ## Run it
 
+Current portable setup (2026-11-03):
+
+```sh
+npm ci
+npx playwright install firefox
+node scripts/trace-fixtures.mjs --rgb --sheets src/trace/eval/sheets30.json .trace/fixtures
+npm run score30
+```
+
+Old Windows image references are resolved using their `Demo drawings/` suffix under this checkout (or `TRACE_REPO`).
+The scorer now defaults to `.trace/{fixtures,out,text,tess}`; `SCORE30_*` overrides still work, with or without trailing slashes.
+Fixture preparation writes `availability.json`. The scorer writes `coverage.json` and **fails if any requested sheet is
+missing**, even if the available subset runs. All 30 expanded-benchmark source images are absent in this checkout as of
+2026-11-03; this is not a benchmark pass. See [the current report](AUTOTRACE_REPORT_2026-11-03.md).
+
+The images that are present can be exercised independently through the real Studio:
+
+```sh
+node scripts/trace-fixtures.mjs --rgb .trace/fixtures
+npm run dev -- --host 127.0.0.1
+# In another terminal (each case uses a fresh Firefox context):
+node scripts/trace-browser.mjs scripts/trace-cases.json .trace/browser
+TRACE_BROWSER_DIR=.trace/browser npx vitest run src/trace/acceptance.test.ts
+```
+
+`trace-cases.json` contains 37 workflows across all 29 available source sheets, including calibration and flat-selection cases.
+`TRACE_URL` selects the server; an optional final `key,key` argument selects cases. `TRACE_RESUME=1` reuses successful cases only when their production source fingerprint matches. `TRACE_EDIT=<key>` checks a wall-width edit and Undo (use a case with a suitable `editAt` pixel position), and
+`TRACE_PREVIEW=<key>` enters the actual walk and dollhouse views. Image upload, scale and tracing happen through UI
+controls; exported JSON is used only afterward for measurement. `scripts/trace-compare.mjs beforeDir afterDir reportDir`
+compares two measured runs. Counts and screenshots are not independent ground truth for every room or wall.
+
+The [2026-11-04 P0 checkpoint](AUTOTRACE_P0_REPORT_2026-11-04.md) adds source-version and shared-core gates:
+
+```sh
+node scripts/check-trace-results.mjs .trace/browser --require-shared --require-source
+```
+
+The source fingerprint covers production files under `src`; the server must serve that checkout. The browser
+harness rejects changes during a workflow. The shared-core gate checks annotated locations, with closed faces
+required in whole-floor exports; it does not establish full ownership-polygon accuracy.
+
+Historical Windows setup (the folders and external harness below may not exist on a new machine):
+
 ```
 node scripts/trace-fixtures.mjs --rgb --sheets src/trace/eval/sheets30.json   # once: the sheet pictures → E:/dev/tmp/s26/fixtures (Firefox, ~10 s)
 npm run score30                                                                # all 30; the table at the end

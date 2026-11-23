@@ -1,5 +1,38 @@
 # Auto-trace scoreboard — Level 0 (2026-10-09)
 
+## Current checkpoint — 2026-11-04
+
+General opening, glazing, face-OCR and core-ownership rules now recover four previously unclosed living/bedroom/
+kitchen spaces in calibrated Banani L2–6. Closed rooms increase 17 → 22 and named rooms 12 → 17. All 60 apartment
+and 15 shared-core witness checks pass across five workflows; both lifts and the lobby stay outside apartments.
+No source coordinates or expected polygons enter production tracing. See the
+[P0 report](AUTOTRACE_P0_REPORT_2026-11-04.md) for the rules, complete before/after evidence and limitations.
+
+All 37 Firefox workflows across 29 available images were rerun on one source fingerprint. Full automated suite:
+1,304 passed, 27 skipped, 1 todo; production build passed. The five reference flats retain their room matches;
+BTI A wall recall improves 61.0% → 64.7%. Other sheets still have regressions: Sheltech L3 and Banani L7/L8 lose
+faces or names, L5/L6 gain validation issues, and two ground sheets lose unnamed faces. The marked glazing sample
+retains full coverage with 98.9% precision. This is a P0 improvement checkpoint, not completion of Levels 1–5 or
+an unseen-design accuracy guarantee. The expanded 30-sheet benchmark still lacks its source images.
+
+## Previous checkpoint — 2026-11-03
+
+The historical tables below are unchanged. The latest patch aligns overlapping glazing readings and prevents
+printed apartment labels from becoming false planter barriers. Banani L2–6's master-bedroom north pane survives;
+at calibrated scale, Unit A/B are now separate groups and give identical geometry from living-room and bedroom
+clicks. The north-east glass veranda stays with Unit A. All 35 marked apartment-location checks pass across five
+workflows, but two shared lift locations remain wrongly assigned to Unit A. See the
+[window and ownership report](AUTOTRACE_OWNERSHIP_REPORT_2026-11-03.md).
+
+On eight independently marked window lines, calibrated coverage improves 82.6% → 100% and automatic coverage
+62.1% → 100%, at unchanged 3 px / 5° tolerance. This small boundary sample is not an overall accuracy score.
+The five reference flats' geometry scores remain unchanged. Evidence covers 37 workflows across all 29 available
+images, with all 20 flat-sheet workflows rerun after the final ownership fix. Full automated tests: 1,284 passed,
+27 skipped, 1 todo; production build passed. Substantial missing geometry and validation issues remain, including
+increases on some Banani sheets. The expanded 30-sheet scorer still lacks all 30 source images. Levels 1–5 remain
+incomplete. Earlier checkpoints: [glazing](AUTOTRACE_GLAZING_REPORT_2026-11-03.md),
+[short-wall contrast](AUTOTRACE_REPORT_2026-11-03.md).
+
 **What this is.** For every flat on every flat sheet in `Demo drawings/`: how many of the rooms printed on the sheet
 come out of Auto-trace as a closed room with a name. This is the acceptance for every later level of
 `Docs/AUTOTRACE_STRATEGY.md` §6: each level re-runs it and says what changed.

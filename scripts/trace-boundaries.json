@@ -1,0 +1,17 @@
+{
+  "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+  "description": "Eight blue glazing centre lines read from source-image crops, independently of traced output. Coordinates are original 1000 x 771 image pixels. This is a small boundary benchmark, not whole-floor ground truth.",
+  "tolerancePx": 3,
+  "angleDeg": 5,
+  "regions": [[185, 85, 315, 140], [419, 108, 624, 258]],
+  "lines": [
+    {"name":"north-west veranda top","a":[216,92],"b":[282,92]},
+    {"name":"north-west veranda left","a":[216,92],"b":[216,131]},
+    {"name":"north-west veranda right","a":[282,92],"b":[282,131]},
+    {"name":"bedroom 02 north window","a":[194,131],"b":[309,131]},
+    {"name":"master-bedroom and veranda north windows","a":[425,116],"b":[616,116]},
+    {"name":"master-bedroom east window","a":[556,116],"b":[556,251]},
+    {"name":"north-east veranda east window","a":[616,116],"b":[616,207]},
+    {"name":"north-east veranda south window","a":[556,207],"b":[616,207]}
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "key": "banani-l2-calibrated",
+  "mode": "floor",
+  "calibration": "known",
+  "seconds": 29.912,
+  "summary": "Traced 136 walls, 16 rooms, 12 labelled \u00b7 scale from your scale \u00b7 wall tracks \u00b7 8.1 s",
+  "walls": 135,
+  "openings": 37,
+  "pxPerM": 28.479512977544445,
+  "errors": [],
+  "edit": {
+    "oldInches": "6",
+    "changedWalls": 1,
+    "newInches": 8,
+    "undo": true
+  },
+  "preview": {
+    "entered": true,
+    "walk": true,
+    "dollhouse": true,
+    "canvas": 1,
+    "fallback": false
+  }
+}

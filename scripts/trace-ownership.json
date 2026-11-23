@@ -1,0 +1,132 @@
+{
+  "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+  "description": "Interior witness points marked on the source image to check apartment ownership. Evaluation only; these points and expected names never enter Auto-trace. Not complete room ground truth.",
+  "selected": {
+    "banani-l2-a-living": "Unit A",
+    "banani-l2-a-bed": "Unit A",
+    "banani-l2-b-living": "Unit B",
+    "banani-l2-b-bed": "Unit B"
+  },
+  "points": [
+    {
+      "name": "west bedroom 02",
+      "at": [
+        238,
+        181
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "west bedroom 03",
+      "at": [
+        236,
+        451
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "west kitchen",
+      "at": [
+        335,
+        585
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "north-east veranda of Unit A",
+      "at": [
+        585,
+        160
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "east bedroom",
+      "at": [
+        726,
+        530
+      ],
+      "flat": "Unit B"
+    },
+    {
+      "name": "east veranda",
+      "at": [
+        764,
+        608
+      ],
+      "flat": "Unit B"
+    },
+    {
+      "name": "east toilet",
+      "at": [
+        666,
+        604
+      ],
+      "flat": "Unit B"
+    },
+    {
+      "name": "shared west lift",
+      "at": [
+        435,
+        529
+      ],
+      "flat": null
+    },
+    {
+      "name": "shared east lift",
+      "at": [
+        528,
+        529
+      ],
+      "flat": null
+    },
+    {
+      "name": "A formal living",
+      "at": [
+        500,
+        302
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "A dry kitchen",
+      "at": [
+        345,
+        480
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "north master bedroom",
+      "at": [
+        510,
+        200
+      ],
+      "flat": "Unit A"
+    },
+    {
+      "name": "east living",
+      "at": [
+        730,
+        400
+      ],
+      "flat": "Unit B"
+    },
+    {
+      "name": "east open kitchen shares living",
+      "at": [
+        612,
+        390
+      ],
+      "flat": "Unit B"
+    },
+    {
+      "name": "shared stair and lift lobby",
+      "at": [
+        475,
+        475
+      ],
+      "flat": null
+    }
+  ]
+}

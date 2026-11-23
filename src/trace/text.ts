@@ -117,7 +117,7 @@ export function strictSize(raw: string): Dims | null {
 // ---------------------------------------------------------------- room names
 
 /** Words a room name is made of; a token one edit away from one of these (length ≥ 5) is read as it ("KlTCHEN", "T0ILET"). */
-const WORDS = 'KITCHEN TOILET VERANDA VERANDAH BALCONY LIVING DINING DRAWING FAMILY STUDY LOBBY STAIR FOYER PASSAGE STORE SERVANT CLOSET PLANTER SUNSHADE POWDER PRAYER UTILITY LAUNDRY MASTER GUEST CHILD SHAFT LANDSCAPE GREEN WALK LIFT BATH SUITE PANTRY LOUNGE ENTRY TERRACE DRESSING CORRIDOR OFFICE GARDEN SERVICE'.split(' ')
+const WORDS = 'KITCHEN TOILET VERANDA VERANDAH BALCONY LIVING DINING DRAWING FAMILY STUDY LOBBY STAIR FOYER PASSAGE STORE SERVANT CLOSET PLANTER SUNSHADE POWDER PRAYER UTILITY LAUNDRY MASTER GUEST CHILD SHAFT LANDSCAPE GREEN WALK LIFT HOISTWAY BATH SUITE PANTRY LOUNGE ENTRY TERRACE DRESSING CORRIDOR OFFICE GARDEN SERVICE'.split(' ')
 const DIGIT_AS_LETTER: Record<string, string> = { '0': 'O', '1': 'I', '5': 'S', '8': 'B', '6': 'G', '2': 'Z' }
 
 function editDistanceAtMost1(a: string, b: string): boolean {
@@ -191,6 +191,8 @@ export function normaliseName(raw: string): string {
           if (/[A-Z]/.test(tok) && /\d/.test(tok) && tok.replace(/[^A-Z]/g, '').length >= 2) tok = tok.replace(/\d/g, (d) => DIGIT_AS_LETTER[d] ?? d)
           // a room's number with its 0 / 1 read as a letter: "BED D4" → BED 04, "TOILET O3" → TOILET 03
           if (/^[ODQIL0-9]{2,3}$/.test(tok) && /\d/.test(tok)) tok = tok.replace(/[ODQ]/g, '0').replace(/[IL]/g, '1')
+          // In small print the joined LI glyph can be read as U (UVING, UFT). Expand it only to an exact room word.
+          if (!WORDS.includes(tok) && tok.includes('U') && WORDS.includes(tok.replace(/U/g,'LI'))) tok = tok.replace(/U/g,'LI')
           if (tok.length >= 5 && !WORDS.includes(tok)) tok = WORDS.find((w) => w.length >= 5 && editDistanceAtMost1(tok, w)) ?? tok
           return snapShort(tok)
         })
@@ -1224,7 +1226,7 @@ export function numberMarks(glyphs: Box[], charH: number): Box[] {
 // ---------------------------------------------------------------- the OCR stage (browser; tesseract.js loaded on first call)
 
 export interface ReadTextOptions {
-  /** OCR workers in parallel; default half the machine's cores, 3 to 6 (s26: the passes read 3–6 × the lines they used to) */
+  /** OCR workers in parallel. Small devices use fewer copies of the OCR engine. */
   workers?: number
   /** where eng.traineddata comes from; default = tesseract.js's own jsdelivr CDN (4.0.0_best_int, ≈ 2.9 MB gz, cached in IndexedDB) */
   langPath?: string
@@ -1233,8 +1235,34 @@ export interface ReadTextOptions {
   onProgress?: (done: number, total: number) => void
 }
 
-/** OCR workers in parallel: half the machine's cores, 3 to 6 */
-const ocrWorkers = () => Math.min(6, Math.max(3, Math.floor((globalThis.navigator?.hardwareConcurrency ?? 6) / 2)))
+const ocrWorkers = () => {
+  const nav = globalThis.navigator as (Navigator & { deviceMemory?: number }) | undefined
+  const cores = nav?.hardwareConcurrency || 6
+  const memory = nav?.deviceMemory
+  if (memory !== undefined && memory <= 2) return 1
+  if (memory !== undefined && memory <= 4) return Math.min(2, Math.max(1, Math.floor(cores / 2)))
+  return Math.max(1, Math.min(6, Math.floor(cores / 2)))
+}
+
+/** Resize each crop when a worker is available. A busy sheet never queues all resized images in memory. */
+async function readBounded<T, Result>(items: readonly T[], limit: number, read: (item: T, i: number) => Promise<Result>): Promise<Result[]> {
+  const out = new Array<Result>(items.length)
+  let next = 0
+  const settled = await Promise.allSettled(Array.from({ length: Math.min(items.length, limit) }, async () => {
+    while (next < items.length) {
+      const i = next++
+      try {
+        out[i] = await read(items[i], i)
+      } catch (error) {
+        next = items.length
+        throw error
+      }
+    }
+  }))
+  const failure = settled.find(result => result.status === 'rejected')
+  if (failure) throw failure.reason
+  return out
+}
 
 /** Gray → binary PGM bytes. tesseract.js decodes it (leptonica) in the browser worker and in node alike — no canvas. */
 export function toPgm(g: Gray): Uint8Array {
@@ -1588,18 +1616,20 @@ export async function readText(src: Gray | ImageBitmapSource, opts: ReadTextOpti
     let done = 0
     let total = passes.reduce((t, p) => t + p.lines.length, 0)
     /** every pass's lines `idx[k]` read, the image of each made by `image` */
-    const readAll = (idx: number[][], image: (p: Pass, l: TextLine) => Blob) =>
-      Promise.all(
-        passes.map((p, k) =>
-          Promise.all(
-            idx[k].map(async (i) => {
-              const { data } = await scheduler.addJob('recognize', image(p, p.lines[i]))
-              opts.onProgress?.(++done, total)
-              return { text: data.text.replace(/\s+/g, ' ').trim(), conf: data.confidence / 100 }
-            }),
-          ),
-        ),
-      )
+    const readAll = async (idx: number[][], image: (p: Pass, l: TextLine) => Blob) => {
+      const work = idx.flatMap((indices, k) => indices.map((i) => ({ i, pass: passes[k] })))
+      const flat = await readBounded(work, workers.length, async ({ pass, i }) => {
+        const { data } = await scheduler.addJob('recognize', image(pass, pass.lines[i]))
+        opts.onProgress?.(++done, total)
+        return { text: data.text.replace(/\s+/g, ' ').trim(), conf: data.confidence / 100 }
+      })
+      let offset = 0
+      return idx.map(indices => {
+        const start = offset
+        offset += indices.length
+        return flat.slice(start, offset)
+      })
+    }
     // (tesseract's own notes on odd crops — "Image too small to scale" — go nowhere: they reached the browser's console)
     await setAll({ tessedit_pageseg_mode: T.PSM.SINGLE_LINE, user_defined_dpi: '300', debug_file: '/dev/null' })
     const read = await readAll(
@@ -1845,7 +1875,15 @@ const FACE_VIEWS: { px: number; psm: 'SINGLE_BLOCK' | 'SPARSE_TEXT' }[] = [
  * room item at a point inside it (no size: a size is only ever taken from a size line); one the sheet's reading already
  * has nearby (the same name within 1 m of the face) is not read twice. Faces of 0.8–40 m² only.
  */
-export async function readInFaces(g: Gray, faces: { x: number; y: number }[][], trace: TextTrace, pxPerM: number, opts: Pick<ReadTextOptions, 'langPath' | 'cachePath'> = {}): Promise<TextItem[]> {
+/** A face's OCR crop excludes the neighbouring rooms in its bounding rectangle, including concave cut-outs. */
+export function cropInFace(g: Gray, box: Box, poly: {x:number;y:number}[]): Gray {
+  const out=cropGray(g,box),x0=Math.round(box.x),y0=Math.round(box.y)
+  for(let y=0;y<out.height;y++)for(let x=0;x<out.width;x++)
+    if(!pointInPolygon({x:x0+x+.5,y:y0+y+.5},poly))out.data[y*out.width+x]=255
+  return out
+}
+
+export async function readInFaces(g: Gray, faces: { x: number; y: number }[][], trace: TextTrace, pxPerM: number, opts: Pick<ReadTextOptions, 'langPath' | 'cachePath' | 'workers'> = {}): Promise<TextItem[]> {
   const ch = trace.glyphPx ?? 8
   const rooms = trace.items.filter((it) => it.kind === 'room')
   const centre = (b: Box) => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 })
@@ -1855,28 +1893,58 @@ export async function readInFaces(g: Gray, faces: { x: number; y: number }[][], 
     const xs = poly.map((p) => p.x), ys = poly.map((p) => p.y)
     const box = { x: Math.min(...xs) + 3, y: Math.min(...ys) + 3, w: Math.max(...xs) - Math.min(...xs) - 6, h: Math.max(...ys) - Math.min(...ys) - 6 }
     const at = polygonCentroid(poly)
-    return area >= 0.8 && area <= 40 && box.w >= 2 * ch && box.h >= ch && pointInPolygon(at, poly) ? [{ poly, box, at }] : []
+    return area >= 0.8 && area <= 40 && box.w >= 2 * ch && box.h >= ch && pointInPolygon(at, poly) ? [{ poly, box, at, image:cropInFace(g,box,poly) }] : []
   })
+  // Recover mixed-case labels such as Hoistway as well as capitals.
   if (!todo.length) return []
   const T = await import('tesseract.js')
   // (the faces read in parallel, as many workers as readText uses — s26: one worker made big sheets wait)
   const scheduler = T.createScheduler()
-  const workers = await Promise.all(Array.from({ length: Math.min(todo.length, ocrWorkers()) }, () => T.createWorker('eng', T.OEM.LSTM_ONLY, { ...(opts.langPath ? { langPath: opts.langPath } : {}), ...(opts.cachePath ? { cachePath: opts.cachePath } : {}) })))
+  const workers = await Promise.all(Array.from({ length: Math.min(todo.length, opts.workers ?? ocrWorkers()) }, () => T.createWorker('eng', T.OEM.LSTM_ONLY, { ...(opts.langPath ? { langPath: opts.langPath } : {}), ...(opts.cachePath ? { cachePath: opts.cachePath } : {}) })))
   workers.forEach((w) => scheduler.addWorker(w))
   const out: TextItem[] = []
   try {
     const found = new Map<number, string>()
+    const coreVotes = new Map<number, string>()
     for (const v of FACE_VIEWS) {
-      await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: T.PSM[v.psm], user_defined_dpi: '300', tessedit_char_whitelist: NAME_CHARS, debug_file: '/dev/null' })))
-      await Promise.all(
-        [...todo.entries()].map(async ([i, f]) => {
+      await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: T.PSM[v.psm], user_defined_dpi: '300', tessedit_char_whitelist: NAME_CHARS + 'abcdefghijklmnopqrstuvwxyz', debug_file: '/dev/null' })))
+      await readBounded(todo, workers.length, async (f, i) => {
           if (found.has(i)) return
-          const img = pad(stretch(resample(cropGray(g, f.box), Math.max(1, Math.min(8, v.px / ch)), 'lanczos')), 12)
+          const img = pad(stretch(resample(f.image, Math.max(1, Math.min(8, v.px / ch)), 'lanczos')), 12)
           const { data } = await scheduler.addJob('recognize', toPgm(img) as unknown as Blob)
-          const name = data.text.split('\n').map((l) => l.trim()).find((l) => flatRoom(l, false))
-          if (name) found.set(i, name)
-        }),
-      )
+          // A closed face provides a spatial boundary: a recovered lift/stair label belongs to this face too.
+          // The loose-line reread still excludes core words, where their position is less reliable.
+          const name = data.text.split('\n').map((l) => l.trim()).find((l) => !!roomName(l))
+          if (name) {
+            const n = normaliseName(name)
+            if (!CORE_WORDS.test(n) || coreVotes.get(i) === n) found.set(i, name)
+            else coreVotes.set(i,n)
+          }
+      })
+    }
+    // A fixture outline can dominate page-layout OCR inside a small shaft. Retry only rejected text strips
+    // whose centres lie in that face, rather than widening the crop into a neighbouring apartment.
+    const strips = todo.flatMap((f, i) => found.has(i) ? [] : (trace.rejected ?? [])
+      .filter((r) => r.reason === 'name-unread' && pointInPolygon(centre(r.box), f.poly))
+      .map((r) => ({ i, box: r.box })))
+    if (strips.length) {
+      await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: T.PSM.SINGLE_LINE, tessedit_char_whitelist: NAME_CHARS + 'abcdefghijklmnopqrstuvwxyz' })))
+      const votes = new Map<number, { name: string; count: number }>()
+      for (const [px, word, kernel] of [[48, false, 'lanczos'], [48, true, 'lanczos'], [40, true, 'lanczos'], [48, true, 'cubic'], [40, true, 'cubic']] as const) {
+        await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: word ? T.PSM.SINGLE_WORD : T.PSM.SINGLE_LINE, tessedit_char_whitelist: word ? '' : NAME_CHARS + 'abcdefghijklmnopqrstuvwxyz' })))
+        const reads = await readBounded(strips, workers.length, (s) => {
+          // nameStrip is 1.6 times the size-line height: trim its vertical margin for the single-word view.
+          const b = word ? { ...s.box, y: Math.floor(s.box.y + .1875 * s.box.h), h: Math.ceil(s.box.h / 1.6) + 1 } : s.box
+          return scheduler.addJob('recognize', toPgm(pad(stretch(resample(cropInFace(g, b, todo[s.i].poly), Math.min(8, px / ch), kernel)), 12)) as unknown as Blob)
+        })
+        strips.forEach((s, j) => {
+          const name = snapRoomWords(reads[j].data.text.trim())
+          if (!roomName(name)) return
+          const n = normaliseName(name), prev = votes.get(j)
+          votes.set(j, { name, count: prev && normaliseName(prev.name) === n ? prev.count + 1 : 1 })
+          if (!CORE_WORDS.test(n) || votes.get(j)!.count >= 2) found.set(s.i, name)
+        })
+      }
     }
     for (const [i, name] of found) {
       const f = todo[i]

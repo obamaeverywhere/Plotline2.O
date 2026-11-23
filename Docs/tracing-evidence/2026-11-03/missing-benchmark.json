@@ -1,0 +1,158 @@
+{
+  "requested": 30,
+  "available": [],
+  "missing": [
+    "bti-amabilia-typea",
+    "bti-magnifico-unita",
+    "bti-cosmopolis-t4typea",
+    "bti-silvi-5th7th",
+    "bti-peak-typef-1397",
+    "bti-fernhill-2nd3rd",
+    "bti-lamontana-t1typeb",
+    "bti-lamontana-t1typea",
+    "rangs-torukabbo-typea",
+    "rangs-sanctuary-12th-roof",
+    "rangs-whitelake-ab-fl3",
+    "rangs-ixora-ef",
+    "sheltech-kanakchapa-l4-a",
+    "sheltech-waterlily-typical",
+    "sheltech-siddiques-typea",
+    "assure-gladiolus-2nd6th",
+    "assure-phera-1st",
+    "assure-hermitage-typical",
+    "cpdl-skymark-unitd",
+    "cpdl-joljhiri-unita",
+    "cpdl-lareina-amber",
+    "finlay-chayaneer-typeb",
+    "finlay-nirvana-typical",
+    "finlay-palmspring-typea",
+    "ena-azmaryvilla-typea",
+    "ena-jahanlodge-typea",
+    "accept-aftabnagar-typical",
+    "eh-pearl-2145",
+    "eh-sapphire-unita",
+    "mir-mrmemento-typeb"
+  ],
+  "missingFiles": [
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti Amabilia/Type A 2279 sft.jpg",
+      "name": "bti-amabilia-typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti Magnifico/Unit A 3910 sft.jpg",
+      "name": "bti-magnifico-unita"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti Cosmopolis/Tower 4 Type A 1042 sft.jpg",
+      "name": "bti-cosmopolis-t4typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti Silvi/5th and 7th floor 4342 sft.webp",
+      "name": "bti-silvi-5th7th"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti The Peak/Type 1397 sft.jpg",
+      "name": "bti-peak-typef-1397"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti Fernhill/2nd and 3rd floor.jpg",
+      "name": "bti-fernhill-2nd3rd"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti La Montana/Tower 1 Type B 1959 sft.webp",
+      "name": "bti-lamontana-t1typeb"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/bti La Montana/Tower 1 Type A.webp",
+      "name": "bti-lamontana-t1typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Rangs Torukabbo/Type A Tower 1 level 1-11.png",
+      "name": "rangs-torukabbo-typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Rangs The Sanctuary/12th floor + Roof.png",
+      "name": "rangs-sanctuary-12th-roof"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Rangs White Lake/Type A + B 3rd floor.png",
+      "name": "rangs-whitelake-ab-fl3"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Rangs Ixora/Type E + Type F Tower 3.png",
+      "name": "rangs-ixora-ef"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Sheltech Kanakchapa/Level 4-14.jpg",
+      "name": "sheltech-kanakchapa-l4-a"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Sheltech Water Lily/Typical level.png",
+      "name": "sheltech-waterlily-typical"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Sheltech Siddiques Serenity/Type A.jpg",
+      "name": "sheltech-siddiques-typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Assure Gladiolus/2nd to 6th floor 1819 sft.jpg",
+      "name": "assure-gladiolus-2nd6th"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Assure Phera/1st floor.jpg",
+      "name": "assure-phera-1st"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Assure Hermitage/Typical floor.jpg",
+      "name": "assure-hermitage-typical"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/CPDL Skymark/Unit D 2070 sft.jpg",
+      "name": "cpdl-skymark-unitd"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/CPDL SQ Joljhiri/Unit A 1590 sft.jpg",
+      "name": "cpdl-joljhiri-unita"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/CPDL La Reina/Amber 2700 sft.png",
+      "name": "cpdl-lareina-amber"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Finlay Chayaneer/Type B 2400 sft.jpg",
+      "name": "finlay-chayaneer-typeb"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Finlay Nirvana/Typical floor.png",
+      "name": "finlay-nirvana-typical"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Finlay Palm Spring/Type A 1440 sft.jpg",
+      "name": "finlay-palmspring-typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Ena Azmary Villa/Type A.jpg",
+      "name": "ena-azmaryvilla-typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Ena Jahan Lodge/Type A.jpg",
+      "name": "ena-jahanlodge-typea"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Accept Builders Aftabnagar Block M/Typical floor 1-6.jpg",
+      "name": "accept-aftabnagar-typical"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Eastern Housing Pearl/Typical Plan 2145 sft.png",
+      "name": "eh-pearl-2145"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Eastern Housing Sapphire/Unit A 2152 sft.png",
+      "name": "eh-sapphire-unita"
+    },
+    {
+      "path": "/home/maheer/Plotline/Demo drawings/Mir MR Memento/Type B 2185 sft.png",
+      "name": "mir-mrmemento-typeb"
+    }
+  ]
+}

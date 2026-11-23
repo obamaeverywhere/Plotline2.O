@@ -5,7 +5,7 @@ import * as core from '../core'
 import type { Unit } from '../core'
 import { kitAsset } from '../furnish/kit'
 import { furnish } from '../furnish/presets'
-import { BAY, blockParts, contactShadows, neighbourBlocks, STOREY } from './context'
+import { BAY, blockParts, contactShadowGeometry, contactShadows, neighbourBlocks, STOREY } from './context'
 import { TEST_UNIT } from './testUnit'
 
 const base = typeA as unknown as Unit
@@ -45,6 +45,27 @@ describe('contactShadows on furnished type-a', () => {
     expect(chair.strength).toBeLessThan(sofa.strength)
     expect(wardrobe.blurM).toBeGreaterThan(sofa.blurM)
     expect(sofa.blurM).toBeGreaterThan(table.blurM)
+  })
+
+  test('a removed piece leaves no contact shadow', () => {
+    const piece = unit.furniture.find((p) => shadows.has(p.id))!
+    expect(contactShadows({ ...unit, furniture: [{ ...piece, removed: true }] })).toEqual([])
+  })
+
+  test('a raised sloping floor carries its contact surface, clipped to its own room', () => {
+    const raised: Unit = { ...TEST_UNIT, roomLabels: TEST_UNIT.roomLabels.map((r) => r.id === 'bed' ? { ...r, levelM: 1, slope: { toLevelM: 2, dirDeg: 180 } } : r) }
+    const room = core.deriveRooms(raised).find((r) => r.id === 'bed')!
+    const geo = contactShadowGeometry(raised, room)
+    const p = geo.attributes.position
+    for (let i = 0; i < p.count; i++) {
+      expect(p.getY(i)).toBeCloseTo(core.roomLevelAt(room, raised, p.getX(i), p.getZ(i)) + .014, 6)
+      expect(p.getX(i)).toBeGreaterThanOrEqual(5)
+      expect(p.getX(i)).toBeLessThanOrEqual(9)
+    }
+    geo.computeBoundingBox()
+    expect(geo.boundingBox!.min.y).toBeCloseTo(1.014, 6)
+    expect(geo.boundingBox!.max.y).toBeCloseTo(2.014, 6)
+    geo.dispose()
   })
 })
 

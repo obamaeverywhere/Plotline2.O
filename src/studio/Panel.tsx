@@ -167,6 +167,8 @@ export function LenInput({ valueM, onCommit, placeholder }: { valueM: number; on
 }
 
 interface Props {
+  importControl?: React.ReactNode
+  importReview?: React.ReactNode
   state: StudioState
   dispatch: (a: Action) => void
   rooms: Room[]
@@ -195,7 +197,7 @@ interface Props {
   onPlace?: (assetId: string) => void
 }
 
-export function Panel({ state, dispatch, rooms, flats, issues, marks, fixes, active, onHot, onOpen, onFix, onAnswer, ai, pieces, placing, onPlace }: Props) {
+export function Panel({ importControl, importReview, state, dispatch, rooms, flats, issues, marks, fixes, active, onHot, onOpen, onFix, onAnswer, ai, pieces, placing, onPlace }: Props) {
   const piece = pieces?.find((p) => state.selection.length === 1 && p.id === state.selection[0])
   const { unit } = state
   const review = marks.filter((m) => m.review)
@@ -271,6 +273,7 @@ export function Panel({ state, dispatch, rooms, flats, issues, marks, fixes, act
   ]
   return (
     <aside className="panel">
+      {importControl && <section>{importControl}</section>}
       {state.tool === 'opening' && <OpeningPick state={state} dispatch={dispatch} />}
       {state.tool === 'wall' && (
         <section>
@@ -312,6 +315,7 @@ export function Panel({ state, dispatch, rooms, flats, issues, marks, fixes, act
           <LibraryPanel onPick={onPlace} picked={placing} />
         </section>
       )}
+      {importReview}
       {state.planImage && (
         <section>
           <h3>

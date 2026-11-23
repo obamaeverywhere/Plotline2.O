@@ -1,0 +1,16 @@
+{
+  "sourceSha256": {
+    "src/three/context.ts": "4bb977ab6bacc165c0078fc9a9a099dbfaaa7a5c4cac6f80b114cd495aaa8056",
+    "src/three/details.ts": "d058b41df4870650f8a793508e92e93fdbff59e55e7ab7acda92436154807433",
+    "src/three/render.ts": "70e852bc96efee0c14712c21df8551a90c272036a2988cedd5189689281c44ca",
+    "scripts/verify-ground.mjs": "ee72671a25f2889222a9f998218cf57d0b5ebf1db54d06c3eae19aa4668a1a55"
+  },
+  "beforeUrl": "http://127.0.0.1:5175/u/sheltech-ground",
+  "afterUrl": "http://127.0.0.1:5174/u/sheltech-ground",
+  "browser": "Playwright Firefox",
+  "quality": "lite",
+  "viewport": [
+    1920,
+    1040
+  ]
+}

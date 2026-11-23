@@ -13,6 +13,7 @@ import { daylit as daylitPatch } from './daylight'
 
 const texCache = new Map<string, Promise<THREE.Texture>>()
 const matCache = new Map<string, THREE.MeshStandardMaterial>()
+const finishLoads = new WeakMap<THREE.Material, Promise<void>>()
 let maxAnisotropy = 1
 
 export function setMaxAnisotropy(n: number): void {
@@ -72,9 +73,10 @@ export function materialFor(ref: MaterialRef, edge = false, daylit = false): THR
       console.warn(`[plotline] unknown textureId "${ref.textureId}" — using flat colour`)
     } else {
       const mat = m
+      const pending: Promise<void>[] = []
       const apply = (slot: 'map' | 'normalMap' | 'roughnessMap' | 'aoMap', url: string | undefined, srgb = false) => {
         if (!url) return
-        loadTex(url, set.repeatM, srgb)
+        const loaded = loadTex(url, set.repeatM, srgb)
           .then((t) => {
             mat[slot] = t
             if (slot === 'map') mat.color.set(ref.tint ?? '#ffffff').multiply(new THREE.Color(set.tint ?? '#ffffff'))
@@ -82,18 +84,34 @@ export function materialFor(ref: MaterialRef, edge = false, daylit = false): THR
             mat.needsUpdate = true
           })
           .catch(() => {}) // already warned; keep the flat colour
+        pending.push(loaded)
       }
       apply('map', set.albedo, true)
       apply('normalMap', set.normal)
       if (set.matte) Object.assign(m, { roughness: 1, normalScale: new THREE.Vector2(0.5, 0.5) })
       else apply('roughnessMap', set.roughness)
       apply('aoMap', set.ao)
+      finishLoads.set(mat, Promise.all(pending).then(() => {}))
     }
   }
   if (edge) Object.assign(m, { polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })
   if (daylit) daylitPatch(m)
   matCache.set(key, m)
   return m
+}
+
+/** Wait for the finish maps used in the initial scene. A failed map keeps the material's fallback. */
+export async function waitForFinishMaps(scene: THREE.Object3D): Promise<void> {
+  const pending = new Set<Promise<void>>()
+  scene.traverse((object) => {
+    const material = (object as THREE.Mesh).material
+    if (!material) return
+    for (const entry of Array.isArray(material) ? material : [material]) {
+      const loaded = finishLoads.get(entry)
+      if (loaded) pending.add(loaded)
+    }
+  })
+  await Promise.all(pending)
 }
 
 /** Rendered outer walls, slab edges, the tower: the interior plaster scan, warmer and darker than the warm-white paint (#f4f1ea) so the

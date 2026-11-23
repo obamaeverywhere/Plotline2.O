@@ -1,0 +1,40 @@
+{
+  "workflowCases": 37,
+  "availableSourceImages": 29,
+  "sourceHash": "1f95ffd1bff60a580255f60f8b937f53b47f53516b6299ab2ecd5e29b82cfa63",
+  "editingAndPreview": {
+    "edit": {
+      "oldInches": "6",
+      "changedWalls": 1,
+      "newInches": 8,
+      "undo": true
+    },
+    "preview": {
+      "entered": true,
+      "walk": true,
+      "dollhouse": true,
+      "canvas": 1,
+      "fallback": false
+    },
+    "errors": []
+  },
+  "files": {
+    "src/trace/solve.ts": "d46fd56865f5f3a66eae524af930dfe0146ad8c45d4ca56c4aeb981bf040496b",
+    "src/trace/faces.ts": "0c43e0a9783ed8dddac77f6bc4fbfedb5d33bd6605a551c858bc91bed4226060",
+    "src/trace/close.ts": "5307ba2be777e81b9e0836f1b1cc4d42a36ea95c0e86ccea53952def07cea76c",
+    "src/trace/tracks.ts": "052ec748693d835b2e1bcad3c48dd8460138bc2d6309b7eb4fe326526e1b8180",
+    "src/trace/walls.ts": "2864d37d4384d1b447006d967f005aeccdfda8acf1e326bec9436b648baa1ef5",
+    "src/trace/text.ts": "834bfe7009bf2bafea4245ba8553d9147dae2add86a7717d0546ac5d1504c6df",
+    "src/trace/doorEnds.ts": "d3bcec12327d656884b08fc7dfaa4a346ef4f3dd533667a47959148a26cd2f03",
+    "scripts/trace-ownership.json": "7795a948d336a844561513b4d9ba54408077bb1dead3cac84823932dc41ecef7",
+    "scripts/trace-boundaries.json": "a3ba1c1b9a1125d7764f84a8a24abba521467b7e839db7d3afad3af39550ed6e",
+    "scripts/trace-browser.mjs": "4fcef653409c8986090c95f3438fc566d4908c45732601c653dcdfecbcd9fd7c",
+    "scripts/check-trace-results.mjs": "2109447ec2aad8e6d3c9d2843f6151b05334d8d00d6f1c4ae4ec242d0844de94",
+    "scripts/trace-source.mjs": "38127cc984c82c8725170ef382d149a88f9cc607b36735764e6d4647ef64c061"
+  },
+  "baseline": "Previous checkpoint exports, .trace/round3/after, copied before this patch",
+  "finalDirectories": {
+    "before": ".trace/p0/before",
+    "after": ".trace/p0/after"
+  }
+}

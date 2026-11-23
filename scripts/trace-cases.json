@@ -1,0 +1,225 @@
+{
+  "sheltech-l2": {
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "scale": {
+      "a": [
+        168,
+        238
+      ],
+      "b": [
+        263,
+        238
+      ],
+      "len": "11'-6\""
+    }
+  },
+  "sheltech-l2-auto": {
+    "file": "Demo drawings/Sheltech/Level 2.jpg"
+  },
+  "sheltech-l2-a": {
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "scale": {
+      "a": [
+        168,
+        238
+      ],
+      "b": [
+        263,
+        238
+      ],
+      "len": "11'-6\""
+    },
+    "pick": [
+      780,
+      520
+    ]
+  },
+  "sheltech-l2-b": {
+    "file": "Demo drawings/Sheltech/Level 2.jpg",
+    "scale": {
+      "a": [
+        168,
+        238
+      ],
+      "b": [
+        263,
+        238
+      ],
+      "len": "11'-6\""
+    },
+    "pick": [
+      215,
+      560
+    ]
+  },
+  "btibd-img-1": {
+    "file": "Demo drawings/Btibd/img_1.webp"
+  },
+  "btibd-img-2": {
+    "file": "Demo drawings/Btibd/img_2.webp"
+  },
+  "btibd-img-3": {
+    "file": "Demo drawings/Btibd/img_3.webp"
+  },
+  "btibd-img-4": {
+    "file": "Demo drawings/Btibd/img_4.webp"
+  },
+  "btibd-img-5": {
+    "file": "Demo drawings/Btibd/img_5.webp"
+  },
+  "sheltech-basement-1": {
+    "file": "Demo drawings/Sheltech/Basement 1.jpg"
+  },
+  "sheltech-basement-2": {
+    "file": "Demo drawings/Sheltech/Basement 2.jpg"
+  },
+  "sheltech-ground-floor": {
+    "file": "Demo drawings/Sheltech/Ground floor.jpg"
+  },
+  "sheltech-level-1": {
+    "file": "Demo drawings/Sheltech/Level 1.jpg"
+  },
+  "sheltech-level-3": {
+    "file": "Demo drawings/Sheltech/Level 3.jpg"
+  },
+  "sheltech-level-4": {
+    "file": "Demo drawings/Sheltech/Level 4.jpg"
+  },
+  "sheltech-level-5": {
+    "file": "Demo drawings/Sheltech/Level 5.jpg"
+  },
+  "sheltech-level-6": {
+    "file": "Demo drawings/Sheltech/Level 6.jpg"
+  },
+  "sheltech-rooftop": {
+    "file": "Demo drawings/Sheltech/Rooftop.jpg"
+  },
+  "sheltech-banani-basement-1": {
+    "file": "Demo drawings/Sheltech Banani/Basement 1.jpg"
+  },
+  "sheltech-banani-basement-2": {
+    "file": "Demo drawings/Sheltech Banani/Basement 2.jpg"
+  },
+  "sheltech-banani-ground-level": {
+    "file": "Demo drawings/Sheltech Banani/Ground level.jpg"
+  },
+  "sheltech-banani-level-2-6": {
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg"
+  },
+  "sheltech-banani-level-7": {
+    "file": "Demo drawings/Sheltech Banani/Level 7.jpg"
+  },
+  "sheltech-banani-level-8": {
+    "file": "Demo drawings/Sheltech Banani/Level 8.jpg"
+  },
+  "sheltech-banani-level-9-13": {
+    "file": "Demo drawings/Sheltech Banani/Level 9-13.jpg"
+  },
+  "sheltech-banani-roof-level": {
+    "file": "Demo drawings/Sheltech Banani/Roof level.jpg"
+  },
+  "sheltech-dmd-basement-1": {
+    "file": "Demo drawings/Sheltech dmd/Basement 1.png"
+  },
+  "sheltech-dmd-basement-2": {
+    "file": "Demo drawings/Sheltech dmd/Basement 2.png"
+  },
+  "sheltech-dmd-ground-level": {
+    "file": "Demo drawings/Sheltech dmd/Ground level.png"
+  },
+  "sheltech-dmd-level-2": {
+    "file": "Demo drawings/Sheltech dmd/Level 2.png"
+  },
+  "sheltech-dmd-level-3-14": {
+    "file": "Demo drawings/Sheltech dmd/Level 3-14.png"
+  },
+  "sheltech-dmd-roof-level": {
+    "file": "Demo drawings/Sheltech dmd/Roof level.png"
+  },
+  "banani-l2-calibrated": {
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "scale": {
+      "a": [
+        230,
+        414
+      ],
+      "b": [
+        230,
+        518
+      ],
+      "len": "12'-0\""
+    }
+  },
+  "banani-l2-a-living": {
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "scale": {
+      "a": [
+        230,
+        414
+      ],
+      "b": [
+        230,
+        518
+      ],
+      "len": "12'-0\""
+    },
+    "pick": [
+      440,
+      320
+    ]
+  },
+  "banani-l2-a-bed": {
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "scale": {
+      "a": [
+        230,
+        414
+      ],
+      "b": [
+        230,
+        518
+      ],
+      "len": "12'-0\""
+    },
+    "pick": [
+      240,
+      455
+    ]
+  },
+  "banani-l2-b-living": {
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "scale": {
+      "a": [
+        230,
+        414
+      ],
+      "b": [
+        230,
+        518
+      ],
+      "len": "12'-0\""
+    },
+    "pick": [
+      720,
+      405
+    ]
+  },
+  "banani-l2-b-bed": {
+    "file": "Demo drawings/Sheltech Banani/Level 2-6.jpg",
+    "scale": {
+      "a": [
+        230,
+        414
+      ],
+      "b": [
+        230,
+        518
+      ],
+      "len": "12'-0\""
+    },
+    "pick": [
+      720,
+      520
+    ]
+  }
+}

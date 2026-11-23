@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useReducer, useRef, useState } from 'react'
 import { deriveFlats, deriveRooms, formatFeetInches, nearestWall, newId, parseLength, pillarCorners, roomAt, unitBounds, vertexById, wallFrame } from '../core'
 import type { Id, OpeningKind, Pt, RoomKind, Site, Slope, Unit } from '../core'
 import { draw, wallFaceDots, type Hit, type Hover } from './draw'
@@ -28,14 +28,16 @@ import {
   studioIssues,
   wallLabelSides,
   type Draft,
-  type StudioState,
   type Target,
   type Tool,
 } from './model'
 import { AI_KEY, ANSWERS_KEY, LOOKS_RIGHT, SHOW_ME, STRIPS_KEY, TRACKER_KEY, answerId, logAnswer, openReview, studioReducer } from './review'
-import type { AutoTraceResult, Gray } from '../trace/types'
+import type { AutoTraceResult } from '../trace/types'
 import type { Preview, TraceIn, TraceJob, TraceMsg } from './autotrace.worker'
+import { traceRasters } from '../trace/rasterInput'
 import type { FixesIn, FixesOut } from './fixes.worker'
+import type { DxfImportResult } from '../dxf/types'
+import { activeDxfReview, studioReducerWithDxf, type StudioDraftWithDxf, type StudioStateWithDxf } from '../dxf/studioState'
 import { KindSelect, LevelFields, Panel, WALL_KEYS, formatArea } from './Panel'
 import { IssueLayer } from './IssueLayer'
 import { exportedReview, fixSig, leaksAround, markIssues, rowAnswers, type Fix, type Mark, type MarkFixes } from './issues'
@@ -52,6 +54,9 @@ import { RpcError, configured as sharingConfigured, publishUnit } from '../lib/s
 import { fitSheet, frameOf, mToPx, mToScreen, screenToM, screenToPx } from './transform'
 import './studio.css'
 
+const DxfImportDialog = lazy(() => import('./DxfImport').then(m => ({ default: m.DxfImport })))
+const DxfReviewPanel = lazy(() => import('./DxfImport').then(m => ({ default: m.DxfReviewPanel })))
+
 const DRAFT_KEY = 'plotline.studio.draft'
 const PREVIEW_KEY = 'plotline.preview'
 /**
@@ -67,6 +72,7 @@ const SNAP_PX = 7 // was 10: founder 2026-10-06, "30 % less magnetic"
 /** a press on a piece that drifts at most this far is a click (tool F): it selects, never moves; the 3D view uses the same (PlotlineScene) */
 const CLICK_PX = 6
 const MAX_IMAGE_BYTES = 10 * 1024 * 1024
+const MAX_TRACE_PIXELS = 16_000_000
 const TOOLS: [Tool, string, string][] = [
   ['select', 'V', 'Select'],
   ['scale', 'S', 'Scale'],
@@ -190,7 +196,7 @@ function readActive(): Active | null {
   }
 }
 
-function init(): StudioState {
+function init(): StudioStateWithDxf {
   const s = initialState()
   if (EDIT) return reducer(reducer(s, { type: 'load-unit', unit: EDIT }), { type: 'toast', text: `Editing ${EDIT.name} — Export saves a copy` })
   try {
@@ -198,8 +204,8 @@ function init(): StudioState {
     if (raw) {
       const parsed = JSON.parse(raw) as unknown
       // a full Draft, a bare `{ unit }`, or a Unit JSON pasted straight in — all restore
-      const d = (isUnit(parsed) ? { unit: parsed } : parsed) as Partial<Draft> | null
-      if (d && isUnit(d.unit)) return studioReducer(s, { type: 'restore', draft: { ...(d as Draft), unit: withLayout(d.unit) } })
+      const d = (isUnit(parsed) ? { unit: parsed } : parsed) as Partial<StudioDraftWithDxf> | null
+      if (d && isUnit(d.unit)) return studioReducerWithDxf(s, { type: 'restore', draft: { ...(d as StudioDraftWithDxf), unit: withLayout(d.unit) } })
     }
   } catch {
     /* corrupt draft: start clean */
@@ -214,7 +220,7 @@ const MOCK_TRACE = import.meta.env.DEV && new URLSearchParams(location.search).h
  * The loaded plan as auto-trace's rasters: grey (luminance) and the colour image (RGBA, for planter greens and blue
  * glazing); transparent pixels read as paper. Both buffers are transferred to the worker, not copied.
  */
-function rastersOf(im: HTMLImageElement): { gray: Gray; rgb: NonNullable<TraceJob['rgb']> } {
+function rastersOf(im: HTMLImageElement) {
   const c = document.createElement('canvas')
   c.width = im.naturalWidth
   c.height = im.naturalHeight
@@ -222,10 +228,7 @@ function rastersOf(im: HTMLImageElement): { gray: Gray; rgb: NonNullable<TraceJo
   ctx.fillStyle = '#fff'
   ctx.fillRect(0, 0, c.width, c.height)
   ctx.drawImage(im, 0, 0)
-  const rgba = ctx.getImageData(0, 0, c.width, c.height).data
-  const data = new Uint8Array(c.width * c.height)
-  for (let i = 0; i < data.length; i++) data[i] = 0.299 * rgba[i * 4] + 0.587 * rgba[i * 4 + 1] + 0.114 * rgba[i * 4 + 2]
-  return { gray: { width: c.width, height: c.height, data }, rgb: { width: c.width, height: c.height, data: rgba } }
+  return traceRasters(ctx.getImageData(0, 0, c.width, c.height))
 }
 
 const download = (name: string, text: string) => {
@@ -237,7 +240,7 @@ const download = (name: string, text: string) => {
 }
 
 export default function StudioApp() {
-  const [state, dispatch] = useReducer(studioReducer, undefined, init)
+  const [state, dispatch] = useReducer(studioReducerWithDxf, undefined, init)
   const [restored, setRestored] = useState<string | null>(() =>
     !EDIT && (state.unit.vertices.length || state.planImage) ? state.unit.name || 'untitled unit' : null,
   )
@@ -257,6 +260,7 @@ export default function StudioApp() {
   const [missingPlan, setMissingPlan] = useState<string | null>(null)
   // Auto-trace: 'pick' = waiting for the click inside the flat; then the running stage; cancelTrace stops either
   const [trace, setTrace] = useState<'pick' | { stage: string; fraction: number } | null>(null)
+  const [dxfImportOpen, setDxfImportOpen] = useState(false)
   const cancelTrace = useRef(() => setTrace(null))
   // pick mode: the sheet's preparing stage (null = ready), the flat a click at the pointer picks, the hover / click senders
   const [prep, setPrep] = useState<string | null>(null)
@@ -294,6 +298,7 @@ export default function StudioApp() {
   const fitOnLoad = useRef(false)
 
   const { unit, view, tool, chain } = state
+  const dxfReview = activeDxfReview(state)
   useEffect(() => setArc(null), [tool]) // another tool drops a half-placed arc
   const frame = useMemo(() => frameOf(view, unit.planImage), [view, unit.planImage])
   const { pxPerM } = frame
@@ -584,8 +589,22 @@ export default function StudioApp() {
     if (st.planImage?.dataUrl.startsWith('data:')) void putPicture(st.unit.id, st.planImage).catch(() => {})
     return ps.map((p) => (p.id === a.id ? { ...p, units: { ...p.units, [st.unit.id]: st.unit } } : p))
   }
-  /** another drawing into the Studio (null: an empty one): this one is saved first (`ps` holds it), its picture comes back from this browser */
   const opening = useRef<Id | null>(null)
+  const importDxf = useCallback((result: DxfImportResult) => {
+    if (stateRef.current.unit.walls.length && !window.confirm('Replace your current drawing with this DXF? Ctrl+Z restores your drawing.')) return
+    opening.current = null
+    setImg(null)
+    setMissingPlan(null)
+    setScaleStart(null)
+    setAlign(null)
+    setField(null)
+    setPopover(null)
+    dispatch({ type: 'dxf-import', result })
+    setDxfImportOpen(false)
+    window.setTimeout(() => fitView(), 0)
+    toast(`Imported DXF · ${result.unit.walls.length} walls · Ctrl+Z undoes it`)
+  }, [fitView, toast])
+  /** another drawing into the Studio (null: an empty one): this one is saved first (`ps` holds it), its picture comes back from this browser */
   const openDrawing = (ps: Project[], id: Id | null) => {
     if (!storeProjects(ps)) return
     const a = projRef.current
@@ -663,7 +682,7 @@ export default function StudioApp() {
   // ----- draft persistence
   const saveDraft = useCallback(() => {
     const st = stateRef.current
-    const d: Draft = { unit: st.unit, planImage: st.planImage, view: st.view, timer: st.timer, review: st.review }
+    const d: StudioDraftWithDxf = { unit: st.unit, planImage: st.planImage, view: st.view, timer: st.timer, review: st.review, dxfReview: activeDxfReview(st) }
     try {
       localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...d, drawing: projRef.current?.drawing }))
     } catch {
@@ -676,7 +695,7 @@ export default function StudioApp() {
   useEffect(() => {
     const id = setTimeout(saveDraft, 400)
     return () => clearTimeout(id)
-  }, [state.unit, state.planImage, state.view, state.review, saveDraft])
+  }, [state.unit, state.planImage, state.view, state.review, dxfReview, saveDraft])
   // a door / window / low wall changed in the 3D view (viewer Edit openings) is written into this draft from that tab: the
   // plan takes it at once, so this tab's next autosave never writes the old plan back
   useEffect(() => {
@@ -813,7 +832,7 @@ export default function StudioApp() {
     // (s27 export: at once — a row whose answers are still being worked out goes in with its box, no answers and answersPending)
     const p = st.planImage
     const review = st.review?.unitId === st.unit.id ? exportedReview(st.unit, st.review, marks, p ? { w: p.naturalW, h: p.naturalH } : undefined) : undefined
-    const out = { ...st.unit, name, planImage: st.unit.planImage && { ...st.unit.planImage, src: st.planImage?.name ?? st.unit.planImage.src }, review }
+    const out = { ...st.unit, name, planImage: st.unit.planImage && { ...st.unit.planImage, src: st.planImage?.name ?? st.unit.planImage.src }, review: review ?? activeDxfReview(st) }
     download(`${slug(name)}.plotline.json`, JSON.stringify(out, null, 2))
     dispatch({ type: 'exported' })
     const pending = review?.items.filter((i) => i.answersPending).length
@@ -914,7 +933,11 @@ export default function StudioApp() {
   // previews the flat a click there picks; the click picks it on the same prepared sheet → the result replaces the unit
   // (one undo step)
   const startAutoTrace = () => {
-    if (!img || (unit.walls.length && !window.confirm('Replace your current trace? Ctrl+Z brings it back.'))) return
+    if (!img) return
+    if (img.naturalWidth * img.naturalHeight > MAX_TRACE_PIXELS) {
+      return toast('This image is over 16 megapixels. Export one floor or use a smaller image for Auto-trace.')
+    }
+    if (unit.walls.length && !window.confirm('Replace your current trace? Ctrl+Z brings it back.')) return
     let aiKey: string | undefined
     let tracker: TraceJob['tracker']
     try {
@@ -923,11 +946,12 @@ export default function StudioApp() {
     } catch {
       /* storage blocked: no AI helper, the default tracker */
     }
-    const { gray, rgb } = rastersOf(img)
     const worker = new Worker(new URL('./autotrace.worker.ts', import.meta.url), { type: 'module' })
     const send = (m: TraceIn, transfer: Transferable[] = []) => worker.postMessage(m, transfer)
     // hover: one preview in flight at a time, the latest spot sent as soon as it is back (the worker's pace is the throttle)
     let ready = false, busy = false, picked = false, want: Pt | null = null, seq = 0
+    let stopped = false, submitted = false
+    let pendingPick: Extract<TraceIn, { type: 'pick' | 'floor' }> | undefined
     const next = () => {
       if (!ready || busy || picked || !want) return
       busy = true
@@ -939,6 +963,7 @@ export default function StudioApp() {
       next()
     }
     const stop = () => {
+      stopped = true
       worker.terminate()
       hoverTrace.current = pickTrace.current = () => {}
       setTrace(null)
@@ -982,7 +1007,9 @@ export default function StudioApp() {
         stop()
         toast('Auto-trace cancelled')
       }
-      send(px ? { type: 'pick', px } : { type: 'floor' })
+      const message = px ? { type: 'pick' as const, px } : { type: 'floor' as const }
+      if (submitted) send(message)
+      else pendingPick = message
     }
     worker.onmessage = (e: MessageEvent<TraceMsg>) => {
       const m = e.data
@@ -1006,7 +1033,27 @@ export default function StudioApp() {
     }
     setPrep('starting')
     setTrace('pick')
-    send({ type: 'prepare', job: { gray, rgb, pxPerM: unit.planImage?.pxPerM, aiKey, tracker, mock: MOCK_TRACE } }, [gray.data.buffer, rgb.data.buffer])
+    const options = { pxPerM: unit.planImage?.pxPerM, aiKey, tracker, mock: MOCK_TRACE }
+    const prepareImage = async () => {
+      const bitmap = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap === 'function'
+        ? await createImageBitmap(img).catch(() => null)
+        : null
+      if (stopped) { bitmap?.close(); return }
+      if (bitmap) {
+        try {
+          send({ type: 'prepare', job: { ...options, bitmap } }, [bitmap])
+        } catch (e) {
+          bitmap.close()
+          throw e
+        }
+      } else {
+        const { gray, rgb } = rastersOf(img)
+        send({ type: 'prepare', job: { ...options, gray, rgb } }, [gray.data.buffer, rgb.data.buffer])
+      }
+      submitted = true
+      if (pendingPick) send(pendingPick)
+    }
+    void prepareImage().catch(e => { if (!stopped) fail(e instanceof Error ? e.message : String(e)) })
   }
 
   // ----- hit testing (screen px)
@@ -2294,6 +2341,14 @@ export default function StudioApp() {
           />
         )}
         <Panel
+          importControl={<button disabled={!!trace} onClick={() => setDxfImportOpen(true)}>Import DXF</button>}
+          importReview={dxfReview && <Suspense fallback={null}>
+            <DxfReviewPanel
+              result={dxfReview}
+              onLocate={row => focusOn([row.at], row.entityId && findEntity(unit, row.entityId) ? [row.entityId] : [], 3)}
+              onDismiss={id => dispatch({ type: 'dxf-dismiss', id })}
+            />
+          </Suspense>}
           state={state}
           dispatch={dispatch}
           rooms={rooms}
@@ -2312,6 +2367,8 @@ export default function StudioApp() {
           onPlace={(assetId) => hold(assetId ? { id: newId(), assetId, rot: 0 } : null)}
         />
       </div>
+
+      {dxfImportOpen && <Suspense fallback={<div className="dxf-shade"><div className="dxf-dialog">Loading DXF import…</div></div>}><DxfImportDialog onClose={() => setDxfImportOpen(false)} onImport={importDxf} /></Suspense>}
 
       <footer className="statusbar">
         <span>{hint}</span>

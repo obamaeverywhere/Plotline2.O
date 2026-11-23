@@ -180,16 +180,13 @@ function evidence(g: Gray, tracks?: Track[], trackBonus = 0.5): Evidence {
   const { width: w, height: h, data } = g
   const lut = new Float32Array(256).map((_, v) => Math.max(0, Math.min(1, (230 - v) / 140)))
   const D = (x: number, y: number) => (x < 0 || y < 0 || x >= w || y >= h ? 0 : lut[data[y * w + x]])
-  const sH = new Float32Array(w * h), sV = new Float32Array(w * h)
-  for (let y = 0; y < h; y++)
-    for (let x = 0; x < w; x++) {
-      sH[y * w + x] = Math.max(D(x, y - 1), D(x, y - 2)) - Math.max(D(x, y), D(x, y + 1))
-      sV[y * w + x] = Math.max(D(x - 1, y), D(x - 2, y)) - Math.max(D(x, y), D(x + 1, y))
-    }
+  const steps = new Float32Array(w * h)
+  const add = tracks?.length ? new Uint8Array(w * h) : null
+  const bonusValue = Math.fround(trackBonus)
   // track faces: a horizontal track's lower face is a room-below's top edge (T), its upper face a room-above's bottom (B)
-  const bonus = (horizEdge: boolean, lower: boolean): Float32Array | null => {
-    if (!tracks?.length) return null
-    const m = new Float32Array(w * h)
+  const bonus = (horizEdge: boolean, lower: boolean) => {
+    if (!add || !tracks) return
+    add.fill(0)
     for (const t of tracks) {
       if (t.horiz !== horizEdge) continue
       for (const iv of t.intervals) {
@@ -198,21 +195,21 @@ function evidence(g: Gray, tracks?: Track[], trackBonus = 0.5): Evidence {
           for (let d = -1; d <= 1; d++) {
             // ±1 px like the steps, so the 2 px search grid cannot miss it
             const x = horizEdge ? u : r + d, y = horizEdge ? r + d : u
-            if (x >= 0 && y >= 0 && x < w && y < h) m[y * w + x] = trackBonus
+            if (x >= 0 && y >= 0 && x < w && y < h) add[y * w + x] = 1
           }
       }
     }
-    return m
   }
-  const prefix = (s: Float32Array, sign: 1 | -1, horizEdge: boolean, add: Float32Array | null): Float32Array => {
+  const prefix = (sign: 1 | -1, horizEdge: boolean): Float32Array => {
+    bonus(horizEdge, sign === 1)
     // dilate (max over ±1 along the normal) then prefix along the edge
     const val = (x: number, y: number) => {
       let v = -Infinity
       for (let d = -1; d <= 1; d++) {
         const xx = horizEdge ? x : x + d, yy = horizEdge ? y + d : y
-        if (xx >= 0 && yy >= 0 && xx < w && yy < h) v = Math.max(v, sign * s[yy * w + xx])
+        if (xx >= 0 && yy >= 0 && xx < w && yy < h) v = Math.max(v, sign * steps[yy * w + xx])
       }
-      return v + (add ? add[y * w + x] : 0)
+      return v + (add?.[y * w + x] ? bonusValue : 0)
     }
     if (horizEdge) {
       const P = new Float32Array((w + 1) * h)
@@ -229,7 +226,12 @@ function evidence(g: Gray, tracks?: Track[], trackBonus = 0.5): Evidence {
     }
     return P
   }
-  return { w, h, T: prefix(sH, 1, true, bonus(true, true)), B: prefix(sH, -1, true, bonus(true, false)), L: prefix(sV, 1, false, bonus(false, true)), R: prefix(sV, -1, false, bonus(false, false)) }
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++)
+    steps[y * w + x] = Math.max(D(x, y - 1), D(x, y - 2)) - Math.max(D(x, y), D(x, y + 1))
+  const T = prefix(1, true), B = prefix(-1, true)
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++)
+    steps[y * w + x] = Math.max(D(x - 1, y), D(x - 2, y)) - Math.max(D(x, y), D(x + 1, y))
+  return { w, h, T, B, L: prefix(1, false), R: prefix(-1, false) }
 }
 
 /** mean step along each edge of a rect: top, bottom, left, right */

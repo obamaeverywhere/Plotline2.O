@@ -119,6 +119,7 @@ export interface Gap {
 }
 
 export interface TrackOpts {
+  arcRadiusPx?: number
   /** the partition's half width, px (default: walls.ts wallHalfWidth of the sheet) */
   halfPx?: number
   /** plant pixels (the colour image's green, hints.ts greenMask) — whitened before anything is traced */
@@ -530,7 +531,17 @@ export function traceTracks(gray0: Gray, opts: TrackOpts = {}): TrackTrace {
       const keep = ivs.filter((iv) => {
         if (iv.pil) return true // (a column is its own ink both sides of the line)
         const p = (u: number): Px => (horiz ? { x: u, y: l.c } : { x: l.c, y: u })
-        return sideContrast(gray, { a: p(iv.w0), b: p(iv.w1) }, iv.th) >= minContrast
+        // A short thickness step can be absorbed into its neighbouring class above. Sampling the whole interval at
+        // that class's width then probes INSIDE its wider ink, and a real wall beside a junction has zero "contrast".
+        // Judge only actual wall cross-sections, at their measured widths; junction blocks are not side evidence.
+        const samples: number[] = []
+        const from = Math.max(0, Math.ceil(iv.w0 - a)), to = Math.min(n - 1, Math.floor(iv.w1 - a))
+        const stride = Math.max(1, Math.floor((to - from + 1) / 24))
+        for (let i = from; i <= to; i += stride) {
+          if (lab[i] !== W_) continue
+          samples.push(sideContrast(gray, { a: p(a + i - 0.5), b: p(a + i + 0.5) }, wid[i]))
+        }
+        return samples.length > 0 && median(samples) >= minContrast
       })
       if (keep.length) tracks.push({ horiz, c: l.c, ivs: keep.sort((p, q) => p.f0 - q.f0), lab, a })
     }
@@ -609,7 +620,7 @@ export function traceTracks(gray0: Gray, opts: TrackOpts = {}): TrackTrace {
   const gaps: Gap[] = []
   const seen = new Set<string>()
   // arc ink outside every wall body, each pixel judged once (the door probe asks the same pixels many times)
-  const arcAt0 = arcInk(gray), arcMemo = new Uint8Array(W * H)
+  const arcAt0 = arcInk(gray,18,opts.arcRadiusPx), arcMemo = new Uint8Array(W * H)
   const grayAt = (x: number, y: number) => gray.data[Math.min(H - 1, Math.max(0, Math.round(y))) * W + Math.min(W - 1, Math.max(0, Math.round(x)))]
   const inWall = wallBodies(tracks, W, H)
   const arcAt = (x: number, y: number) => {
@@ -814,6 +825,8 @@ export function classifyGap(
   double = true,
   /** a window's frame band (one pane line in a light band) is glazing too (TrackOpts.frameBands) */
   bands = false,
+  /** Faint strokes need the same swing at two contrast thresholds, not just a weaker ink cut. */
+  faint?: [(x:number,y:number)=>boolean,(x:number,y:number)=>boolean],
 ): Pick<Gap, 'kind' | 'conf' | 'hingeAt' | 'swingTo'> {
   const gap = Math.hypot(b.x - a.x, b.y - a.y)
   const ux = (b.x - a.x) / gap, uy = (b.y - a.y) / gap
@@ -822,25 +835,31 @@ export function classifyGap(
   if (door) return door
   // glass colour along the gap, inside the wall's band
   if (glass) {
-    let n = 0, hit = 0
-    const r = Math.ceil(th / 2) + 1
-    for (let t = 0.1 * gap; t <= 0.9 * gap; t += 1) {
-      n++
-      for (let o = -r; o <= r; o++) {
+    // A pane may sit just inside the wall face rather than on its centre. Allow a frame margin, but require
+    // one straight offset to carry the colour; scattered blue pixels across a wider strip are not a pane.
+    const r = Math.ceil(th / 2) + Math.max(1, Math.round(.1 * pxPerM))
+    for (let o = -r; o <= r; o++) {
+      let n = 0, hit = 0
+      for (let t = 0.1 * gap; t <= 0.9 * gap; t += 1) {
+        n++
         const x = Math.round(a.x + ux * t + nx * o), y = Math.round(a.y + uy * t + ny * o)
-        if (x >= 0 && y >= 0 && x < W && y < H && glass[y * W + x]) {
-          hit++
-          break
-        }
+        if (x >= 0 && y >= 0 && x < W && y < H && glass[y * W + x]) hit++
       }
+      if (n && hit / n >= 0.6) return { kind: 'window', conf: 0.7 }
     }
-    if (n && hit / n >= 0.6) return { kind: 'window', conf: 0.7 }
   }
   // (s27: a glass band — a light frame band and its pane line drawn as one, the photo-render brochures' windows — counts
   // as the walls.ts and close.ts glazing rules count it — only where the picture is traced at its own size (the bands flag): on a
   // small one blown up first (Magnifico, Water Lily, Kanakchapa, La Reina) a thin wall's own fill blurs into such a band)
   const gz = glazing(a, ux, uy, gap, th, grayAt)
   if (gz.lines >= 2 || (bands && gz.band >= Math.max(3, 0.05 * pxPerM))) return { kind: 'window', conf: 0.6 }
+  if (faint) {
+    const q=doorArcs(a,b,pxPerM,faint[1],double,true)
+    const p=q ? doorArcs(a,b,pxPerM,faint[0],double,false,q.hingeAt) : null
+    if(p&&q&&p.conf>=.75&&q.conf>=.9&&p.hingeAt&&q.hingeAt&&p.swingTo&&q.swingTo &&
+      Math.hypot(p.hingeAt.x-q.hingeAt.x,p.hingeAt.y-q.hingeAt.y)<=.1*gap &&
+      Math.hypot(p.swingTo.x-q.swingTo.x,p.swingTo.y-q.swingTo.y)<=.1*gap ) return {...p,conf:Math.min(p.conf,q.conf)}
+  }
   return { kind: 'unknown', conf: 0 }
 }
 
@@ -851,7 +870,7 @@ export function classifyGap(
  * up to the span between their hinges (± 15 %): a DOUBLE door, one opening of the gap's width (main doors: equal leaves
  * or 0.9 + 0.5 m; the hand traces draw one door there).
  */
-function doorArcs(a: Px, b: Px, pxPerM: number, arcAt: (x: number, y: number) => boolean, double = true): Pick<Gap, 'kind' | 'conf' | 'hingeAt' | 'swingTo'> | null {
+function doorArcs(a: Px, b: Px, pxPerM: number, arcAt: (x: number, y: number) => boolean, double = true, requireLeaf = false, anchor?: Px): Pick<Gap, 'kind' | 'conf' | 'hingeAt' | 'swingTo'> | null {
   const gap = Math.hypot(b.x - a.x, b.y - a.y)
   const ux = (b.x - a.x) / gap, uy = (b.y - a.y) / gap
   const nx = -uy, ny = ux
@@ -902,7 +921,12 @@ function doorArcs(a: Px, b: Px, pxPerM: number, arcAt: (x: number, y: number) =>
       const hp = { x: jb.x + ux * sgn * o * gap, y: jb.y + uy * sgn * o * gap }
       for (const R of Rs(o)) {
         const q = quarter(hp, ux * sgn, uy * sgn, nx * side, ny * side, R)
-        if (q.score > 0) out.push({ ...q, hp, t: sgn > 0 ? o * gap : gap - o * gap, side })
+        let leaf = 0
+        if (requireLeaf && q.score > 0) for(let i=0;i<12;i++) {
+          const t=q.r*(.2+.6*i/11)
+          leaf += near(hp.x+nx*side*t,hp.y+ny*side*t)
+        }
+        if (q.score > 0 && (!requireLeaf || leaf >= 11)) out.push({ ...q, hp, t: sgn > 0 ? o * gap : gap - o * gap, side })
       }
     }
     return out
@@ -913,7 +937,7 @@ function doorArcs(a: Px, b: Px, pxPerM: number, arcAt: (x: number, y: number) =>
     let best: Leaf | null = null
     for (const side of [1, -1])
       for (const [jb, sgn] of [[a, 1], [b, -1]] as const)
-        for (const l of leaves(jb, sgn, side, os, (o) => [gap * (1 - o)])) if (!best || l.score > best.score) best = l
+        for (const l of leaves(jb, sgn, side, os, (o) => [gap * (1 - o)])) if ((!anchor || Math.hypot(l.hp.x-anchor.x,l.hp.y-anchor.y)<=.1*gap) && (!best || l.score > best.score)) best = l
     if (best && best.score >= 0.7) return { kind: 'door', conf: best.score, hingeAt: best.hp, swingTo: swing(best.side, gap * 0.5) }
   }
   if (double && gap >= M.doubleMin * pxPerM && gap <= M.doubleMax * pxPerM) {
@@ -929,6 +953,8 @@ function doorArcs(a: Px, b: Px, pxPerM: number, arcAt: (x: number, y: number) =>
         for (const q of B) {
           const span = q.t - p.t
           if (span <= 0 || Math.abs(p.r + q.r - span) > 0.15 * span || Math.max(p.r, q.r) > 2.2 * Math.min(p.r, q.r)) continue
+          const larger = p.r >= q.r ? p : q
+          if(anchor && Math.hypot(larger.hp.x-anchor.x,larger.hp.y-anchor.y)>.1*gap)continue
           const s = Math.min(p.score, q.score)
           if (!best || s > best.score) best = { score: s, L: p.r >= q.r ? p : q }
         }
