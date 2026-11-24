@@ -1,4 +1,4 @@
-import { deriveFlats, deriveRooms, flatTypeOf, formatFeetInches, newId, parseLength, pointInPolygon, printedSizeCheck, roomInnerPolygon, roomPolygon, sqmToSqft, validate } from '../core'
+import { TOUCH_M, deriveFlats, deriveRooms, flatTypeOf, formatFeetInches, newId, parseLength, pointInPolygon, printedSizeCheck, roomInnerPolygon, roomPolygon, sqmToSqft, validate } from '../core'
 import type { Id, OpeningKind, Pt, Unit, Vertex, Wall } from '../core'
 import { classifyRoom, normaliseName, parseArea, parseDims } from '../trace/text'
 import { drawingChoices, entitiesForDrawing } from './drawings'
@@ -55,31 +55,37 @@ export function extractWallRuns(segments: Segment[], scale: number): RawWall[] {
 /** Join matching wall fragments across CAD door gaps; every inferred gap is retained as a review item. */
 export function joinWallGaps(input: RawWall[], review: DxfReviewItem[]): RawWall[] {
   const walls: RawWall[] = input.map(w => ({ ...w, openings: [...(w.openings ?? [])] }))
-  let joined = true
-  while (joined) {
-    joined = false
-    outer: for (let i = 0; i < walls.length; i++) for (let j = i + 1; j < walls.length; j++) {
-      const a = walls[i], b = walls[j], u = unitVec(sub(a.b, a.a))
-      if (!u.x && !u.y || Math.abs(cross(u, unitVec(sub(b.b, b.a)))) > 0.02 || Math.abs(a.thickness - b.thickness) > 0.08) continue
-      if (Math.abs(cross(sub(mid(b.a, b.b), a.a), u)) > 0.035) continue
-      const pa = [0, dist(a.a, a.b)]
-      const pb = [dot(sub(b.a, a.a), u), dot(sub(b.b, a.a), u)].sort((x, y) => x - y)
-      let lo = pa[0], hi = pa[1], gap = 0, gapStart = 0
-      if (pb[0] >= hi) { gap = pb[0] - hi; gapStart = hi; hi = pb[1] }
-      else if (pa[0] >= pb[1]) { gap = pa[0] - pb[1]; gapStart = pb[1]; lo = pb[0] }
-      else continue
-      if (gap > 1.6) continue
-      const base = a.a, next: RawWall = { ...a, a: add(base, mul(u, lo)), b: add(base, mul(u, hi)), paired: a.paired || b.paired, openings: [...(a.openings ?? []), ...(b.openings ?? [])] }
+  for (let i = 0; i < walls.length; i++) {
+    // Extend this run to its nearest compatible neighbour first. Joining a farther
+    // fragment can otherwise turn an intervening solid pier into part of a doorway.
+    while (true) {
+      const a = walls[i]
+      const dir = unitVec(sub(a.b, a.a))
+      const length = dist(a.a, a.b)
+      let nearest: { index: number; lo: number; hi: number; gap: number; gapStart: number } | undefined
+      for (let j = i + 1; j < walls.length; j++) {
+        const b = walls[j]
+        if (Math.abs(a.thickness - b.thickness) > 0.08 || Math.abs(cross(dir, unitVec(sub(b.b, b.a)))) > 0.02) continue
+        if (Math.abs(cross(sub(mid(b.a, b.b), a.a), dir)) > 0.035) continue
+        const p = dot(sub(b.a, a.a), dir), q = dot(sub(b.b, a.a), dir)
+        const start = Math.min(p, q), end = Math.max(p, q)
+        const gap = Math.max(start - length, -end)
+        if (gap < 0 || gap > 1.6 || (nearest && gap >= nearest.gap)) continue
+        nearest = { index: j, lo: Math.min(0, start), hi: Math.max(length, end), gap, gapStart: end <= 0 ? end : length }
+        if (gap === 0) break
+      }
+      if (!nearest) break
+      const { index, lo, hi, gap, gapStart } = nearest
+      const b = walls[index]
+      const openings = [...(a.openings ?? []), ...(b.openings ?? [])]
       if (gap >= 0.25) {
         const kind: OpeningKind = gap >= 1.25 ? 'slider' : 'door'
-        const center = add(base, mul(u, gapStart + gap / 2)), guessId = newId()
-        next.openings?.push({ center, width: gap, kind, sourceId: guessId, guessId })
+        const center = add(a.a, mul(dir, gapStart + gap / 2)), guessId = newId()
+        openings.push({ center, width: gap, kind, sourceId: guessId, guessId })
         review.push({ id: guessId, at: center, kind: 'opening-guess', message: `A ${gap.toFixed(2)} m wall gap was interpreted as a ${kind}. Confirm its type and width.` })
       }
-      walls[i] = next
-      walls.splice(j, 1)
-      joined = true
-      break outer
+      walls[i] = { ...a, a: add(a.a, mul(dir, lo)), b: add(a.a, mul(dir, hi)), paired: a.paired || b.paired, openings }
+      walls.splice(index, 1)
     }
   }
   return walls
@@ -92,7 +98,7 @@ function lineIntersection(A: RawWall, B: RawWall): [number, number, Pt] | null {
   return [t, u, add(A.a, mul(r, t))]
 }
 
-/** Wall faces stop at the inner corner. Extend their derived centerlines to the actual corner. */
+/** Extend near-miss centerlines to the junction. Paired wall faces can stop half a wall thickness short. */
 function meetWallFaces(walls: RawWall[]): RawWall[] {
   const lengths = walls.map(w => dist(w.a, w.b))
   const nearby = walls.map((): { a?: { at: Pt; distance: number }; b?: { at: Pt; distance: number } } => ({}))
@@ -104,15 +110,15 @@ function meetWallFaces(walls: RawWall[]): RawWall[] {
   }
   for (let i = 0; i < walls.length; i++) for (let j = i + 1; j < walls.length; j++) {
     const a = walls[i], b = walls[j]
-    if (!a.paired && !b.paired || !boxesMeet(a, b, 0.25)) continue
+    if (!boxesMeet(a, b, a.paired || b.paired ? 0.25 : TOUCH_M * 2)) continue
     if (Math.abs(cross(unitVec(sub(a.b, a.a)), unitVec(sub(b.b, b.a)))) < 0.25) continue
     const hit = lineIntersection(a, b)
     if (!hit) continue
     const [t, u, at] = hit
     const beyondA = Math.max(0, -t, t - 1) * lengths[i]
     const beyondB = Math.max(0, -u, u - 1) * lengths[j]
-    const reachA = b.paired ? b.thickness / 2 + 0.01 : 0.01
-    const reachB = a.paired ? a.thickness / 2 + 0.01 : 0.01
+    const reachA = b.paired ? b.thickness / 2 + 0.01 : TOUCH_M
+    const reachB = a.paired ? a.thickness / 2 + 0.01 : TOUCH_M
     if (beyondA > reachA || beyondB > reachB) continue
     record(i, t, at, beyondA)
     record(j, u, at, beyondB)
@@ -132,7 +138,7 @@ function project(p: Pt, w: RawWall): { t: number; distance: number } {
 }
 function keyPoint(p: Pt, tol = 0.01) { return `${Math.round(p.x / tol)},${Math.round(p.y / tol)}` }
 
-function splitGraph(walls: RawWall[], review: DxfReviewItem[]): { vertices: Vertex[]; walls: Wall[] } {
+function splitGraph(walls: RawWall[], review: DxfReviewItem[], replacedGuesses: Set<string>): { vertices: Vertex[]; walls: Wall[] } {
   const cuts = walls.map(() => [0, 1])
   let cutCount = 0
   const cut = (index: number, t: number) => {
@@ -142,7 +148,7 @@ function splitGraph(walls: RawWall[], review: DxfReviewItem[]): { vertices: Vert
   }
   for (let i = 0; i < walls.length; i++) for (let j = i + 1; j < walls.length; j++) {
     const A = walls[i], B = walls[j]
-    if (!boxesMeet(A, B, 0.0127)) continue
+    if (!boxesMeet(A, B, TOUCH_M)) continue
     const hit = lineIntersection(A, B)
     if (hit && [hit[0], hit[1]].every(t => t >= -1e-7 && t <= 1 + 1e-7)) {
       cut(i, hit[0]); cut(j, hit[1])
@@ -150,11 +156,12 @@ function splitGraph(walls: RawWall[], review: DxfReviewItem[]): { vertices: Vert
     }
     for (const [p, target, targetIndex] of [[A.a, B, j], [A.b, B, j], [B.a, A, i], [B.b, A, i]] as const) {
       const q = project(p, target)
-      if (q.distance <= 0.0127) cut(targetIndex, q.t)
+      if (q.distance <= TOUCH_M) cut(targetIndex, q.t)
     }
   }
   const vertices: Vertex[] = [], byKey = new Map<string, Id>(), edges = new Map<string, Wall>()
   const points = new Map<Id, Pt>(), placed = new Set<RawOpening>()
+  const openingCandidates = new Map<Wall, { opening: RawOpening; start: number; end: number }[]>()
   const vertex = (p: Pt): Id => {
     const k = keyPoint(p)
     const prior = byKey.get(k)
@@ -170,19 +177,39 @@ function splitGraph(walls: RawWall[], review: DxfReviewItem[]): { vertices: Vert
       const va = vertex(a), vb = vertex(b)
       if (va === vb) continue
       const key = va < vb ? `${va}|${vb}` : `${vb}|${va}`
-      const existing = edges.get(key)
-      if (existing) { existing.thicknessM = Math.max(existing.thicknessM, w.thickness); continue }
-      const edge = { ...w, a: points.get(va)!, b: points.get(vb)! }
-      const openings = (w.openings ?? []).flatMap(o => {
-        const span = openingSpan(o, edge)
-        if (!span.fits) return []
-        placed.add(o)
-        return [{ id: newId(), kind: o.kind, offsetM: Math.max(0, span.start), widthM: Math.min(span.length, span.end) - Math.max(0, span.start), heightM: o.kind === 'window' ? 1.2 : 2.134, sillM: o.kind === 'window' ? 0.8 : 0 }]
-      })
-      const wall: Wall = { id: newId(), a: va, b: vb, thicknessM: Math.max(0.05, w.thickness), heightM: HEIGHT, openings }
-      edges.set(key, wall)
+      let wall = edges.get(key)
+      if (!wall) {
+        wall = { id: newId(), a: va, b: vb, thicknessM: Math.max(0.05, w.thickness), heightM: HEIGHT, openings: [] }
+        edges.set(key, wall)
+      } else wall.thicknessM = Math.max(wall.thicknessM, w.thickness)
+      if (!w.openings?.length) continue
+      // Offsets are measured from the stored start, even when a duplicate was drawn backwards.
+      const edge = { ...w, a: points.get(wall.a)!, b: points.get(wall.b)! }
+      for (const opening of w.openings) {
+        const span = openingSpan(opening, edge)
+        if (!span.fits) continue
+        placed.add(opening)
+        const candidates = openingCandidates.get(wall) ?? []
+        candidates.push({ opening, start: Math.max(0, span.start), end: Math.min(span.length, span.end) })
+        openingCandidates.set(wall, candidates)
+      }
     }
   })
+  for (const [wall, candidates] of openingCandidates) {
+    // An explicit CAD symbol takes precedence over a gap inferred from another copy of the wall.
+    candidates.sort((a, b) => Number(!!a.opening.guessId) - Number(!!b.opening.guessId))
+    for (const { opening, start, end } of candidates) {
+      const prior = wall.openings.find(o => Math.min(end, o.offsetM + o.widthM) - Math.max(start, o.offsetM) > 1e-6)
+      if (prior) {
+        if (opening.guessId) replacedGuesses.add(opening.guessId)
+        else if (prior.kind !== opening.kind || Math.abs(prior.offsetM - start) > 0.05 || Math.abs(prior.offsetM + prior.widthM - end) > 0.05)
+          review.push({ id: newId(), at: opening.center, kind: 'opening-guess', message: 'Overlapping opening markers on duplicate walls. Verify the opening type and width.', entityId: opening.sourceId })
+        continue
+      }
+      const window = opening.kind === 'window'
+      wall.openings.push({ id: newId(), kind: opening.kind, offsetM: start, widthM: end - start, heightM: window ? 1.2 : 2.134, sillM: window ? 0.8 : 0 })
+    }
+  }
   for (const w of walls) for (const opening of w.openings ?? []) {
     if (!placed.has(opening)) review.push({ id: newId(), at: opening.center, kind: 'opening-guess', message: `A ${opening.kind} could not fit on one wall segment after joining the walls. Place it manually.`, entityId: opening.sourceId })
   }
@@ -217,13 +244,57 @@ function textRows(entities: VectorEntity[], factor: number, origin: Pt, roles: R
   return { labels, areaReadings }
 }
 
-function openingMarks(entities: VectorEntity[], scale: number, origin: Pt, roles: Record<string, LayerRole>) {
+/** Recover one jamb-to-jamb span from a straight stroke or a narrow rectangular CAD frame. */
+function polylineOpening(e: Extract<VectorEntity, { kind: 'polyline' }>, scale: number, origin: Pt): [Pt, Pt] | null {
+  if (e.vertices.length < 2 || e.vertices.some((v, i) => (e.closed || i < e.vertices.length - 1) && v.bulge !== 0)) return null
+  const points = e.vertices.map(p => fromSource(p, scale, origin))
+  const first = points[0], last = points[points.length - 1]
+  const tolerance = 0.002 // metres, independent of the file's drawing units
+  const repeatedEnd = dist(first, last) <= tolerance
+  if (!e.closed && !repeatedEnd) {
+    const dir = unitVec(sub(last, first))
+    let previous = 0
+    for (const point of points) {
+      const delta = sub(point, first), along = dot(delta, dir)
+      if (Math.abs(cross(delta, dir)) > tolerance || along < previous - tolerance) return null
+      previous = along
+    }
+    return [first, last]
+  }
+
+  if (repeatedEnd) points.pop()
+  if (points.length !== 4) return null
+  const [a, b, c, d] = points
+  const ab = sub(b, a), ad = sub(d, a)
+  // Opposite edges must match, and adjacent edges must meet at a right angle.
+  if (dist(add(b, ad), c) > tolerance) return null
+  const abLonger = dist(a, b) >= dist(a, d)
+  const long = abLonger ? ab : ad, short = abLonger ? ad : ab
+  const depth = Math.hypot(short.x, short.y)
+  if (depth <= tolerance || depth > 0.46 || depth > Math.hypot(long.x, long.y) / 4) return null
+  if (Math.abs(dot(unitVec(long), short)) > tolerance) return null
+  return abLonger ? [mid(a, d), mid(b, c)] : [mid(a, b), mid(d, c)]
+}
+
+function openingMarks(entities: VectorEntity[], scale: number, origin: Pt, roles: Record<string, LayerRole>, review: DxfReviewItem[]) {
   const marks: { center: Pt; width: number; kind: OpeningKind; sourceId: string; layer: string; dir: Pt }[] = []
   for (const e of entities) {
     const role = roles[e.layer]
     if (!['doors', 'windows'].includes(role ?? '')) continue
-    if (e.kind !== 'line') continue
-    const a = fromSource(e.a, scale, origin), b = fromSource(e.b, scale, origin)
+    if (e.kind !== 'line' && e.kind !== 'polyline') continue
+    // Nonuniform block scaling can also turn an ARC or CIRCLE into a sampled polyline.
+    if (e.kind === 'polyline' && e.sourceType !== 'POLYLINE' && e.sourceType !== 'LWPOLYLINE') continue
+    const span = e.kind === 'line'
+      ? [fromSource(e.a, scale, origin), fromSource(e.b, scale, origin)] as const
+      : polylineOpening(e, scale, origin)
+    if (!span) {
+      if (e.kind === 'polyline' && e.vertices.length) review.push({
+        id: newId(), at: fromSource(e.vertices[0], scale, origin), kind: 'opening-guess', entityId: e.id,
+        message: `Could not determine an opening width from the polyline on layer “${e.layer}”. Check the symbol on the plan.`,
+      })
+      continue
+    }
+    const [a, b] = span
     const width = dist(a, b)
     if (width < 0.25 || width > 4) continue
     marks.push({ center: mid(a, b), width, kind: role === 'windows' ? 'window' : width >= 1.5 ? 'slider' : 'door', sourceId: e.id, layer: e.layer, dir: unitVec(sub(b, a)) })
@@ -255,7 +326,7 @@ export function buildDxfUnit(sheet: VectorSheet, options: BuildDxfOptions): DxfI
   const gapReview: DxfReviewItem[] = []
   const runs = meetWallFaces(joinWallGaps(extractWallRuns(wallSegments, factor), gapReview))
   if (!runs.length) throw new Error('No wall linework was selected. Adjust the layer mapping and try again.')
-  const marks = openingMarks(entities, factor, origin, roles)
+  const marks = openingMarks(entities, factor, origin, roles, review)
   const replacedGuesses = new Set<string>()
   for (const mark of marks) {
     const candidates = runs.map(w => ({ w, span: openingSpan(mark, w) })).filter(({ w, span }) => span.fits
@@ -279,8 +350,8 @@ export function buildDxfUnit(sheet: VectorSheet, options: BuildDxfOptions): DxfI
     target.openings = [...(target.openings ?? []).filter(o => !overlapping.includes(o)), { center: mark.center, width: mark.width, kind: mark.kind, sourceId: mark.sourceId }]
     if (candidates.length > 1 && Math.abs(candidates[1].span.distance - span.distance) < 0.08) review.push({ id: newId(), at: mark.center, kind: 'opening-guess', message: `This ${mark.kind} marker is close to two walls; verify its placement.`, entityId: mark.sourceId })
   }
+  const graph = splitGraph(runs, review, replacedGuesses)
   review.push(...gapReview.filter(item => !replacedGuesses.has(item.id)))
-  const graph = splitGraph(runs, review)
   const { labels, areaReadings } = textRows(entities, factor, origin, roles)
   const roomLabels = labels
   const areaSqft = Math.round(options.areaSqft ?? (areaReadings[0] ? sqmToSqft(areaReadings[0].sqm) : 0))

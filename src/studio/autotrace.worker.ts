@@ -26,7 +26,7 @@ export interface TraceJob {
 }
 type BitmapJob = Omit<TraceJob, 'pickPx' | 'gray' | 'rgb'> & { bitmap: ImageBitmap }
 export type TraceIn = TraceJob | { type: 'prepare'; job: Omit<TraceJob, 'pickPx'> | BitmapJob } | { type: 'hover'; px: Px; seq: number } | { type: 'pick'; px: Px } | { type: 'floor' }
-export type Preview = { polys: Px[][]; names: { at: Px; text: string }[]; region: { x: number; y: number; w: number; h: number }[] }
+export type Preview = Awaited<ReturnType<typeof preview>>
 export type TraceMsg =
   | { type: 'progress'; stage: string; fraction: number }
   | { type: 'ready' }

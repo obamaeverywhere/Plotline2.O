@@ -3,7 +3,7 @@
  * Local first: tesseract.js (Apache-2.0), lazily imported inside `readText` only, so nothing reaches a bundle
  * that does not call it. Everything above `readText` is pure (no DOM) and Vitest-covered in text.test.ts.
  */
-import { FT, parseLength, pointInPolygon, polygonCentroid } from '../core'
+import { FT, parseLength, pointInPolygon } from '../core'
 import type { RoomKind } from '../core'
 import { capBand, readSizes, topMarks } from './sizes'
 import type { Dims, Gray, RejectedStrip, SizeTable, TableRow, TextItem, TextKind, TextTrace } from './types'
@@ -69,8 +69,13 @@ export function parseDims(raw: string): Dims | null {
   }
   if (parts.length !== 2) return null
   let [a, b] = parts
-  const metric = /m\s*$/i.test(s) && !/['"]/.test(s) // "4.4 x 3.2m": the unit printed once
-  if (metric && /\d$/.test(a.trim())) a += 'm'
+  // Architectural sheets often print the unit once for both dimensions.
+  if (!/['"]/.test(s)) {
+    const unit = /\d\s*(mm|cm|m)$/i
+    const aUnit = a.trim().match(unit)?.[1], bUnit = b.trim().match(unit)?.[1]
+    if (bUnit && /\d$/.test(a.trim())) a += bUnit
+    if (aUnit && /\d$/.test(b.trim())) b += aUnit
+  }
   const marksLost = /['"-]/.test(s)
   const aM = parseSide(a, marksLost)
   const bM = parseSide(b, marksLost)
@@ -139,7 +144,7 @@ function snapShort(tok: string): string {
 }
 
 /** Words of room names, for the loose snap below (incl. plan spellings like DINNING). */
-const LEXICON = [...WORDS, ...SHORT, 'BEDROOM', 'ROOM', 'HELP', 'OPEN', 'DRY', 'FORMAL', 'DINNING', 'TOILET', 'VERANDA', 'MAID', 'STAFF', 'TOI', 'TLT', 'TOIL', 'TO', 'AC', 'PUJA', 'DUCT', 'VOID', 'DRESS']
+const LEXICON = [...WORDS, ...SHORT, 'BEDROOM', 'ROOM', 'HELP', 'OPEN', 'DRY', 'FORMAL', 'DINNING', 'MAID', 'STAFF', 'TOI', 'TLT', 'TOIL', 'TO', 'AC', 'PUJA', 'DUCT', 'VOID', 'DRESS']
 function levenshtein(a: string, b: string): number {
   let prev = Array.from({ length: b.length + 1 }, (_, j) => j)
   for (let i = 1; i <= a.length; i++) {
@@ -158,17 +163,17 @@ export function snapRoomWords(raw: string): string {
   return raw
     .toUpperCase()
     .replace(/[^A-Z0-9.&/ -]+/g, ' ')
-    .split(/\s+/)
-    .map((tok) => {
-      const w = tok.replace(/[^A-Z]/g, '')
+    .replace(/[A-Z][A-Z0-9]*/g, (tok) => {
+      const suffix = tok.match(/\d+$/)?.[0] ?? ''
+      const w = tok.replace(/\d/g, '')
       if (w.length < 4 || LEXICON.includes(w)) return tok
       const max = Math.floor(w.length / 3)
       const hits = LEXICON.map((l) => ({ l, d: levenshtein(w, l) })).filter((h) => h.d <= max)
       const best = Math.min(...hits.map((h) => h.d))
       const at = hits.filter((h) => h.d === best)
-      return at.length === 1 ? at[0].l : tok
+      return at.length === 1 ? at[0].l + suffix : tok
     })
-    .join(' ')
+    .replace(/\s+/g, ' ')
     .trim()
 }
 
@@ -1080,9 +1085,23 @@ export function resample(g: Gray, s: number, kernel: keyof typeof KERNELS): Gray
 
 /** Contrast stretch: the darkest 2 % → black, the paper (60th percentile) → white. */
 export function stretch(g: Gray): Gray {
-  const v = Uint8Array.from(g.data).sort()
-  const a = v[Math.floor(0.02 * (v.length - 1))]
-  const b = Math.max(a + 1, v[Math.floor(0.6 * (v.length - 1))])
+  const histogram = new Uint32Array(256)
+  for (const value of g.data) histogram[value]++
+  const quantile = (fraction: number) => {
+    const target = Math.floor(fraction * (g.data.length - 1))
+    let count = 0
+    for (let i = 0; i < histogram.length; i++) {
+      count += histogram[i]
+      if (count > target) return i
+    }
+    return 255
+  }
+  let a = quantile(0.02)
+  const b = quantile(0.6)
+  // A sparse label can cover less than 2% of a face. Preserve its ink when both
+  // percentiles landed on the paper or its slightly brighter masked surroundings.
+  if (b - a < 24) a = quantile(0.001)
+  if (b <= a) return g
   return { ...g, data: Uint8Array.from(g.data, (x) => Math.max(0, Math.min(255, Math.round(((x - a) * 255) / (b - a))))) }
 }
 
@@ -1811,7 +1830,7 @@ export async function readText(src: Gray | ImageBitmapSource, opts: ReadTextOpti
       const heard: string[] = []
       for (const px of [44, 34]) {
         const todo = bare.flatMap((it, i) => (it.kind === 'dims' ? [i] : []))
-        const reads = await Promise.all(todo.map((i) => scheduler.addJob('recognize', toPgm(pad(stretch(resample(upright(i), Math.max(1, Math.min(8, px / letterH(i))), 'lanczos')), 12)) as unknown as Blob)))
+        const reads = await readBounded(todo, workers.length, (i) => scheduler.addJob('recognize', toPgm(pad(stretch(resample(upright(i), Math.max(1, Math.min(8, px / letterH(i))), 'lanczos')), 12)) as unknown as Blob))
         todo.forEach((i, k) => {
           const name = (heard[i] = reads[k].data.text.replace(/\s+/g, ' ').trim())
           const room = verbatim(name) && flatRoom(name, true) ? roomName(name)! : null
@@ -1872,8 +1891,8 @@ const FACE_VIEWS: { px: number; psm: 'SINGLE_BLOCK' | 'SPARSE_TEXT' }[] = [
 /**
  * Level 3: the closed faces (sheet px polygons) no room name was read in, read whole — a name the line finder lost
  * (glyphs glued to a fixture, a door arc, a counter line) still names its room. A face whose read names a room gives a
- * room item at a point inside it (no size: a size is only ever taken from a size line); one the sheet's reading already
- * has nearby (the same name within 1 m of the face) is not read twice. Faces of 0.8–40 m² only.
+ * room item positioned on the printed line. A recovered name overlapping the same read is counted once.
+ * Faces of 0.8–40 m² only.
  */
 /** A face's OCR crop excludes the neighbouring rooms in its bounding rectangle, including concave cut-outs. */
 export function cropInFace(g: Gray, box: Box, poly: {x:number;y:number}[]): Gray {
@@ -1892,8 +1911,7 @@ export async function readInFaces(g: Gray, faces: { x: number; y: number }[][], 
     const area = Math.abs(poly.reduce((t, p, i) => t + p.x * poly[(i + 1) % poly.length].y - poly[(i + 1) % poly.length].x * p.y, 0)) / 2 / pxPerM ** 2
     const xs = poly.map((p) => p.x), ys = poly.map((p) => p.y)
     const box = { x: Math.min(...xs) + 3, y: Math.min(...ys) + 3, w: Math.max(...xs) - Math.min(...xs) - 6, h: Math.max(...ys) - Math.min(...ys) - 6 }
-    const at = polygonCentroid(poly)
-    return area >= 0.8 && area <= 40 && box.w >= 2 * ch && box.h >= ch && pointInPolygon(at, poly) ? [{ poly, box, at, image:cropInFace(g,box,poly) }] : []
+    return area >= 0.8 && area <= 40 && box.w >= 2 * ch && box.h >= ch ? [{ poly, box, image:cropInFace(g,box,poly) }] : []
   })
   // Recover mixed-case labels such as Hoistway as well as capitals.
   if (!todo.length) return []
@@ -1904,21 +1922,29 @@ export async function readInFaces(g: Gray, faces: { x: number; y: number }[][], 
   workers.forEach((w) => scheduler.addWorker(w))
   const out: TextItem[] = []
   try {
-    const found = new Map<number, string>()
+    const found = new Map<number, { name: string; box: Box }>()
     const coreVotes = new Map<number, string>()
     for (const v of FACE_VIEWS) {
       await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: T.PSM[v.psm], user_defined_dpi: '300', tessedit_char_whitelist: NAME_CHARS + 'abcdefghijklmnopqrstuvwxyz', debug_file: '/dev/null' })))
       await readBounded(todo, workers.length, async (f, i) => {
           if (found.has(i)) return
-          const img = pad(stretch(resample(f.image, Math.max(1, Math.min(8, v.px / ch)), 'lanczos')), 12)
-          const { data } = await scheduler.addJob('recognize', toPgm(img) as unknown as Blob)
-          // A closed face provides a spatial boundary: a recovered lift/stair label belongs to this face too.
-          // The loose-line reread still excludes core words, where their position is less reliable.
-          const name = data.text.split('\n').map((l) => l.trim()).find((l) => !!roomName(l))
-          if (name) {
+          const scale = Math.max(1, Math.min(8, v.px / ch)), border = 12
+          const img = pad(stretch(resample(f.image, scale, 'lanczos')), border)
+          const { data } = await scheduler.addJob('recognize', toPgm(img) as unknown as Blob, {}, { blocks: true })
+          const lines = data.blocks?.flatMap(block => block.paragraphs.flatMap(paragraph => paragraph.lines)) ?? []
+          for (const line of lines) {
+            const name = line.text.trim()
+            if (!roomName(name)) continue
+            const { x0, y0, x1, y1 } = line.bbox
+            const box = {
+              x: Math.round(f.box.x) + (x0 - border) / scale, y: Math.round(f.box.y) + (y0 - border) / scale,
+              w: (x1 - x0) / scale, h: (y1 - y0) / scale,
+            }
+            if (!pointInPolygon(centre(box), f.poly)) continue
             const n = normaliseName(name)
-            if (!CORE_WORDS.test(n) || coreVotes.get(i) === n) found.set(i, name)
-            else coreVotes.set(i,n)
+            if (!CORE_WORDS.test(n) || coreVotes.get(i) === n) found.set(i, { name, box })
+            else coreVotes.set(i, n)
+            break
           }
       })
     }
@@ -1926,34 +1952,38 @@ export async function readInFaces(g: Gray, faces: { x: number; y: number }[][], 
     // whose centres lie in that face, rather than widening the crop into a neighbouring apartment.
     const strips = todo.flatMap((f, i) => found.has(i) ? [] : (trace.rejected ?? [])
       .filter((r) => r.reason === 'name-unread' && pointInPolygon(centre(r.box), f.poly))
-      .map((r) => ({ i, box: r.box })))
+      .map((r) => ({ i, strip: r })))
     if (strips.length) {
-      await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: T.PSM.SINGLE_LINE, tessedit_char_whitelist: NAME_CHARS + 'abcdefghijklmnopqrstuvwxyz' })))
       const votes = new Map<number, { name: string; count: number }>()
       for (const [px, word, kernel] of [[48, false, 'lanczos'], [48, true, 'lanczos'], [40, true, 'lanczos'], [48, true, 'cubic'], [40, true, 'cubic']] as const) {
+        const pending = strips.flatMap((s, j) => found.has(s.i) ? [] : [j])
+        if (!pending.length) break
         await Promise.all(workers.map((w) => w.setParameters({ tessedit_pageseg_mode: word ? T.PSM.SINGLE_WORD : T.PSM.SINGLE_LINE, tessedit_char_whitelist: word ? '' : NAME_CHARS + 'abcdefghijklmnopqrstuvwxyz' })))
-        const reads = await readBounded(strips, workers.length, (s) => {
-          // nameStrip is 1.6 times the size-line height: trim its vertical margin for the single-word view.
-          const b = word ? { ...s.box, y: Math.floor(s.box.y + .1875 * s.box.h), h: Math.ceil(s.box.h / 1.6) + 1 } : s.box
-          return scheduler.addJob('recognize', toPgm(pad(stretch(resample(cropInFace(g, b, todo[s.i].poly), Math.min(8, px / ch), kernel)), 12)) as unknown as Blob)
+        const reads = await readBounded(pending, workers.length, (j) => {
+          const { i, strip } = strips[j]
+          const masked = cropInFace(g, strip.box, todo[i].poly)
+          const upright = strip.angle === 90 ? rotateCW(masked) : strip.angle === -90 ? rotateCCW(masked) : masked
+          // Trim across the letter height after rotation so a sideways word keeps both ends.
+          const crop = word ? cropGray(upright, { x: 0, y: Math.floor(.1875 * upright.height), w: upright.width, h: Math.ceil(upright.height / 1.6) + 1 }) : upright
+          return scheduler.addJob('recognize', toPgm(pad(stretch(resample(crop, Math.min(8, px / ch), kernel)), 12)) as unknown as Blob)
         })
-        strips.forEach((s, j) => {
-          const name = snapRoomWords(reads[j].data.text.trim())
+        pending.forEach((j, index) => {
+          const s = strips[j]
+          if (found.has(s.i)) return
+          const name = snapRoomWords(reads[index].data.text.trim())
           if (!roomName(name)) return
           const n = normaliseName(name), prev = votes.get(j)
           votes.set(j, { name, count: prev && normaliseName(prev.name) === n ? prev.count + 1 : 1 })
-          if (!CORE_WORDS.test(n) || votes.get(j)!.count >= 2) found.set(s.i, name)
+          if (!CORE_WORDS.test(n) || votes.get(j)!.count >= 2) found.set(s.i, { name, box: s.strip.box })
         })
       }
     }
-    for (const [i, name] of found) {
-      const f = todo[i]
+    for (const { name, box } of found.values()) {
       const n = normaliseName(name)
-      const grown = { x: f.box.x - pxPerM, y: f.box.y - pxPerM, w: f.box.w + 2 * pxPerM, h: f.box.h + 2 * pxPerM }
-      const inGrown = (b: Box) => { const c = centre(b); return c.x >= grown.x && c.x <= grown.x + grown.w && c.y >= grown.y && c.y <= grown.y + grown.h }
-      if (rooms.some((it) => inGrown(it.box) && normaliseName(it.text.split('\n')[0]) === n)) continue
+      const sameRead = (it: TextItem) => overlapOfSmaller(box, it.box) >= 0.5 && normaliseName(it.text.split('\n')[0]) === n
+      if (rooms.some(sameRead) || out.some(sameRead)) continue
       const room = classifyRoom(name)!
-      out.push({ text: name, box: { x: f.at.x - ch, y: f.at.y - ch / 2, w: 2 * ch, h: ch }, kind: 'room', roomKind: room.kind, green: room.green || undefined, conf: 0.5, source: 'ocr' })
+      out.push({ text: name, box, kind: 'room', roomKind: room.kind, green: room.green || undefined, conf: 0.5, source: 'ocr' })
     }
   } finally {
     await scheduler.terminate()

@@ -1,5 +1,6 @@
+import type { AutoTraceResult } from '../trace/types'
 import type { Id } from '../core'
-import { normalizeUnit, reducer, type Draft, type StudioState } from '../studio/model'
+import { normalizeUnit, reducer, type Draft, type PlanImage, type StudioState } from '../studio/model'
 import { studioReducer, type StudioAction } from '../studio/review'
 import type { DxfImportResult, DxfReviewItem } from './types'
 
@@ -20,6 +21,7 @@ export type StudioStateWithDxf = StudioState & {
 type Action = Exclude<StudioAction, { type: 'restore' }>
   | { type: 'restore'; draft: StudioDraftWithDxf }
   | { type: 'dxf-import'; result: DxfImportResult }
+  | { type: 'raster-import'; image: PlanImage; result: AutoTraceResult }
   | { type: 'dxf-dismiss'; id: Id }
 
 export const activeDxfReview = (state: StudioStateWithDxf) =>
@@ -30,7 +32,23 @@ function drawingContext(state: StudioStateWithDxf): DrawingContext {
   return { planImage, review, view, dxfReview }
 }
 
+function trackImport(state: StudioStateWithDxf, next: StudioStateWithDxf): StudioStateWithDxf {
+  const historyIds = new Set(next.history.past.map(drawing => drawing.id))
+  const imports = new Map([...(state.dxfImports ?? [])].filter(([id]) => historyIds.has(id)))
+  imports.set(next.unit.id, {
+    previousId: state.unit.id,
+    before: drawingContext(state),
+    after: drawingContext(next),
+  })
+  return { ...next, dxfImports: imports }
+}
+
 export function studioReducerWithDxf(state: StudioStateWithDxf, action: Action): StudioStateWithDxf {
+  if (action.type === 'raster-import') {
+    const next = studioReducer({ ...state, planImage: action.image, review: null }, { type: 'auto-trace', result: action.result })
+    // Joining walls can add another undo step. Treat an uploaded floor and its source picture as one edit.
+    return trackImport(state, { ...next, history: reducer(state, { type: 'drag-begin' }).history, dxfReview: undefined })
+  }
   if (action.type === 'dxf-import') {
     const { unit: built, review, sourceName, stats } = action.result
     const unit = normalizeUnit({ ...built, planImage: undefined })
@@ -44,14 +62,7 @@ export function studioReducerWithDxf(state: StudioStateWithDxf, action: Action):
       chain: null,
       tool: 'select',
     }
-    const historyIds = new Set(next.history.past.map(drawing => drawing.id))
-    const imports = new Map([...(state.dxfImports ?? [])].filter(([id]) => historyIds.has(id)))
-    imports.set(unit.id, {
-      previousId: state.unit.id,
-      before: drawingContext(state),
-      after: drawingContext(next),
-    })
-    return { ...next, dxfImports: imports }
+    return trackImport(state, next)
   }
 
   if (action.type === 'dxf-dismiss') {
@@ -75,7 +86,7 @@ export function studioReducerWithDxf(state: StudioStateWithDxf, action: Action):
   }
   if (!state.dxfImports || state.unit.id === next.unit.id) return next
 
-  // The standard history holds Units. Restore the photo and review only at a DXF import boundary.
+  // The standard history holds Units. Restore the photo and review when undo crosses an upload.
   if (action.type === 'undo') {
     const entry = state.dxfImports.get(state.unit.id)
     if (entry?.previousId !== next.unit.id) return next

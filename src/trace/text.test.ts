@@ -36,6 +36,12 @@ test('a joined LI glyph read as U expands only to an exact room word',()=>{
   expect(normaliseName('UTILITY')).toBe('UTILITY')
 })
 
+test('a corrected OCR room word keeps its number and compound-name separators', () => {
+  expect(snapRoomWords('KRTEHEN-02')).toBe('KITCHEN-02')
+  expect(snapRoomWords('KRTEHEN2/STORE')).toBe('KITCHEN2/STORE')
+  expect(snapRoomWords('TOLLET-03')).toBe('TOILET-03')
+})
+
 describe('parseDims', () => {
   test.each([
     [`14'-5" x 14'-4"`, ft(14, 5), ft(14, 4)],
@@ -49,6 +55,10 @@ describe('parseDims', () => {
     [`6'-10"X6'-10"`, ft(6, 10), ft(6, 10)],
     [`4.4m x 3.2m`, 4.4, 3.2],
     [`4.4 x 3.2m`, 4.4, 3.2],
+    [`440 × 320 cm`, 4.4, 3.2],
+    [`4400 x 3200 MM`, 4.4, 3.2],
+    [`440 cm x 320`, 4.4, 3.2],
+    [`440 cm x 3200 mm`, 4.4, 3.2],
     [`14.4 x 12`, ft(14.4), ft(12)],
     // OCR-mangled
     [`14'-5"x 14'-4`, ft(14, 5), ft(14, 4)],

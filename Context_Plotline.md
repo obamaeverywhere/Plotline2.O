@@ -400,7 +400,9 @@ Wall actions include chains, typed length/angle, splitting/merging joins, moving
 
 ### Images, scale, and files
 
+- **Upload design**, Ctrl+O and drop share the Studio file router. A new picture starts the whole-floor worker without a flat pick or a scale inherited from the open drawing. The uploaded picture, graph and review enter history together when the worker returns walls. Users can load a picture manually, or retrace an estimated-scale floor from one measured distance. A missing source picture can be reattached by name.
 - Input pictures are **PNG/JPEG/WEBP under 10 MB**. PDF import is not implemented; export a PDF page as an image first.
+- The browser regression `TRACE_URL=http://127.0.0.1:4173 node scripts/raster-upload-browser.mjs` runs against a local production preview. It uploads a two-room image through the Studio picker, calibrates a 440-pixel wall to 8 m, exports the draft, and checks undo and redo.
 - Image-to-plan mapping is `pixel = originPx + metres × pxPerM`; screen mapping then adds zoom/pan.
 - The Scale tool measures two points and uses a typed real length. Scaling/repositioning an existing trace must preserve the relevant coordinate relationship; use reducer/transform helpers.
 - `fitSheet` aligns a replacement picture from two point pairs and reports angular disagreement. Same-size project sheets can offer another drawing's scale/position; this is a user choice.
@@ -458,11 +460,21 @@ The reducer imports the result as an ordinary editable Unit, retains useful user
 | [ai.ts](src/trace/ai.ts) | Optional Gemini crop/montage text reader and strict answer parsing. |
 | `eval.ts`, `evalio.ts`, `solveEval.ts`, `roomsEval.ts`, `textEval.ts`, `hintsEval.ts`, `eval/score30.ts` | Evaluation, fixtures, overlays, scores; not a source of production ground truth. |
 
+### Room-label and dimension recovery
+
+When the first OCR pass misses a room, the solver gives the reader the room’s polygon in sheet pixels. The reader masks pixels outside the polygon and maps Tesseract’s line bounds back onto the drawing. This lets it place a label inside an L-shaped room even when the room’s geometric center lies outside it. Two adjacent rooms can have the same printed name. The reader checks the text boxes for overlap before treating them as duplicate reads. [OCR implementation](src/trace/text.ts)
+
+The reader preserves sparse ink during contrast adjustment and turns sideways strips upright before retrying a missed name. Spelling correction keeps numeric suffixes such as `-02`. A metric unit printed once can apply to both dimensions. The test image shows **KITCHEN** above **440 x 320 cm**, which should yield 4.4 m by 3.2 m. It is a binary grayscale image and opens in a PGM image viewer. [Metric test image](src/data/fixtures/metric-room.pgm)
+
+With `eng.traineddata` in `.trace/tess`, run `TRACE_TESS=.trace/tess npm test -- src/trace/text.test.ts src/trace/textPasses.test.ts` to exercise the parser and local OCR regressions. On 24 November 2026, the targeted regressions passed. The before-and-after Sheltech Level 2 check matched 29 of 41 reference labels in both runs, with eight exact dimensions and zero misread dimensions. [OCR regression tests](src/trace/textPasses.test.ts)
+
 ### DXF input (separate from raster Auto-trace)
 
-The **Import DXF** button at the top of the Studio's right panel opens the vector import. The browser transfers ASCII `.dxf` files up to 15 MB to `src/studio/dxf.worker.ts`, which parses them with the MIT-licensed `dxf-parser` package. The worker expands nested block inserts within size and recursion limits, keeps model and paper space separate, and reports unsupported entities.
+The unified upload opens the DXF worker for a dropped or selected DXF. The **Import DXF** button also offers a manual review mode before selecting the file. The browser transfers ASCII `.dxf` files up to 15 MB to `src/studio/dxf.worker.ts`, which parses them with the MIT-licensed `dxf-parser` package. The worker expands nested block inserts within size and recursion limits, keeps model and paper space separate, and reports unsupported entities.
 
-The user chooses a model/paper-space drawing or a detected separated model-space drawing, maps CAD layers to walls, doors, windows, room text, dimensions/notes, furniture, or ignore, and confirms metres per source unit. `$INSUNITS` fills a scale suggestion, but the UI always exposes the value for correction. Layer guesses are heuristics; user mappings are remembered locally by filename. A vector preview reflects those mappings.
+For a single drawing with supported declared units, Studio builds automatically if each layer role is supported by its heuristic score or a confirmed mapping. It opens the result if the graph has closed rooms and no unclosed-boundary or printed-size mismatch flags. Other review rows stay with the imported Unit. Otherwise the dialog offers layout, layer and scale controls. For unitless DXFs, a known real length divided by the highlighted straight wall length gives metres per source unit.
+
+`src/dxf/upload.ts` identifies matching layer conventions by names and entity kinds. Successful manual imports save the confirmed roles in browser-local storage for later files. An exact saved drawing profile takes precedence. When a floor adds or drops layers, individually named layers with matching entity kinds reuse their agreed roles. Changed kinds and conflicting roles trigger review. Numeric layer names are only reused within an exact saved profile. Legacy per-file overrides remain available, and scale is determined separately for each upload.
 
 Each import yields one Plotline Unit, equivalent to a single floor plan. Multi-storey building assembly remains the existing project workflow: import each floor as its own Unit, then add the Units to a project.
 
@@ -883,6 +895,8 @@ npm run score30
 
 The expanded benchmark is separate from the 29 available demo images. Its 30 annotated source images are missing from this checkout. Fixture preparation reports missing inputs; the scorer writes `coverage.json` and fails if requested fixtures are absent. Ordinary `npm test` skips the expensive run and only checks scorer rules. **A passing normal suite is not a passing 30-sheet benchmark.**
 
+For the checked-in sources, run `npm run bench:uploads` with Playwright Firefox installed. The production Studio uploads three floor images at automatic scale and scores their exported drafts against five hand-traced flats. The same command imports a synthetic DXF twice, with an added furniture layer on the second upload. Raster reports and the DXF control are written to `.trace/upload-benchmark/`. The original 30-sheet benchmark retains its own coverage requirements.
+
 The scorer measures printed rooms closed and correctly named, wrong/unnamed/merged/open rooms, core, false rooms, pillar proxies, names read, and runtime. `SCORE30_SHEETS`, `SCORE30_JSON`, `SCORE30_FIXTURES/OUT/TEXT/TESS`, `SCORE30_FRESH`, and browser comparison settings support controlled runs. Follow [AUTOTRACE_SCORER.md](Docs/AUTOTRACE_SCORER.md) rather than silently scoring a smaller dataset as if complete.
 
 ### Required product proof by change
@@ -998,6 +1012,8 @@ Use this as a starting context, then inspect the actual files involved. Preserve
 A useful task handoff states the reproduced problem, changed behavior/files, data/compatibility effects, checks actually run, remaining limitations, and whether anything was committed or deployed. Historical HANDOFF tasks are context, not automatic permission to execute old commands or deploy.
 
 ## 23. Further reading and keeping this guide current
+
+When making a major change in Maheer’s work, update both handoffs in the same change. Record the behavior, workflow and verification here. Record Maheer’s contribution and the affected file paths in the team handoff. [Maheer’s contributions and file ownership](MAHEER_CONTRIBUTIONS.md)
 
 | Read | Why / caveat |
 |---|---|

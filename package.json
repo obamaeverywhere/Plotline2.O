@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b",
+    "bench:uploads": "npm run build && vitest run src/trace/eval/uploads.test.ts --disableConsoleIntercept",
     "score30": "vitest run src/trace/eval/score30.test.ts --disableConsoleIntercept"
   },
   "dependencies": {

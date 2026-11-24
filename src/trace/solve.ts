@@ -3479,11 +3479,16 @@ export function pickFloor(p: PreparedSolve): AutoTraceResult {
 }
 
 /** the hover (previewFlat) on a prepared sheet, a turned one's turned back onto the sheet */
-export function preview(p: PreparedSolve, px: Px): ReturnType<typeof previewFlat> {
+export function preview(p: PreparedSolve, px: Px): ReturnType<typeof previewFlat> & { regionAngle?: number } {
   const t = p.turn
   if (!t) return previewFlat(p.traces, px)
   const v = previewFlat(p.traces, t.fwd(px))
-  return { polys: v.polys.map((q) => q.map(t.back)), names: v.names.map((n) => ({ ...n, at: t.back(n.at) })), region: v.region.map((r) => boxBack(r, t)) }
+  return {
+    polys: v.polys.map((q) => q.map(t.back)),
+    names: v.names.map((n) => ({ ...n, at: t.back(n.at) })),
+    region: v.region.map((r) => ({ ...r, ...t.back(r) })),
+    regionAngle: t.deg * Math.PI / 180,
+  }
 }
 
 /**

@@ -3,6 +3,7 @@ import { traceWalls } from './walls'
 import type { Gray } from './types'
 import { loadPgm } from './evalio'
 import { fileURLToPath } from 'node:url'
+import { normalPolarity } from './raster'
 
 function stepped(k: number, ink: number) {
   const width = Math.round(10*k), height = Math.round(7*k)
@@ -21,11 +22,22 @@ function stepped(k: number, ink: number) {
 }
 
 describe('contrast through wall thickness changes', () => {
-  test('the real lift dogleg retains its short riser despite a thinner continuation', () => {
+  test('paper noise and a solid grey panel keep their original tones', () => {
+    const width = 300, height = 200
+    const panel = { width, height, data: new Uint8Array(width * height).fill(250) }
+    for (let y = 40; y < 160; y++) panel.data.fill(180, y * width + 90, y * width + 210)
+    expect(normalPolarity(panel)).toBe(panel)
+    const noise = { width, height, data: panel.data.map((_, i) => 235 + i % 20) }
+    expect(normalPolarity(noise)).toBe(noise)
+  })
+  test.each(['original', 'faded'])('the %s Sheltech crop retains the short wall at the lift junction', variant => {
     // Firefox-decoded crop of Demo drawings/Sheltech/Level 2.jpg, x355..515, y330..475. Annotation read from the image:
     // the wall at x434..444 joins y404 to y423, then continues as a thin jamb. It must not join the lift to the toilet.
     const g = loadPgm(fileURLToPath(new URL('../data/fixtures/stepped-junction.pgm', import.meta.url)))!
-    const result = traceWalls(g, { tracker: 'tracks', halfPx: .127*27.075658723705732/2 })
+    const input = variant === 'faded' ? { ...g, data: g.data.map(v => Math.round(180 + v * 70 / 255)) } : g
+    const normalized = normalPolarity(input)
+    if (variant === 'original') expect(normalized).toBe(g)
+    const result = traceWalls(normalized, { tracker: 'tracks', halfPx: .127*27.075658723705732/2 })
     const riser = result.walls.filter(w => Math.abs(w.a.x-w.b.x)<2 && w.a.x>79 && w.a.x<90 && Math.min(w.a.y,w.b.y)<80 && Math.max(w.a.y,w.b.y)>93)
     expect(riser.length).toBe(1)
   })

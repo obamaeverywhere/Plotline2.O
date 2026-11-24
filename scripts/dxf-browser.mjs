@@ -23,6 +23,7 @@ page.on('dialog', dialog => dialog.accept())
 try {
   await page.goto(`${process.env.DXF_URL ?? 'http://127.0.0.1:5173'}/studio`)
   await page.getByRole('button', { name: 'Import DXF', exact: true }).click()
+  await page.getByRole('checkbox', { name: /Automatically import/ }).uncheck()
   await page.locator('input[type=file][accept=".dxf,application/dxf"]').setInputFiles(file)
   await page.getByRole('button', { name: 'Build and review', exact: true }).waitFor({ timeout: 120000 })
   for (const [layer, role] of Object.entries(roles)) {

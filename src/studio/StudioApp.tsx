@@ -28,6 +28,7 @@ import {
   studioIssues,
   wallLabelSides,
   type Draft,
+  type PlanImage,
   type Target,
   type Tool,
 } from './model'
@@ -261,6 +262,9 @@ export default function StudioApp() {
   // Auto-trace: 'pick' = waiting for the click inside the flat; then the running stage; cancelTrace stops either
   const [trace, setTrace] = useState<'pick' | { stage: string; fraction: number } | null>(null)
   const [dxfImportOpen, setDxfImportOpen] = useState(false)
+  const [dxfFile, setDxfFile] = useState<File>()
+  const uploadSequence = useRef(0)
+  const calibrating = useRef<Id | null>(null)
   const cancelTrace = useRef(() => setTrace(null))
   // pick mode: the sheet's preparing stage (null = ready), the flat a click at the pointer picks, the hover / click senders
   const [prep, setPrep] = useState<string | null>(null)
@@ -298,6 +302,7 @@ export default function StudioApp() {
   const fitOnLoad = useRef(false)
 
   const { unit, view, tool, chain } = state
+  useEffect(() => { if (tool !== 'scale') calibrating.current = null }, [tool])
   const dxfReview = activeDxfReview(state)
   useEffect(() => setArc(null), [tool]) // another tool drops a half-placed arc
   const frame = useMemo(() => frameOf(view, unit.planImage), [view, unit.planImage])
@@ -478,7 +483,10 @@ export default function StudioApp() {
     im.onload = () => setImg(im)
     im.onerror = () => setImg(null)
     im.src = state.planImage.dataUrl
+    return () => { im.onload = im.onerror = null }
   }, [state.planImage])
+
+  useEffect(() => () => { uploadSequence.current++; cancelTrace.current() }, [])
 
   // ----- sizing
   useEffect(() => {
@@ -591,7 +599,8 @@ export default function StudioApp() {
   }
   const opening = useRef<Id | null>(null)
   const importDxf = useCallback((result: DxfImportResult) => {
-    if (stateRef.current.unit.walls.length && !window.confirm('Replace your current drawing with this DXF? Ctrl+Z restores your drawing.')) return
+    if ((stateRef.current.unit.vertices.length || stateRef.current.planImage) && !window.confirm('Replace your current drawing with this DXF? Ctrl+Z restores your drawing.')) return false
+    uploadSequence.current++
     opening.current = null
     setImg(null)
     setMissingPlan(null)
@@ -603,10 +612,13 @@ export default function StudioApp() {
     setDxfImportOpen(false)
     window.setTimeout(() => fitView(), 0)
     toast(`Imported DXF · ${result.unit.walls.length} walls · Ctrl+Z undoes it`)
+    return true
   }, [fitView, toast])
   /** another drawing into the Studio (null: an empty one): this one is saved first (`ps` holds it), its picture comes back from this browser */
   const openDrawing = (ps: Project[], id: Id | null) => {
     if (!storeProjects(ps)) return
+    uploadSequence.current++
+    cancelTrace.current()
     const a = projRef.current
     const u = id ? ps.find((p) => p.id === a?.id)?.units[id] : undefined
     if (a) setActive({ id: a.id, ...(u ? { drawing: u.id } : {}) })
@@ -743,41 +755,46 @@ export default function StudioApp() {
   }, [saveDraft])
 
   // ----- files
-  const loadImage = useCallback(
-    (file: File) => {
-      const fail = () => toast("Couldn't open that image. Use PNG, JPG or WEBP under 10 MB.")
-      if (file.size > MAX_IMAGE_BYTES || !/^image\/(png|jpeg|webp)$/.test(file.type)) return fail()
-      const reader = new FileReader()
-      reader.onerror = fail
-      reader.onload = () => {
-        const dataUrl = String(reader.result)
-        const im = new Image()
-        im.onerror = fail
-        im.onload = () => {
-          fitOnLoad.current = true
-          setMissingPlan(null)
-          const scaled = !!stateRef.current.unit.planImage
-          dispatch({ type: 'set-plan-image', image: { dataUrl, naturalW: im.naturalWidth, naturalH: im.naturalHeight, name: file.name } })
-          if (!scaled) void offerScale(im.naturalWidth, im.naturalHeight)
-        }
-        im.src = dataUrl
+  function loadImage(file: File, automatic = false) {
+    const seq = ++uploadSequence.current
+    const target = stateRef.current.unit.id
+    const fail = () => seq === uploadSequence.current && toast("Couldn't open that image. Use PNG, JPG or WEBP under 10 MB.")
+    if (file.size > MAX_IMAGE_BYTES || !/^image\/(png|jpeg|webp)$/.test(file.type)) return fail()
+    const reader = new FileReader()
+    reader.onerror = fail
+    reader.onload = () => {
+      const dataUrl = String(reader.result)
+      const im = new Image()
+      im.onerror = fail
+      im.onload = () => {
+        if (seq !== uploadSequence.current || target !== stateRef.current.unit.id) return
+        const image = { dataUrl, naturalW: im.naturalWidth, naturalH: im.naturalHeight, name: file.name }
+        if (automatic) return startAutoTrace(im, image)
+        fitOnLoad.current = true
+        setMissingPlan(null)
+        const scaled = !!stateRef.current.unit.planImage
+        dispatch({ type: 'set-plan-image', image })
+        if (!scaled) void offerScale(im.naturalWidth, im.naturalHeight)
       }
-      reader.readAsDataURL(file)
-    },
-    [toast],
-  )
+      im.src = dataUrl
+    }
+    reader.readAsDataURL(file)
+  }
 
   /** Exported JSON names its image (`img_3.webp` → /plans/, or an absolute public path); load it or show the "not found" prompt. */
   const loadPlanSrc = useCallback(
     (src: string) => {
+      const sequence = uploadSequence.current
       const url = src.startsWith('/') || /^(https?:|data:)/.test(src) ? src : `/plans/${src}`
       const im = new Image()
       im.onload = () => {
+        if (sequence !== uploadSequence.current) return
         setMissingPlan(null)
         fitOnLoad.current = true
         dispatch({ type: 'set-plan-image', image: { dataUrl: url, naturalW: im.naturalWidth, naturalH: im.naturalHeight, name: src } })
       }
       im.onerror = () => {
+        if (sequence !== uploadSequence.current) return
         dispatch({ type: 'set-plan-image', image: null })
         setMissingPlan(src)
         fitView()
@@ -789,12 +806,14 @@ export default function StudioApp() {
 
   const importJson = useCallback(
     async (file: File) => {
+      const sequence = uploadSequence.current
       let parsed: unknown
       try {
         parsed = JSON.parse(await file.text())
       } catch {
         parsed = null
       }
+      if (sequence !== uploadSequence.current) return
       if (!isUnit(parsed)) return toast('That file is not a Plotline unit')
       const u = normalizeUnit({ ...parsed, review: undefined } as typeof parsed) // (an Export's Check-these rows stay out of the unit)
       dispatch({ type: 'load-unit', unit: u })
@@ -811,15 +830,14 @@ export default function StudioApp() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const onFiles = useCallback(
-    (files: FileList | null) => {
-      const f = files?.[0]
-      if (!f) return
-      if (f.name.endsWith('.json') || f.type === 'application/json') void importJson(f)
-      else loadImage(f)
-    },
-    [importJson, loadImage],
-  )
+  function onFiles(files: FileList | null) {
+    const file = files?.[0]
+    if (!file || trace || dxfImportOpen) return
+    uploadSequence.current++
+    if (/\.json$/i.test(file.name) || file.type === 'application/json') void importJson(file)
+    else if (/\.dxf$/i.test(file.name)) { setDxfFile(file); setDxfImportOpen(true) }
+    else loadImage(file, file.name !== missingPlan?.split('/').pop())
+  }
 
   const exportJson = useCallback(() => {
     const st = stateRef.current
@@ -932,12 +950,14 @@ export default function StudioApp() {
   // ----- auto-trace: pick mode starts the worker reading the sheet at once (text, walls, the whole graph); a hover
   // previews the flat a click there picks; the click picks it on the same prepared sheet → the result replaces the unit
   // (one undo step)
-  const startAutoTrace = () => {
-    if (!img) return
-    if (img.naturalWidth * img.naturalHeight > MAX_TRACE_PIXELS) {
+  function startAutoTrace(source = img, upload?: PlanImage, knownScale?: number) {
+    if (!source) return
+    const target = stateRef.current.unit
+    uploadSequence.current++
+    if (source.naturalWidth * source.naturalHeight > MAX_TRACE_PIXELS) {
       return toast('This image is over 16 megapixels. Export one floor or use a smaller image for Auto-trace.')
     }
-    if (unit.walls.length && !window.confirm('Replace your current trace? Ctrl+Z brings it back.')) return
+    if ((stateRef.current.unit.vertices.length || (upload && stateRef.current.planImage)) && !window.confirm('Replace the open drawing with a new trace? Ctrl+Z restores it.')) return
     let aiKey: string | undefined
     let tracker: TraceJob['tracker']
     try {
@@ -965,6 +985,7 @@ export default function StudioApp() {
     const stop = () => {
       stopped = true
       worker.terminate()
+      cancelTrace.current = () => {}
       hoverTrace.current = pickTrace.current = () => {}
       setTrace(null)
       setPrep(null)
@@ -972,9 +993,22 @@ export default function StudioApp() {
     }
     const done = (result: AutoTraceResult) => {
       stop()
-      dispatch({ type: 'auto-trace', result })
+      if (stateRef.current.unit.id !== target.id) return
+      const picture = upload ?? (knownScale ? stateRef.current.planImage : null)
+      if (picture) {
+        if (target !== stateRef.current.unit) return toast('The open drawing changed during tracing. Upload again to replace it.')
+        if (!result.unit.walls.length) return toast('No walls detected. Try a clearer plan or load the image manually.')
+        opening.current = null
+        setMissingPlan(null)
+        setScaleStart(null)
+        setAlign(null)
+        setField(null)
+        setPopover(null)
+        const name = upload ? upload.name.replace(/\.[^.]+$/, '') : target.name
+        dispatch({ type: 'raster-import', result: { ...result, unit: { ...result.unit, name } }, image: picture })
+      } else dispatch({ type: 'auto-trace', result })
       // s27 AI-prep: the print the reader threw away, kept beside the draft — one entry per sheet, boxes only
-      const p = stateRef.current.planImage
+      const p = upload ?? stateRef.current.planImage
       if (p && result.rejectedText)
         try {
           localStorage.setItem(STRIPS_KEY, JSON.stringify({ ...JSON.parse(localStorage.getItem(STRIPS_KEY) ?? '{}'), [`${p.name} ${p.naturalW}x${p.naturalH}`]: result.rejectedText }))
@@ -1012,6 +1046,7 @@ export default function StudioApp() {
       else pendingPick = message
     }
     worker.onmessage = (e: MessageEvent<TraceMsg>) => {
+      if (stopped) return
       const m = e.data
       if (m.type === 'progress') return picked ? setTrace({ stage: m.stage, fraction: m.fraction }) : setPrep(m.stage)
       if (m.type === 'ready') {
@@ -1033,10 +1068,11 @@ export default function StudioApp() {
     }
     setPrep('starting')
     setTrace('pick')
-    const options = { pxPerM: unit.planImage?.pxPerM, aiKey, tracker, mock: MOCK_TRACE }
+    if (upload || knownScale) pickTrace.current(null)
+    const options = { pxPerM: knownScale ?? (upload ? undefined : stateRef.current.unit.planImage?.pxPerM), aiKey, tracker, mock: MOCK_TRACE }
     const prepareImage = async () => {
       const bitmap = typeof OffscreenCanvas !== 'undefined' && typeof createImageBitmap === 'function'
-        ? await createImageBitmap(img).catch(() => null)
+        ? await createImageBitmap(source).catch(() => null)
         : null
       if (stopped) { bitmap?.close(); return }
       if (bitmap) {
@@ -1047,7 +1083,7 @@ export default function StudioApp() {
           throw e
         }
       } else {
-        const { gray, rgb } = rastersOf(img)
+        const { gray, rgb } = rastersOf(source)
         send({ type: 'prepare', job: { ...options, gray, rgb } }, [gray.data.buffer, rgb.data.buffer])
       }
       submitted = true
@@ -1681,6 +1717,12 @@ export default function StudioApp() {
     if (m == null) return setField({ ...field, error: 'Try 14\'-5", 14.4 or 4.4m' })
     if (m <= 0 || m > 100) return setField({ ...field, error: 'That length looks wrong' })
     if (field.purpose === 'scale' && field.pxLen) {
+      if (calibrating.current === unit.id) {
+        calibrating.current = null
+        setField(null)
+        dispatch({ type: 'set-tool', tool: 'select' })
+        return startAutoTrace(img, undefined, field.pxLen / m)
+      }
       if (unit.walls.length && unit.planImage && !window.confirm('Changing scale after tracing moves the image under your walls. Continue?')) {
         return setField(null)
       }
@@ -1716,7 +1758,7 @@ export default function StudioApp() {
         return jsonRef.current?.click()
       }
       if (typing) return
-      if (e.key === 'Escape' && trace === 'pick') return cancelTrace.current()
+      if (e.key === 'Escape' && trace) return cancelTrace.current()
       if (e.key === 'Escape' && activeRef.current) return setActiveKey(null)
       if (e.key === 'Alt') return e.preventDefault() // Alt-drag detaches; a lone Alt must not focus the browser menu
       dispatch({ type: 'timer-input', now: now() })
@@ -1772,6 +1814,7 @@ export default function StudioApp() {
         return
       }
       if (e.key === 'Escape') {
+        calibrating.current = null
         if (popover) return setPopover(null)
         if (st.chain) return dispatch({ type: 'chain-end' })
         setScaleStart(null)
@@ -1782,6 +1825,7 @@ export default function StudioApp() {
       const key = e.key.toLowerCase()
       const toolKey = TOOLS.find(([, k]) => k.toLowerCase() === key)
       if (toolKey && !e.shiftKey) {
+        calibrating.current = null
         const tl = toolKey[0]
         const spring = key in HOLD_HINTS
         if (spring) e.preventDefault() // a held key never reaches the browser
@@ -2076,12 +2120,12 @@ export default function StudioApp() {
             className="primary"
             disabled={!img || !!trace}
             title="Trace the plan automatically: click inside a flat, then check what it lists on the right. Everything stays editable."
-            onClick={startAutoTrace}
+            onClick={() => startAutoTrace()}
           >
             Auto-trace
           </button>
         )}
-        <button onClick={() => jsonRef.current?.click()}>Import</button>
+        <button disabled={!!trace} onClick={() => jsonRef.current?.click()}>Upload design</button>
         <button onClick={exportJson}>Export</button>
         <button title="Download every Check-these answer clicked in this browser (row, answer, sheet, time) — the test set for an AI helper later" onClick={exportAnswers}>
           Export answers
@@ -2120,8 +2164,8 @@ export default function StudioApp() {
             Change list
           </button>
         )}
-        <input ref={jsonRef} type="file" accept=".json,application/json" hidden onChange={(e) => onFiles(e.target.files)} />
-        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => onFiles(e.target.files)} />
+        <input ref={jsonRef} type="file" accept=".json,application/json,image/png,image/jpeg,image/webp,.dxf" hidden onChange={(e) => { onFiles(e.target.files); e.target.value = '' }} />
+        <input ref={fileRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(e) => { const file = e.target.files?.[0]; if (file && !trace) loadImage(file) }} />
       </header>
 
       <div className={listOpen ? 'main with-floors' : 'main'}>
@@ -2196,12 +2240,11 @@ export default function StudioApp() {
                   {missingPlan
                     ? `Plan image not found — drop \`${missingPlan}\` here to trace over it`
                     : openSlot
-                      ? `Drop the plan picture of ${openSlot.label.toLowerCase()} here (PNG, JPG, WEBP)`
-                      : 'Drop the floor plan here (PNG, JPG, WEBP)'}
+                      ? `Drop the plan picture of ${openSlot.label.toLowerCase()} here (PNG, JPG, WEBP or DXF)`
+                      : 'Drop a floor plan here (PNG, JPG, WEBP or DXF)'}
                 </p>
-                <button className="primary" onClick={() => fileRef.current?.click()}>
-                  Choose plan image…
-                </button>
+                <button className="primary" disabled={!!trace} onClick={() => jsonRef.current?.click()}>Upload design…</button>
+                <button disabled={!!trace} onClick={() => fileRef.current?.click()}>Load image manually…</button>
               </div>
             </div>
           )}
@@ -2238,7 +2281,7 @@ export default function StudioApp() {
                 onKeyDown={(e) => {
                   e.stopPropagation()
                   if (e.key === 'Enter') confirmField()
-                  else if (e.key === 'Escape') setField(null)
+                  else if (e.key === 'Escape') { calibrating.current = null; setField(null) }
                   else if (e.key === 'Tab' && field.purpose === 'chain') {
                     e.preventDefault()
                     setField({ ...field, mode: field.mode === 'angle' ? 'length' : 'angle' })
@@ -2341,7 +2384,9 @@ export default function StudioApp() {
           />
         )}
         <Panel
-          importControl={<button disabled={!!trace} onClick={() => setDxfImportOpen(true)}>Import DXF</button>}
+          importControl={<>{img && state.review?.unitId === unit.id && (state.review.stats.scaleFrom === 'thickness' || state.review.stats.scaleFrom === 'area' || state.review.items.some(row => row.kind === 'scale')) &&
+            <button disabled={!!trace} onClick={() => { calibrating.current = unit.id; setScaleStart(null); setField(null); dispatch({ type: 'set-tool', tool: 'scale' }); toast('Click both ends of one known length to retrace the floor at that scale.') }}>Calibrate and retrace floor</button>}
+          <button disabled={!!trace} onClick={() => { uploadSequence.current++; setDxfFile(undefined); setDxfImportOpen(true) }}>Import DXF</button></>}
           importReview={dxfReview && <Suspense fallback={null}>
             <DxfReviewPanel
               result={dxfReview}
@@ -2368,7 +2413,7 @@ export default function StudioApp() {
         />
       </div>
 
-      {dxfImportOpen && <Suspense fallback={<div className="dxf-shade"><div className="dxf-dialog">Loading DXF import…</div></div>}><DxfImportDialog onClose={() => setDxfImportOpen(false)} onImport={importDxf} /></Suspense>}
+      {dxfImportOpen && <Suspense fallback={<div className="dxf-shade"><div className="dxf-dialog">Loading DXF import…</div></div>}><DxfImportDialog initialFile={dxfFile} onClose={() => setDxfImportOpen(false)} onImport={importDxf} /></Suspense>}
 
       <footer className="statusbar">
         <span>{hint}</span>

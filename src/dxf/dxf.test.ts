@@ -31,6 +31,17 @@ describe('DXF parsing and preparation', () => {
     expect(() => parseDxfText('  ')).toThrow(/empty/)
   })
 
+  it('preserves escaped label characters and reads paragraph settings and Unicode in MTEXT', () => {
+    const label = String.raw`{\pxqc;\L\U+0042ED\l}\P\{A\} \\P \S1#2;`
+    const sheet = parseDxfText(minimal(groups(0, 'MTEXT', 8, 'ROOM', 10, 2, 20, 3, 40, 2, 1, label)))
+    expect(sheet.entities[0]).toMatchObject({ kind: 'text', text: 'BED\n{A} \\P 1/2' })
+  })
+
+  it('preserves literal braces in single-line room labels', () => {
+    const sheet = parseDxfText(minimal(groups(0, 'TEXT', 8, 'ROOM', 10, 2, 20, 3, 40, 2, 1, '{A} \\U+0042ED')))
+    expect(sheet.entities[0]).toMatchObject({ kind: 'text', text: '{A} BED' })
+  })
+
   it('approximates bulged polylines as finite short segments', () => {
     const e: VectorEntity = { id: 'p', layer: 'WALL', paperSpace: false, sourceType: 'LWPOLYLINE', kind: 'polyline', closed: false, vertices: [{ x: 0, y: 0, bulge: 1 }, { x: 2, y: 0, bulge: 0 }] }
     const segments = vectorSegments(e)
@@ -93,6 +104,28 @@ describe('DXF parsing and preparation', () => {
     expect(imported.unit.walls.every(w => Math.abs(w.thicknessM - 0.2) < 1e-6)).toBe(true)
   })
 
+  it.each([false, true])('closes both rooms when a partition stops 10 mm short (partition first: %s)', partitionFirst => {
+    const boundary = [
+      line('south', 'WALL', 0, 0, 8, 0), line('east', 'WALL', 8, 0, 8, 4),
+      line('north', 'WALL', 8, 4, 0, 4), line('west', 'WALL', 0, 4, 0, 0),
+    ]
+    const partition = line('divider', 'WALL', 3, 0.01, 3, 3.99)
+    const result = build(partitionFirst ? [partition, ...boundary] : [...boundary, partition])
+    expect(result.stats).toMatchObject({ rooms: 2, walls: 7, openings: 0 })
+    expect(result.unit.vertices).toHaveLength(6)
+    for (const y of [0, 4]) expect(result.unit.vertices).toContainEqual(expect.objectContaining({ x: 3, y }))
+  })
+
+  it('leaves a partition with a 200 mm clearance open for review', () => {
+    const result = build([
+      line('south', 'WALL', 0, 0, 8, 0), line('east', 'WALL', 8, 0, 8, 4),
+      line('north', 'WALL', 8, 4, 0, 4), line('west', 'WALL', 0, 4, 0, 0),
+      line('divider', 'WALL', 3, 0, 3, 3.8),
+    ])
+    expect(result.stats).toMatchObject({ rooms: 1, openings: 0 })
+    expect(result.review.some(row => row.kind === 'unclosed')).toBe(true)
+  })
+
   it('keeps one opening when an opening is drawn with parallel lines or an inferred gap', () => {
     const result = build([
       line('a', 'WALL', 0, 0, 2, 0), line('b', 'WALL', 3, 0, 5, 0),
@@ -100,6 +133,51 @@ describe('DXF parsing and preparation', () => {
     ])
     expect(result.unit.walls.flatMap(w => w.openings)).toMatchObject([{ kind: 'window', offsetM: 2, widthM: 1 }])
     expect(validate(result.unit).some(issue => issue.code === 'openings-overlap')).toBe(false)
+  })
+
+  it('imports straight and rectangular CAD opening symbols as one opening each', () => {
+    const symbol = (layer: string, closed: number, points: number[][]) =>
+      groups(0, 'LWPOLYLINE', 8, layer, 90, points.length, 70, closed, ...points.flatMap(([x, y]) => [10, x, 20, y]))
+    const sheet = parseDxfText(minimal(
+      groups(0, 'LINE', 8, 'WALL', 10, 0, 20, 0, 11, 6000, 21, 6000)
+      + symbol('DOOR', 0, [[1000, 1000], [1300, 1300], [1600, 1600]])
+      + symbol('WIN', 1, [[2960, 3040], [3040, 2960], [4040, 3960], [3960, 4040], [2960, 3040]]),
+    ))
+    const result = buildDxfUnit(sheet, { drawingId: 'model', metresPerSourceUnit: 0.001, roles: { WALL: 'walls', DOOR: 'doors', WIN: 'windows' } })
+    const openings = result.unit.walls[0].openings
+    expect(openings.map(o => o.kind)).toEqual(['door', 'window'])
+    expect(openings[0].offsetM).toBeCloseTo(Math.SQRT2)
+    expect(openings[0].widthM).toBeCloseTo(0.6 * Math.SQRT2)
+    expect(openings[1].offsetM).toBeCloseTo(3 * Math.SQRT2)
+    expect(openings[1].widthM).toBeCloseTo(Math.SQRT2)
+  })
+
+  it('flags bent and bulged opening polylines for review', () => {
+    const marker = (id: string, points: number[][]): VectorEntity => ({
+      id, layer: 'DOOR', kind: 'polyline', sourceType: 'LWPOLYLINE', paperSpace: false, closed: false,
+      vertices: points.map(([x, y, bulge = 0]) => ({ x, y, bulge })),
+    })
+    const result = build([line('a', 'WALL', 0, 0, 6, 0),
+      marker('bent', [[1, 0], [2, 0], [2, 1]]), marker('swing', [[3, 0, 0.4], [4, 0]])])
+    expect(result.stats.openings).toBe(0)
+    expect(result.review.filter(row => row.kind === 'opening-guess').map(row => row.entityId)).toEqual(['bent', 'swing'])
+  })
+
+  it('keeps one window when a legacy POLYLINE and a LINE mark the same wall gap', () => {
+    const sheet = parseDxfText(minimal(
+      groups(0, 'LINE', 8, 'WALL', 10, 0, 20, 0, 11, 2000, 21, 0,
+        0, 'LINE', 8, 'WALL', 10, 3000, 20, 0, 11, 6000, 21, 0,
+        0, 'POLYLINE', 8, 'WIN', 66, 1, 70, 0,
+        0, 'VERTEX', 8, 'WIN', 10, 3000, 20, 0,
+        0, 'VERTEX', 8, 'WIN', 10, 2000, 20, 0, 0, 'SEQEND',
+        0, 'LINE', 8, 'WIN', 10, 2000, 20, 20, 11, 3000, 21, 20),
+    ))
+    const options = { drawingId: 'model', metresPerSourceUnit: 0.001, roles: { WALL: 'walls', WIN: 'windows' } } as const
+    for (const entities of [sheet.entities.filter(e => !(e.layer === 'WIN' && e.kind === 'line')), sheet.entities]) {
+      const result = buildDxfUnit({ ...sheet, entities }, options)
+      expect(result.unit.walls[0].openings).toMatchObject([{ kind: 'window', offsetM: 2, widthM: 1 }])
+      expect(result.review.filter(row => row.kind === 'opening-guess')).toEqual([])
+    }
   })
 
   it('does not attach an opening to the extension of a closer but out of range wall', () => {
@@ -111,6 +189,18 @@ describe('DXF parsing and preparation', () => {
     expect(result.unit.walls.find(w => w.openings.length)?.openings[0].offsetM).toBeCloseTo(1)
   })
 
+  it('preserves a window on a reversed duplicate wall when its geometry is merged', () => {
+    const result = build([
+      line('long', 'WALL', 0, 0, 6, 0), line('repeat', 'WALL', 4, 0.003, 2, 0.003),
+      line('window', 'WIN', 2.2, 0.003, 3, 0.003),
+    ])
+    const openings = result.unit.walls.flatMap(w => w.openings)
+    expect(openings).toHaveLength(1)
+    expect(openings[0].kind).toBe('window')
+    expect(openings[0].offsetM).toBeCloseTo(0.2)
+    expect(openings[0].widthM).toBeCloseTo(0.8)
+  })
+
   it('flags an opening that cannot fit after a junction splits its wall', () => {
     const result = build([
       line('a', 'WALL', 0, 0, 6, 0), line('b', 'WALL', 3, 0, 3, 3),
@@ -118,6 +208,15 @@ describe('DXF parsing and preparation', () => {
     ])
     expect(result.stats.openings).toBe(0)
     expect(result.review).toContainEqual(expect.objectContaining({ message: expect.stringContaining('could not fit'), entityId: 'c' }))
+  })
+
+  it('deduplicates matching markers across duplicate walls and flags conflicting markers', () => {
+    const walls = [line('long', 'WALL', 0, 0, 6, 0), line('repeat', 'WALL', 4, 0.003, 2, 0.003)]
+    for (const layer of ['WIN', 'DOOR']) {
+      const result = build([...walls, line('first', 'WIN', 2.2, 0, 3, 0), line('second', layer, 3, 0.003, 2.2, 0.003)])
+      expect(result.unit.walls.flatMap(w => w.openings)).toMatchObject([{ kind: 'window' }])
+      expect(result.review.some(item => item.entityId === 'second' && item.message.includes('Overlapping'))).toBe(layer === 'DOOR')
+    }
   })
 
   it('skips malformed coordinates without placing a wall at the origin', () => {
@@ -186,6 +285,23 @@ describe('DXF parsing and preparation', () => {
     expect(result[0].openings?.[0]?.width).toBeCloseTo(0.8)
     expect(result[0].openings?.[0]?.kind).toBe('door')
     expect(review[0]?.kind).toBe('opening-guess')
+  })
+
+  it.each([[0, 1, 2], [0, 2, 1], [1, 0, 2], [1, 2, 0], [2, 0, 1], [2, 1, 0]])('keeps solid wall between nearby gaps in entity order %i, %i, %i', (i, j, k) => {
+    const fragments = [
+      line('west', 'WALL', 0, 0, 2, 0),
+      line('pier', 'WALL', 2.5, 0, 3, 0),
+      line('east', 'WALL', 5, 0, 3.5, 0),
+    ]
+    const result = build([fragments[i], fragments[j], fragments[k]])
+    expect(result.stats).toMatchObject({ walls: 1, openings: 2 })
+    const wall = result.unit.walls[0]
+    const openings = wall.openings
+    expect(openings.map(o => o.widthM)).toEqual([0.5, 0.5])
+    expect(openings.every(o => o.kind === 'door')).toBe(true)
+    const startX = result.unit.vertices.find(v => v.id === wall.a)!.x
+    const direction = startX === 0 ? 1 : -1
+    expect(openings.map(o => startX + direction * (o.offsetM + o.widthM / 2)).sort((a, b) => a - b)).toEqual([2.25, 3.25])
   })
 
   it('builds a normal editable Unit graph from a mapped vector plan', () => {

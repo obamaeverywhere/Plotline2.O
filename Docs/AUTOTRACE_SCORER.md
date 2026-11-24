@@ -5,6 +5,29 @@ founder counts in the Studio after: drop the sheet, S on a printed size, Auto-tr
 It runs in node, in minutes, so every change to the tracer can be measured. The Firefox harness (`E:/dev/tmp/s25/run.mjs`)
 stays the proof at each checkpoint.
 
+## Automatic uploads on the included drawings
+
+With dependencies installed, run `npx playwright install firefox` once and then `npm run bench:uploads`. The command builds the application, starts a loopback preview and uploads each original image in a fresh Firefox context. It supplies no calibration or room hints. The harness serves installed OCR assets and the repository's English model for intercepted OCR requests.
+
+The three inputs are BTI second floor (Type A), BTI third floor (Types B and C) and Sheltech Level 2 (Types A and B). Each reference Unit names its source image in `planImage.src`. Compare each flat separately because some flats share spaces. The reference labels are hand-authored. Their parenthetical location notes are retained in the report and excluded from name matching, so “AOD (bath-3)” is checked as “AOD”.
+
+- `.trace/upload-benchmark/results.json` records elapsed upload-to-draft time, open review count, scale source and signed scale error in percent. For each reference it counts labels in correctly named closed rooms with the existing scorer's kind/number rules and matches room polygons one-to-one at 60% intersection over union. Per-label outcomes identify open, merged, unnamed and misnamed rooms. A passed run means all source files produced scorable exports. Actual accuracy is in the recorded counts.
+- `.trace/upload-benchmark/dxf.json` records a synthetic two-room CAD control. Studio accepts a manually mapped layer on the first floor, then imports a second floor with an added furniture layer automatically. Assertions cover both room names, seven wall segments, a door and a window.
+
+The three images cover five reference flats. Measuring the percentage of customer floors accepted without edits requires an actual operator decision on each finished drawing. Review-row counts alone cannot establish it.
+
+### Baseline measured on 24 November 2026
+
+All three uploads inferred scale from printed dimensions. Each row compares the exported whole floor with the named reference flat. Elapsed times in the JSON are specific to the test machine.
+
+| Floor and reference flat | Closed and named at reference label | Room outline overlap ≥ 60% | Scale error |
+| --- | ---: | ---: | ---: |
+| BTI second, A | 20 / 27 | 16 / 27 | -1.66% |
+| BTI third, B | 19 / 22 | 21 / 22 | -0.23% |
+| BTI third, C | 20 / 26 | 20 / 26 | -0.23% |
+| Sheltech Level 2, A | 16 / 21 | 17 / 21 | +0.84% |
+| Sheltech Level 2, B | 12 / 20 | 15 / 20 | +0.84% |
+
 ## Run it
 
 Current portable setup (2026-11-03):

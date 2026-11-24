@@ -50,17 +50,16 @@ function unitHint(v: unknown): DxfUnits {
 
 /** Remove common MTEXT layout/formatting codes while keeping paragraph breaks, escaped characters and Unicode escapes. */
 export function plainMtext(raw: string): string {
-  return raw
-    .replace(/\\P/gi, '\n').replace(/\\~/g, ' ')
-    .replace(/\\U\+([0-9A-F]{4,8})/gi, (_m, h: string) => {
-      const n = Number.parseInt(h, 16)
-      return n <= 0x10ffff ? String.fromCodePoint(n) : ''
-    })
-    .replace(/\\S([^;]*);/g, (_m, s: string) => s.replace(/[\^#]/g, '/'))
-    .replace(/\\[ACFHQTW][^;]*;/gi, '')
-    .replace(/[{}]/g, '')
-    .replace(/\\([\\{}])/g, '$1')
-    .trim()
+  // Consume each control once so literal escaped characters never become formatting in a later pass.
+  const controls = /\\([\\{}])|\\[Uu]\+([\da-fA-F]{4})|\\S([^;]*);|\\P|\\~|\\[pACFHQTWacfhqtw][^;]*;|\\[LlOoKk]|[{}]/g
+  return raw.replace(controls, (code, literal?: string, hex?: string, fraction?: string) => {
+    if (literal) return literal
+    if (hex) return String.fromCharCode(parseInt(hex, 16))
+    if (fraction !== undefined) return fraction.replace(/[\^#]/g, '/')
+    if (code === '\\P') return '\n'
+    if (code === '\\~') return ' '
+    return ''
+  }).trim()
 }
 
 function convertEntity(raw: Obj, m: Matrix, id: string, layer: string, paperSpace: boolean): VectorEntity | null {
@@ -108,7 +107,8 @@ function convertEntity(raw: Obj, m: Matrix, id: string, layer: string, paperSpac
   }
   if (type === 'TEXT' || type === 'MTEXT' || type === 'ATTDEF') {
     const at = p(raw.position ?? raw.startPoint)
-    const text = plainMtext(str(raw.text))
+    const value = str(raw.text)
+    const text = type === 'MTEXT' ? plainMtext(value) : value.replace(/\\U\+([\da-f]{4})/gi, (_, hex: string) => String.fromCharCode(parseInt(hex, 16))).trim()
     const rotationDeg = angle(num(raw.rotation) * Math.PI / 180)
     const height = Math.abs(num(raw.height, num(raw.textHeight, 1))) * Math.sqrt(Math.abs(determinant))
     return text ? { ...base, kind: 'text', text, at, rotationDeg, height } : null

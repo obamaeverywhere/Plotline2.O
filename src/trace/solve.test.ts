@@ -6,7 +6,7 @@ import type { Unit } from '../core'
 import { truthLines, registerTruth } from './eval'
 import { FIXTURES, SHOTS, loadPgm, loadPpm, writeUnitOverlay } from './evalio'
 import { findHints, greenMask } from './hints'
-import { KNOBS, buildGraph, pick, prepare, dropForeignStubs, findStairs, glassMask, planterMask, mergeUnread, nameLike, namePieces, namesBeside, pickTraces, prepareTraces, previewFlat, solveTraces, tableRow, titleAreas, type SolveInputs } from './solve'
+import { KNOBS, buildGraph, pick, prepare, dropForeignStubs, findStairs, glassMask, planterMask, mergeUnread, nameLike, namePieces, namesBeside, pickTraces, prepareTraces, preview, previewFlat, solveTraces, tableRow, titleAreas, type SolveInputs } from './solve'
 import { glazing } from './walls'
 import { turnOf, turnRaster } from './raster'
 import { oracleText } from './roomsEval'
@@ -535,6 +535,19 @@ describe('s27: a flat holds its own label, never another flat\'s; the floor has 
     const stamp = (x: number): TextItem => ({ text: '624 SFT', box: { x: P(x, 2.5).x - 40, y: P(x, 2.5).y - 8, w: 80, h: 16 }, kind: 'area', areaSqm: 58, conf: 0.9, source: 'ocr' })
     return { g, text: { items: [stamp(5), stamp(15)] } }
   }
+
+  test('a rotated hover preserves the area and orientation of the selected floor strips', () => {
+    const { g, text } = openPair()
+    const traces = prepareTraces(g, { text }, { pxPerM: K })
+    const turn = turnOf(g.width, g.height, 12)
+    const at = P(1, 1)
+    const flat = previewFlat(traces, at)
+    const rotated = preview({ traces, turn, review: [] }, turn.back(at))
+    expect(flat.region.length).toBeGreaterThan(0)
+    expect(rotated.region.map(r => [r.w, r.h])).toEqual(flat.region.map(r => [r.w, r.h]))
+    expect(rotated.region[0]).toMatchObject(turn.back(flat.region[0]))
+    expect(rotated).toHaveProperty('regionAngle', 12 * Math.PI / 180)
+  })
 
   test('a click in one flat of an open floor: the hover glows its whole floor (no closed room there) and stops at the party wall — the next flat\'s stamp claims its side of the gap', () => {
     const { g, text } = openPair()

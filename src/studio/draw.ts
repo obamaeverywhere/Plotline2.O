@@ -5,6 +5,7 @@ import { GRID_M, layerOf, pieceLabel, pieceQuad, sideDots, type Move } from './f
 import { formatLevel, rampArrow, wallTypeOf, type StudioState } from './model'
 import { HARD, type OpeningSnap, type Snap } from './snap'
 import { mToScreen, pxToScreen, screenToM, type Frame } from './transform'
+import type { Preview } from './autotrace.worker'
 
 const C = { bg: '#0f0f10', ink: '#f2f2f0', muted: '#9a9a94', accent: '#e8c170', line: '#2a2b2f', red: '#e5534b' }
 /** Wall length labels only when the wall is at least this long on screen. */
@@ -129,7 +130,7 @@ export interface DrawArgs {
   mark?: Pt | null
   /** Auto-trace pick mode: the flat a click at the pointer picks (plan px), tinted, its room names faint; `region`: the floor
    *  its flood reached (plan px rectangles), tinted with the rooms as one area, open or closed */
-  preview?: { polys: Pt[][]; names: { at: Pt; text: string }[]; region?: { x: number; y: number; w: number; h: number }[] } | null
+  preview?: Preview | null
   /** the drawing's flats: each tinted in its colour, its name once above it */
   flats?: Flat[]
 }
@@ -548,9 +549,19 @@ export function draw(a: DrawArgs): void {
       rooms.closePath()
     }
     const area = new Path2D(rooms)
-    for (const r of a.preview.region ?? []) {
-      const p = pxToScreen(frame, { x: r.x, y: r.y }), q = pxToScreen(frame, { x: r.x + r.w, y: r.y + r.h })
-      area.rect(p.x, p.y, q.x - p.x, q.y - p.y)
+    const angle = a.preview.regionAngle ?? 0, cos = Math.cos(angle), sin = Math.sin(angle)
+    for (const r of a.preview.region) {
+      const p = pxToScreen(frame, r), w = r.w * zoom, h = r.h * zoom
+      if (!angle) {
+        area.rect(p.x, p.y, w, h)
+        continue
+      }
+      const endX = p.x + w * cos, endY = p.y + w * sin
+      area.moveTo(p.x, p.y)
+      area.lineTo(endX, endY)
+      area.lineTo(endX - h * sin, endY + h * cos)
+      area.lineTo(p.x - h * sin, p.y + h * cos)
+      area.closePath()
     }
     ctx.fillStyle = 'rgba(232,193,112,0.18)'
     ctx.fill(area)

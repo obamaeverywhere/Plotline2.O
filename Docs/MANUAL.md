@@ -192,7 +192,7 @@ On a narrow window (under about 1 600 px wide) the top bar takes two lines, so e
 | ⏱ | How long you have been tracing |
 | Undo / Redo | Ctrl+Z / Ctrl+Y (or Ctrl+Shift+Z) |
 | Auto-trace | Tries to draw the flats for you from the picture. While it shows "Point at a flat": move the pointer over the plan — the flat a click there would take glows (all of it, open floor too), then click inside ONE flat to trace that flat, or press **Whole floor** (in the same box) to trace every flat of the floor and the lobby, stair and lifts between them in one go. It does not understand ground floors, basements or rooftops. |
-| Import | Opens a saved drawing file (Ctrl+O). In a project it goes into the drawing open now. |
+| Upload design | Open a plan image, ASCII DXF or saved drawing (Ctrl+O). In a project it goes into the drawing open now. |
 | Export | Saves the drawing as a file (Ctrl+S). After an Auto-trace the file also holds the Check these rows, each with its picture box and its answers (see "Check these") |
 | Export answers | Saves, as a file (`plotline-answers.json`), every Check these answer you clicked in this browser: which sheet, which row, which button, when. It is the record an AI helper will later be tested against. The answers the Local AI gave (Ask AI) are in it too, each marked `"by": "ai"` with its model and reason; yours carry no mark |
 | Preview 3D | Opens your drawing in the 3D view, in a new tab |
@@ -201,23 +201,30 @@ On a narrow window (under about 1 600 px wide) the top bar takes two lines, so e
 | Share link | Makes a buyer link and copies it. Asks once for the staff key. Needs the database. |
 | Change list | Opens `/changes`. Needs the database. |
 
-**Loading the plan picture:** drop the picture on the Studio, or click **Choose plan image…** (PNG, JPG or WEBP, up to 10 MB).
+**Upload a floor plan.** Drop a PNG, JPG or WEBP (up to 10 MB) onto Studio or select **Upload design**. Studio reads the image, estimates its scale and drafts the whole floor. Open **Check these** to see uncertain rooms and measurements. If scale came from area or wall thickness, choose **Calibrate and retrace floor**, click both ends of a known dimension and enter its length with units, such as `4.4m`. Ctrl+Z restores the drawing and picture from before an upload.
+
+For a single flat or manual tracing, choose **Load image manually…** on the empty canvas. You can then set scale with S and use **Auto-trace** to pick a flat. Dropping the named missing picture onto a restored drawing reattaches it.
 Auto-trace accepts up to 16 megapixels. For a larger image, export one floor or resize the picture before tracing.
+On a pale scan, Auto-trace checks for faint strokes with lighter paper on both sides. When it finds enough of them, it increases contrast for reading room names and tracing walls automatically.
 
 ### DXF input
 
-Use **Import DXF** at the top of the Studio's right panel to create an editable floor plan from CAD vectors.
+Drop an ASCII DXF or use **Upload design**. A single drawing with declared units and recognizable layers can open directly as an editable floor. Plotline stops for a choice when it detects multiple drawings, uncertain layer roles or missing units. It also shows the build for review if it finds no closed rooms, unclosed boundaries or a printed size mismatch.
+
+To choose one flat, inspect every layer or override the declared scale, open **Import DXF** in the right panel and uncheck **Automatically import a whole floor when units and layers are clear** before choosing the file.
 
 1. Choose an ASCII `.dxf` file (maximum 15 MB). DWG and binary DXF are not supported.
 2. Choose model space, paper space, or a separated drawing if Plotline detects multiple drawings.
 3. Check the preview and assign each layer to Walls, Doors, Windows, Room text, Dimensions / notes, Furniture, or Ignore. Plotline suggests roles from layer names and contents; verify them against the preview.
-4. Confirm the metres-per-DXF-unit value. `$INSUNITS` supplies a suggestion only. If the plan contains printed room dimensions, compare those with the generated room sizes.
+4. Confirm the metres-per-DXF-unit value. For a unitless drawing you can enter the real length of the white wall segment, including its units, or enter the conversion directly. If the plan contains printed room dimensions, compare those with the generated room sizes.
 5. Select **Build and review**. Plotline creates the wall graph, derives closed rooms/flats, and lists uncertainty such as unclosed rooms, guessed openings, ignored layers, unsupported entities, or scale mismatches.
 6. Import the whole floor or one inferred flat. Use **DXF review** in the right panel to locate or dismiss a review item. **Ctrl+Z** restores the previous drawing, including its plan image and review.
 
 Press **Esc** to close the DXF dialog. If a file fails to open, you can choose a corrected copy with the same filename.
 
-The importer approximates curved geometry with short straight segments. It uses mapped wall linework and common CAD conventions; inspect the generated plan and review rows before using it downstream. Layer mappings are saved in this browser by filename. Parsing/building runs in a worker, with input/entity limits for large files.
+On a Doors or Windows layer, Studio can read a straight line, a straight polyline with intermediate vertices, or a narrow rectangular polyline aligned with the wall. For a rectangle, it measures the opening between the midpoints of its short sides. Use **DXF review → Show on plan** to inspect a polyline whose opening width Studio could not determine.
+
+The importer approximates curved geometry with short straight segments. It uses mapped wall linework and common CAD conventions; inspect the generated plan and review rows before using it downstream. After you accept a manual import, Studio remembers the layer roles in this browser. A later floor can add or remove layers. Studio reuses a named layer when its entity kinds match and the saved roles agree. **Check role** identifies ambiguous mappings, including a familiar layer whose geometry changed. Each drawing supplies its own scale. Parsing/building runs in a worker, with input/entity limits for large files.
 
 One selected drawing creates one Plotline Unit (one floor plan). To make a multi-storey project, import each floor drawing into its own Unit and add those Units to a project with the existing Building controls.
 
@@ -465,7 +472,7 @@ You say what the building is first, then give each floor a drawing. A drawing is
 3. Click **Create project**. The list of floors appears on the right of the plan and stays there: **Rooftop** at the top, then the floors from the highest down, **Ground floor**, **Basement 1**, **Basement 2**…
 
 **Give each floor a drawing** — work through the list:
-- **Draw** (on an empty floor): a new, empty drawing for that floor opens. Floors get the names Floor plan A, Floor plan B… (the flats inside a drawing keep the sheet's names, Type A, Type B); the others are called Ground floor, Basement 1, Rooftop. Drop that floor's plan picture on the page (or **Choose plan image…**), set the scale (S) and trace as usual.
+- **Draw** (on an empty floor): a new, empty drawing for that floor opens. Floors get the names Floor plan A, Floor plan B… (the flats inside a drawing keep the sheet's names, Type A, Type B); the others are called Ground floor, Basement 1, Rooftop. Drop the design to draft the floor automatically, or choose **Load image manually…** to set the scale (S) and trace by hand.
 - **Same size as "Floor plan A" — Use its scale and position**: when the picture you load is exactly the size of a picture you already set the scale on, this message offers it (15 seconds). Click it: no scale to set, and the two drawings sit right over each other in the building. Not right? **Ctrl+Z**.
 - **Open**: that floor's drawing comes into the Studio. The drawing you were on is saved first, with its picture. Nothing is asked, nothing is lost — also after closing the browser.
 - **Use drawing…**: pick one of your drawings for this floor.

@@ -39,7 +39,7 @@ Who: **staff** = the developer's team (a browser becomes staff the first time it
 | **Ctrl+Y** or **Ctrl+Shift+Z** | Redo | same | §5 Top bar |
 | **Ctrl+D** | Copies the picked walls and room names, set a little to one side | any tool | §5 Other keys |
 | **Ctrl+S** | Export: saves the drawing as a file | any tool — **also inside a text box** | §5 Top bar |
-| **Ctrl+O** | Import: opens a drawing file | any tool — **also inside a text box** | §5 Top bar |
+| **Ctrl+O** | Upload design opens a floor plan or saved drawing | any tool — **also inside a text box** | §5 Top bar |
 | Ctrl+A | Picks every wall | V | §5 — V |
 | **Arrow keys** | Nudge what is picked 1 inch | every tool but F | §5 Other keys |
 | **Shift + arrow keys** | Nudge 1 foot | every tool but F | §5 Other keys |
@@ -188,7 +188,7 @@ Who: **staff** = the developer's team (a browser becomes staff the first time it
 | ⏱ | How long you have been tracing |
 | **Undo** / **Redo** | Ctrl+Z / Ctrl+Y |
 | **Auto-trace** | Traces the flats from the picture: point at a flat, click it — or **Whole floor**. Short walls at width changes and pale blue window fronts are retained more reliably (2026-11-03); check the draft against the picture |
-| **Import** | Opens a drawing file (Ctrl+O) |
+| **Upload design** | Open an image or ASCII DXF for a whole-floor draft, or restore a Plotline JSON drawing (Ctrl+O). |
 | **Export** | Saves the drawing as a file (Ctrl+S) |
 | **Export answers** | Saves every Check these answer clicked in this browser (and the Local AI's) as `plotline-answers.json` |
 | **Preview 3D** | Opens your drawing in the 3D view, in a new tab |
@@ -201,7 +201,8 @@ Who: **staff** = the developer's team (a browser becomes staff the first time it
 
 | Name | What it does |
 |---|---|
-| **Choose plan image…** | Picks the plan picture (or drop it on the page) |
+| **Load image manually…** | On an empty canvas, load a picture to trace by hand or select one flat with Auto-trace. |
+| **Calibrate and retrace floor** | When a raster trace used an estimated scale, click two points and enter their real distance to rerun the floor. |
 | **Whole floor** (Auto-trace box) | Traces every flat of the floor and the lobby, stair and lifts in one go |
 | **Cancel** (Auto-trace box) | Stops Auto-trace |
 | Length box | A wall's length or the scale's real length (Enter; Tab = angle while drawing) |
